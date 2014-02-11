@@ -1,0 +1,61 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+       xmlns:os-events="http://www.openspaces.org/schema/events"
+       xmlns:os-core="http://www.openspaces.org/schema/core"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz"
+       xmlns:spring="http://www.springframework.org/schema/beans"
+       xmlns:os-sla="http://www.openspaces.org/schema/sla"
+       xmlns:os-eventcontainer="http://www.openspaces.org/schema/mule/os-eventcontainer"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/3.1/mule-quartz.xsd
+       http://www.openspaces.org/schema/core http://www.openspaces.org/schema/core/openspaces-core.xsd
+       http://www.openspaces.org/schema/events http://www.openspaces.org/schema/events/openspaces-events.xsd
+       http://www.openspaces.org/schema/sla http://www.openspaces.org/schema/sla/openspaces-sla.xsd
+	   http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/3.1/mule.xsd
+	   http://www.openspaces.org/schema/mule/os-eventcontainer http://www.openspaces.org/schema/8.0/mule/3.1/mule-os-eventcontainer.xsd">
+
+  <configuration>
+    <default-threading-profile maxThreadsActive="1" />
+  </configuration>
+
+    <spring:beans>
+		<os-core:space id="space" url="jini://*/*/space"/>
+		<os-core:distributed-tx-manager id="transactionManager"/>
+		<os-core:giga-space id="gigaSpace" tx-manager="transactionManager" space="space"/>
+		<context:component-scan base-package="com.mycompany.app.processor"/>
+
+		<spring:bean id="transactionFactory"
+					 class="org.mule.module.spring.transaction.SpringTransactionFactory">
+			<spring:property name="manager">
+				<spring:ref bean="transactionManager"/>
+			</spring:property>
+		</spring:bean>
+	
+	</spring:beans>
+
+	<quartz:connector name="quartzConnector1" />
+	<os-eventcontainer:connector name="gigaSpacesConnector" />
+    
+    <model name="feeder">
+        <service name="DataFeederUMO">
+            <inbound>
+			<quartz:inbound-endpoint jobName="feedJob" repeatInterval="1000">
+				<quartz:event-generator-job/>
+			</quartz:inbound-endpoint>
+            </inbound>
+
+            <component class="com.mycompany.app.feeder.Feeder"/>
+			<outbound>
+				<pass-through-router>
+					<os-eventcontainer:outbound-endpoint giga-space="gigaSpace">
+						<custom-transaction factory-ref="transactionFactory" action="BEGIN_OR_JOIN"/>
+					</os-eventcontainer:outbound-endpoint>
+				</pass-through-router>
+			</outbound>
+
+        </service>
+    </model>    
+</mule>
+
