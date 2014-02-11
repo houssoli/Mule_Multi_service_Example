@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : The Processing Unit Structure and Configuration</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>The Processing Unit Structure and Configuration</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903761";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903761";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  This page describes the processing unit directory structure </p>
+</div>
+
+<h1><a name="TheProcessingUnitStructureandConfiguration-TheProcessingUnitJarFile"></a>The Processing Unit Jar File </h1>
+
+<p>Much like a JEE web application or an OSGi bundle, The Processing Unit is packaged as a .jar file and follows a certain directory structure which enables the GigaSpaces runtime environment to easily locate the deployment descriptor and load its classes and the libraries it depends on. A typical processing unit looks as follows: </p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">|----META-INF
+|--------spring
+|------------pu.xml
+|------------pu.properties
+|------------sla.xml
+|----com
+|--------mycompany
+|------------myproject
+|----------------MyClass1.class
+|----------------MyClass2.class
+|----lib
+|--------hibernate3.jar
+|--------....
+|--------commons-math.jar</pre>
+</div></div>
+
+<p>The processing unit jar file is composed of several key elements:</p>
+
+<ul>
+	<li><b><tt>META-INF/spring/pu.xml</tt></b> (mandatory): This is the processing unit's deployment descriptor, which is in fact a <a href="http://www.springframework.org">Spring</a> context XML configuration with a number of GigaSpaces-specific namespace bindings. These bindings include GigaSpaces specific components (such as the space for example). The <tt>pu.xml</tt> file typically contains definitions of GigaSpaces components (<a href="The In-Memory Data Grid.html" title="The In-Memory Data Grid">space</a>, <a href="Messaging and Events.html" title="Messaging and Events">event containers</a>, <a href="Space Based Remoting.html" title="Space Based Remoting">remote service exporters</a>) and user defined beans which would typically interact with those components (e.g. an event handler to which the event containers delegate the events, or a service beans which is exposed to remote clients by a remote service exporter).</li>
+</ul>
+
+
+<ul>
+	<li><b><tt>META-INF/spring/sla.xml</tt></b> (not mandatory): This file contains SLA definitions for the processing unit (i.e. number of instances, number of backup and deployment requirements). Note that this is optional, and can be replaced with an &lt;os:sla&gt; definition in the <tt>pu.xml</tt> file. If neither is present, the <a href="Configuring the Processing Unit SLA.html" title="Configuring the Processing Unit SLA">default SLA</a> will be applied. Note, the <tt>sla.xml</tt> can also be placed at the root of the processing unit. SLA definitions can be also specified at the deploy time via the <a href="deploy - GigaSpaces CLI.html" title="deploy - GigaSpaces CLI">deploy CLI</a> or <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/admin/gsm/GridServiceManager.html" target="_blank">deploy API</a>.</li>
+</ul>
+
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>SLA definitions are only enforced when deploying the processing unit to the GigaSpaces service grid, since this environment actively manages and controls the deployment using the <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">GSM</a>. When <a href="Running and Debugging Within Your IDE.html" title="Running and Debugging Within Your IDE">running within your IDE</a> or in <a href="Running in Standalone Mode.html" title="Running in Standalone Mode">standalone mode</a> these definitions are ignored.</td></tr></table></div>
+
+<ul>
+	<li><b><tt>META-INF/spring/pu.properties</tt></b> (not mandatory): Enables you to externalize properties included in the <tt>pu.xml</tt> file (e.g. database connection username and password), and also set system-level deployment properties and overrides, such as JEE related deployment properties (see <a href="Web Application Support.html" title="Web Application Support">this page</a> for more details) or space properties (when defining a space inside your processing unit). Note, the <tt>pu.properties</tt> can also be placed at the root of the processing unit.</li>
+</ul>
+
+
+<ul>
+	<li><b>User class files</b>: Your processing unit's classes (here under the com.mycompany.myproject package)</li>
+</ul>
+
+
+<ul>
+	<li><b><tt>lib</tt></b>: Other jars on which your processing unit depends, e.g. commons-math.jar or jars that contain common classes across many processing units.</li>
+</ul>
+
+
+<h1><a name="TheProcessingUnitStructureandConfiguration-SharingLibrariesBetweenMultipleProcessingUnits"></a>Sharing Libraries Between Multiple Processing Units </h1>
+<p>In some cases, multiple processing units use the same jar files. In such cases it makes sense to place these jar files in a central location accessible by all processing unit not repackage each of processing unit separately. Note that this is also useful for decreasing the deployment time in case your processing units contain a lot of 3rd party jars files. since it save a lot of the network overhead associated with downloading these jars to each of the GSCs. There are two options to achieve this: </p>
+
+<ol>
+	<li>The <tt>&lt;GigaSpaces root&gt;/lib/optional/pu-common</tt> directory: Placing jars in this directory means they will be loaded by each processing unit instance its own separate classloader (called the service classloader, see the <a href="#TheProcessingUnitStructureandConfiguration-classloaders">Class Loaders</a> section below). You can either place these jars in each GigaSpaces installation in your network, or point the <tt>pu-common</tt> directory to a shared location on your network by specifying this location in the <tt>com.gs.pu-common</tt> system property in each of the GSCs on your network.</li>
+	<li>The <tt>&lt;GigaSpaces root&gt;/lib/platform/ext</tt> directory: Placing jars in this directory means they will be loaded once by the GSC-wide classloader and not separately by each processing unit instance (this classloader is called the common classloader, see the <a href="#TheProcessingUnitStructureandConfiguration-classloaders">Class Loaders</a> section below). You can either place these jars in each GigaSpaces installation in your network, or point the <tt>platform/lib/ext</tt> directory to a shared location on your network by specifying this location in the <tt>com.gigaspaces.lib.platform.ext</tt> system property in each of the GSCs on your network.</li>
+</ol>
+
+
+<h1><a name="TheProcessingUnitStructureandConfiguration-RuntimeModes"></a>Runtime Modes  </h1>
+
+<p>The processing unit can <a href="Deploying and Running the Processing Unit.html" title="Deploying and Running the Processing Unit">run</a> in multiple modes. </p>
+
+<p>When deployed on to the <a href="The Runtime Environment.html" title="The Runtime Environment">GigaSpaces runtime environment</a> or when running in <a href="Running in Standalone Mode.html" title="Running in Standalone Mode">standalone mode</a>, all the jars under the <tt>lib</tt> directory of your processing unit jar, will be automatically added to the processing unit's classpath. </p>
+
+<p>When <a href="Running and Debugging Within Your IDE.html" title="Running and Debugging Within Your IDE">running within your IDE</a>, it is similar to any other Java application, i.e. you should make sure all the dependent jars are part of your project classpath. </p>
+
+<h1><a name="TheProcessingUnitStructureandConfiguration-DeployingtheProcessingUnittotheGigaSpacesServiceGrid"></a>Deploying the Processing Unit to the GigaSpaces Service Grid </h1>
+
+<p>When deploying the processing unit to <a href="The Runtime Environment.html" title="The Runtime Environment">GigaSpaces Service Grid</a>, the processing unit jar file is uploaded to the <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">GigaSpaces Manager (GSM)</a> and extracted to the <tt>deploy</tt> directory of the local GigaSpaces installation (located by default under <tt>&lt;GigaSpaces Root&gt;/deploy</tt>). </p>
+
+<p>Once extracted, the <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">GSM</a> processes the deployment descriptor and based on that provisions processing unit instances to the running <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GigaSpaces containers</a>. </p>
+
+<p>Each GSC to which a certain instance was provisioned, downloads the processing unit jar file from the GSM, extracts it to its local work directory (located by default under <tt>&lt;GigaSpaces Root&gt;/work/deployed-processing-units</tt>) and starts the processing unit instance. </p>
+
+<p><a name="TheProcessingUnitStructureandConfiguration-dataOnlyPUs"></a></p>
+
+<h1><a name="TheProcessingUnitStructureandConfiguration-DeployingDataOnlyProcessingUnits"></a>Deploying Data Only Processing Units </h1>
+
+<p>In some cases, your processing unit contains only a <a href="The Space Component.html" title="The Space Component">Space</a> and no custom code. </p>
+
+<p>One way to package such processing unit is to use the standard processing unit packaging described above, and create a processing unit jar file which only includes a <a href="Configuring Processing Unit Elements.html" title="Configuring Processing Unit Elements">deployment descriptor</a> with the required space definitions and SLA. </p>
+
+<p>GigaSpaces also provides a simpler option via its built-in data-only processing unit templates (located under <tt>&lt;GigaSpaces Root&gt;/deploy/templates/datagrid</tt>. Using these templates you can deploy and run data only processing unit without creating a dedicated jar for them. </p>
+
+<p>For more information please refer to <a href="Deploying and Running the Processing Unit.html" title="Deploying and Running the Processing Unit">this section</a></p>
+
+<h1><a name="TheProcessingUnitStructureandConfiguration-ClassLoaders"></a>Class Loaders</h1>
+<p>In general, classloaders are created dynamically when deploying a PU into a GSC. You <b>should not add your classes</b> into the GSC CLASSPATH. Classes are loaded dynamically into the generated classloader in the following cases:</p>
+<ul class="alternate" type="square">
+	<li>When the GSM sending classes into the GSC when the application deployed and when GSC is restarted.</li>
+	<li>When the GSM sending classes into the GSC when the application scales.</li>
+	<li>When a Task class or Distributed Task class and its dependencies are executed (space execute operation).</li>
+	<li>When space domain classes and their dependencies (Data model) are used (space write/read operations)</li>
+</ul>
+
+
+<p>Here is the structure of the class loaders when several processing units are deployed on the Service Grid (GSC):</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Bootstrap (Java)
+                  |
+               <span class="code-object">System</span> (Java)
+                  |
+               Common (Service Grid)
+             /        \
+    Service CL1     Service CL2</pre>
+</div></div>
+
+<p>The following table shows which user controlled locations end up in which class loader, and the important JAR files that exist within each one:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Class Loader</th>
+<th class='confluenceTh'>User Locations</th>
+<th class='confluenceTh'>Built in Jar Files</th>
+</tr>
+<tr>
+<td class='confluenceTd'>Common</td>
+<td class='confluenceTd'>[GSRoot]/lib/platform/ext/&#42;.jar</td>
+<td class='confluenceTd'>gs-runtime.jar</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Processing Unit Instance (Service Class Loader)</td>
+<td class='confluenceTd'>[PU]/, [PU]/lib/&#42;.jar,[GSRoot]/lib/optional/pu-common/&#42;.jar</td>
+<td class='confluenceTd'>gs-openspaces.jar, spring/&#42;.jar</td>
+</tr>
+</tbody></table>
+
+<p>In terms of class loader delegation model, the service (PU instance) class loader uses a <b>parent last delegation mode</b>. This means that the processing unit instance class loader will first try and load classes from its own class loader, and only if they are not found, will delegate up to the parent class loader.</p>
+
+<h2><a name="TheProcessingUnitStructureandConfiguration-PermanentGenerationSpace"></a>Permanent Generation Space</h2>
+<p>For applications that are using relatively large amount of third party libraries (PU using large amount of jars) the default permanent generation space size may not be adequate. In such a case, you should increase the permanent generation space size. Here are suggested values: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-XX:PermSize=512m -XX:MaxPermSize=512m</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

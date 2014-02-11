@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Asynchronous Replication</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Asynchronous Replication</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  This page describe what is asynchronous replication and how to configure it </p>
+</div>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This page covers details which are specific to asynchronous replication which are not covered in the <a href="Replication.html" title="Replication">Replication</a> page, the previous page should be read before this one.</td></tr></table></div>
+
+<h1><a name="AsynchronousReplication-Overview"></a>Overview</h1>
+
+<p>In asynchronous replication, operations are performed in the source space instance, and acknowledgement is immediately returned to the client. Operations are accumulated in the source space and sent asynchronously to the target space, after a defined period of time has elapsed, or after a defined number of operations have been performed (the first one of these that occurs). This replication type offers the highest performance at the cost of possible data lose of latest operations if the source space instance fails (sudden crash) while transferring the accumulated operations to the target space. Another problem is data coherency - the source and the target do not have identical data all the time.</p>
+
+<h1><a name="AsynchronousReplication-WhentoUseAsynchronousReplication"></a>When to Use Asynchronous Replication</h1>
+
+<p>Asynchronous replication provides fastest performance because the replication is executed asynchronously to the operation. However, this comes with a cost<br/>
+of possible data loss of recent operations upon unexpected failures (sudden crash). Therefore, an application that is using asynchronous replication<br/>
+must be aware to this fact.</p>
+
+<h1><a name="AsynchronousReplication-HowAsynchronousReplicationWorks"></a>How Asynchronous Replication Works</h1>
+
+<ol>
+	<li>A destructive space operation is called.</li>
+	<li>The source space:
+	<ul>
+		<li>Performs the operation.</li>
+		<li>Insert the operations into a redo log.</li>
+		<li>Sends acknowledgement to the client.</li>
+	</ul>
+	</li>
+	<li>Asynchronous worker wakes up on demand (interval passed or pending operations exceeded).
+	<ul>
+		<li>Constructs a batch of operations in the source space.</li>
+		<li>Transmits the packet into the target space.</li>
+	</ul>
+	</li>
+	<li>Once they are received at the target space, the operations are processed according to their order.</li>
+	<li>The next batch is sent when the target space completes processing the replication packet.</li>
+</ol>
+
+
+<p><img src="download/attachments/48235229/replication-matrix-IMG504.jpg" align="absmiddle" border="0"/></p>
+
+<h1><a name="AsynchronousReplication-HandlingDisconnectionsandErrors"></a>Handling Disconnections and Errors</h1>
+
+<p>Due to the asynchronous nature of the replication channel, when a replication target space instance is unavailable (disconnection) or some error occurred during the processing of the replication data at the target the channel will keep operating in the same way, it will keep the operation in the redo log until it succeeds replicating the operations.</p>
+
+<h1><a name="AsynchronousReplication-BehaviorDuringRecovery"></a>Behavior During Recovery</h1>
+
+<p>In the previous scenario, a target space instance might become unavailable because it has been restarted or relocated due to various reason (failure, manual/automatic relocation). In the default settings, when that target space instance will restart, it will perform a recovery from a source space instance. In primary backup topology it will be the primary space instance, in active active topology it can be any space instance. The target space instance will not be available until the source channel redo log size is almost empty, thus making sure that once the target space is available and visible, the number of operations that might be lost if a failure occurs will be minimal.</p>
+
+<h1><a name="AsynchronousReplication-ControllingtheAsynchronousworker"></a>Controlling the Asynchronous worker</h1>
+
+<p>The asynchronous worker of the channel can wakeup and start replicating for two reasons:</p>
+<ol>
+	<li>The predefined interval has elapsed</li>
+	<li>The predefined number of pending operations is exceeded.</li>
+</ol>
+
+
+<p>The worker will wakeup and replicate if either of these two occurs. The following parameters controls these behavior and a few more options:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.async-replication.repl-chunk-size</tt> </td>
+<td class='confluenceTd'> Number of packets transmitted together on the network when the replication event is triggered. The maximum value you can assign for this property is <tt>repl-interval-opers</tt>. </td>
+<td class='confluenceTd'> 500 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.async-replication.repl-interval-millis</tt> </td>
+<td class='confluenceTd'> Time (in milliseconds) to wait between replication operations. </td>
+<td class='confluenceTd'> 3000 [ms] </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.async-replication.repl-interval-opers</tt> </td>
+<td class='confluenceTd'> Number of destructive operations to wait before replicating. </td>
+<td class='confluenceTd'> 500 </td>
+</tr>
+</tbody></table>
+
+<p>To change the default replication settings you should modify the space properties when deployed. You may set these properties via the pu.xml or programmatically. Here is an example how you can set the replication parameters when using the pu.xml:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./mySpace"</span>&gt;
+    &lt;os-core:properties&gt;
+        &lt;props&gt;
+            &lt;prop key=<span class="code-quote">"cluster-config.groups.group.async-replication.repl-chunk-size"</span>&gt;1000&lt;/prop&gt;
+        &lt;/props&gt;
+    &lt;/os-core:properties&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+<h1><a name="AsynchronousReplication-FlushingofPendingReplicationDuringShutdown"></a>Flushing of Pending Replication During Shutdown</h1>
+
+<p>When a source space instance is closed, it may have pending replication packets in its redo log because there were still not replicated. During this process, the space instance will stop accepting new operations and try to gracefully shutdown the replication channel and wait for all pending replication packets to be sent before completely shutting down. This graceful shutdown timeout can be configured with the following property:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.async-replication.async-channel-shutdown-timeout</tt> </td>
+<td class='confluenceTd'> Determines how long (in milliseconds) the primary space will wait for pending replication to be replicated to its targets before shutting down.</td>
+<td class='confluenceTd'> 300000 [ms]  </td>
+</tr>
+</tbody></table>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Security Concepts</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Security Concepts</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Authentication, Encryption, Authenticity Validation, and Managing users and roles </p>
+</div>
+
+<h1><a name="SecurityConcepts-Authentication"></a>Authentication</h1>
+
+<p>Authentication is the act of supplying user credentials (usually username and password) to be confirmed as authentic against a secured service. Authentication fails either due to an unknown user or an invalid password, resulting in an <tt>AuthenticationException</tt>. A successful authentication results in an authenticated session used for further correspondence.</p>
+
+<p>The diagram illustrates the sequence of events:<br/>
+<img src="download/attachments/53903525/security-seq1.PNG" align="absmiddle" border="0"/></p>
+
+<p>The service (GSA/GSM/GSC/Processing Unit Space Instance) receives a request for authentication. Usually this is done by supplying a <tt>UserDetails</tt> object which holds the credentials of a user. This is passed along to the <tt>SecurityManager</tt> which is responsible for authenticating the request.</p>
+
+<p>An attempt to authenticate the passed <tt>UserDetails</tt> object, returns a fully populated <tt>Authentication</tt> object (including granted authorities) if successful. On failure, an <tt>AuthenticationException</tt> is thrown.</p>
+
+<p>Further correspondence are done via this authenticated session context. The service has security interceptors which intercept each method call to verify the granted privileges. An <tt>AccessDeniedException</tt> is thrown if the user lacks sufficient privileges to perform an operation.</p>
+
+<h1><a name="SecurityConcepts-Encryption"></a>Encryption</h1>
+
+<p>A two-way encryption is used to protect the credentials passed as part of the authentication process. The <tt>UserDetails</tt> object is encrypted before it is sent along the stream, and decrypted at the service. Of course, it is best to use <b>SSL</b> for transport layer security, but nevertheless we ensure these details are encrypted. The two-way encryption is done using a private key available to both client and server. <span class="" style="background-color: #FFFFC0;">Since 7.1.1</span>
+ a generated AES compliant key can be kept in a <b><tt>gs-keystore.key</tt></b> file located in the classpath.</p>
+
+<p>Note that a password is usually encrypted using a one-way hash function, e.g. an <tt>MD5</tt> algorithm. This one-way encryption is an implementation detail of the <tt>SecurityManager</tt>. This should not be confused with the two-way encryption done at the transport layer of an authentication call.</p>
+
+<p><img src="download/attachments/53903525/security-seq2.PNG" align="absmiddle" border="0"/></p>
+
+<h1><a name="SecurityConcepts-AuthenticityValidation"></a>Authenticity Validation</h1>
+
+<p>As noted, the <tt>SecurityManager</tt> implementation is responsible for handling an authentication request. The <tt>UserDetails</tt> supplied are used to extract the user by-name, and validate that the supplied password matches the stored password. Usually passwords are stored after they have been hashed with a one-way function (such as <tt>MD5</tt>). When validating, the supplied password is encrypted using this algorithm and compared to the stored password.</p>
+
+<p>Our default <tt>SecurityManager</tt> implementation uses an <tt>MD5</tt> algorithm to encrypt the passwords. It can be customized with your own <tt>PasswordEncoder</tt> or you can replace the <tt>SecurityManager</tt> implementation all together.</p>
+
+<p><img src="download/attachments/53903525/security-seq3.PNG" align="absmiddle" border="0"/></p>
+
+<h1><a name="SecurityConcepts-Managingusersandroles"></a>Managing users and roles</h1>
+
+<p>The users (<tt>UserDetails</tt>) and roles (<tt>RoleDetails</tt>) are usually stored in some kind of storage (file, data-base, etc). This storage (directory) is managed by acquiring a <tt>DirectoryManager</tt>, through which you may administer the users and roles. It is a simple API for creating, deleting, updating and mapping of users and roles.</p>
+
+<p>We provide two distinct privileges for managing the directory - one for user management and one for role management.</p>
+
+<p>Our default <tt>DirectoryManager</tt> implementation utilizes the GUI (GigaSpaces Management Center) for easy administration. When our default directory is first created, only an <b><tt>admin/admin</tt></b> user may be allowed to access and administer the directory. After which, this user can be deleted - but don't forget to provide another user with management capabilities.</p>
+
+<p>You may manage the directory directly using the <tt>DirectoryManager</tt> API. It has a clear distinction between a <tt>UserManager</tt> and a <tt>RoleManager</tt>.</p>
+
+<p><img src="download/attachments/53903525/security-seq4.PNG" align="absmiddle" border="0"/></p>
+
+<p>The directory can be shared or defined individually for each service. This is an implementation specific configuration which is discussed in more detail in our "Default Security" section. As an example, in order for each service to access the same file-based directory, it needs to be shared or copied between the secured services - or better yet, configured to be downloaded from an HTTP server. If the implementation was based on a data-base, then the services can be configured with the same connection URL or a specific one.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Tuning GigaSpaces Performance</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Tuning GigaSpaces Performance</h1>
+</div>
+<br>
+
+<h1><a name="TuningGigaSpacesPerformance-Overview"></a>Overview</h1>
+<p>This chapter deals with set of recommendations for improving and tuning the GigaSpaces XAP platform. It does not cover topics which are environmental and infrastructure related, such as networking, OS, JVM etc. (which are handled separately)</p>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903599";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903599";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="TuningGigaSpacesPerformance-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="Tuning GigaSpaces Performance - Basics.html" title="Tuning GigaSpaces Performance - Basics">Tuning GigaSpaces Performance - Basics</a> &mdash; <span class="smalltext">Helpful recommendations for tuning GigaSpaces, boosting its performance, and improving its scalability.</span></li><li><a href="Tuning GigaSpaces Performance - Advanced.html" title="Tuning GigaSpaces Performance - Advanced">Tuning GigaSpaces Performance - Advanced</a><ul><li><a href="Large Scale Deployment.html" title="Large Scale Deployment">Large Scale Deployment</a> &mdash; <span class="smalltext">Instructions and best practices for tuning large-scale deployments.</span></li><li><a href="Proxy Connectivity.html" title="Proxy Connectivity">Proxy Connectivity</a> &mdash; <span class="smalltext">Client Proxy Connectivity and reconnection options</span></li></ul></li></ul>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Deployments Tab Menus and Buttons</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Deployments Tab Menus and Buttons</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Using the <b>File</b> menu, <b>Launch</b> menu, <b>Deployment</b> menu, <b>Settings</b> menu, <b>Help</b> menu, and button toolbar. </p>
+</div>
+<h1><a name="DeploymentsTabMenusandButtons-FileMenu"></a>File Menu</h1>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_FileMenuOption_6.5.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>The <b>Exit</b> option closes the GigaSpaces Management Center.</p>
+
+<h1><a name="DeploymentsTabMenusandButtons-LaunchMenu"></a>Launch Menu</h1>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_LaunchMenuOption_6.5.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>The <b>Launch</b> menu allows you to perform operations in the Service Grid:</p>
+<ul>
+	<li><b>SBA Application - Processing Unit</b> &#8211; deploys a Processing Unit holding spaces and other application services to the Service Grid.</li>
+	<li><b>Enterprise Data Grid</b> &#8211; deploys a Data Grid in a specific space topology.</li>
+	<li><b>Single Space</b> &#8211; deploys a single space in a local GSC.</li>
+	<li><b>Grid Service Manager</b> &#8211; launches a local <a href="Running Services - GSC and GSM.html" title="Running Services - GSC and GSM">Grid Service Manager</a> in the GigaSpaces Management Center.</li>
+	<li><b>Grid Service Container</b> &#8211; launches a local <a href="Running Services - GSC and GSM.html" title="Running Services - GSC and GSM">Grid Service Container</a> in the GigaSpaces Management Center.</li>
+	<li><b>Service Launcher</b> &#8211; allows you to launch and configure GSCs and GSMs. <a href="Running Services - GSC and GSM.html#RunningServices-GSCandGSM-RunningGSMandGSC">More details</a></li>
+</ul>
+
+
+<h1><a name="DeploymentsTabMenusandButtons-DeploymentMenu"></a>Deployment Menu</h1>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_Deployments_DeploymentMenuOption_6.5.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>The deployment menu provides the following options:</p>
+<ul>
+	<li><b>Deploy Application</b></li>
+	<li><b>Redeploy Application</b> &#8211; shuts down the selected service and deploys it again (becomes enabled when a service node is selected).</li>
+	<li><b>Undeploy Application</b> &#8211; shuts down the selected service (becomes enabled when a service node is selected).</li>
+</ul>
+
+
+<h1><a name="DeploymentsTabMenusandButtons-SettingsMenu"></a>Settings Menu</h1>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SettingsMenuOption_6.5.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>The <b>Settings</b> menu provides the following options: </p>
+<ul>
+	<li><b>Discovery</b> <br clear="all" /> <br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SettingsMenuOption_Discovery_6.5.jpg" align="absmiddle" border="0"/></p></div> <br clear="all" /> <br clear="all" /> 
+	<ul>
+		<li><b>Group Management</b> &#8211; opens the Discovery Group Selection window, allowing you to manage different Jini groups:
+<br clear="all" /> <br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SettingsMenuOption_Discovery_DiscovGroupSelection_Window_6.5.jpg" align="absmiddle" border="0"/></p></div> <br clear="all" />
+Selecting a Jini group defines which services (containers, spaces, GSCs, GSMs) are displayed in the GigaSpaces Management Center according to their Jini group. After updating, press <b>Apply</b> and then <b>OK</b>, or <b>Close</b> without saving.</li>
+		<li><b>Locator Discovery</b> &#8211; allows you to find new locators using a port number. Type a port number in the first text box, and click <b>Add</b>. The port is then added to the <b>managed set of locators</b> at the bottom.
+<br clear="all" /> <br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SettingsMenuOption_Discovery_LocatorDiscov_Window_6.5.jpg" align="absmiddle" border="0"/></p></div> <br clear="all" /></li>
+		<li><b>Discovery Stats</b> &#8211; opens the Lookup Service Discovery Times window, which displays the locator IP address, its Jini group, and the time in [ms]: <br clear="all" /> <br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SettingsMenuOption_Discovery_LookupServiceDiscovTimes_Window_6.5.jpg" align="absmiddle" border="0"/></p></div> <br clear="all" /> <br clear="all" /></li>
+	</ul>
+	</li>
+	<li><b>Color Settings</b> &#8211; opens the Preferences Panel, allowing you to choose change the default colors of the operations shown in the <a href="Statistics View - GigaSpaces Browser.html" title="Statistics View - GigaSpaces Browser">Statistics View</a>.</li>
+	<li><b>Reset Perspective</b> &#8211; resets all main window tabs, returns docking windows to their initial size and location.</li>
+	<li><b>System Properties</b> &#8211; see the <a href="#DeploymentsTabMenusandButtons-ConfiguredSystemPropertiesWindow">following section</a>.</li>
+	<li><b>Cluster Configuration</b> <br clear="all" /> <br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SettingsMenuOption_ClusterConfig_6.5.jpg" align="absmiddle" border="0"/></p></div> <br clear="all" /> <br clear="all" />
+	<ul>
+		<li><b>New</b> &#8211; Create a new cluster - opens the GigaSpaces Cluster Wizard.</li>
+		<li><b>New From</b> &#8211; Create a new cluster from an existing cluster.</li>
+		<li><b>Open</b> &#8211; opens your <tt>&lt;GigaSpaces Root&gt;\config</tt> directory, allowing you to select an existing cluster schema file.</li>
+		<li><b>Verify</b> &#8211; allows you to verify a cluster definition.</li>
+		<li><b>Viewer</b> &#8211; opens your <tt>&lt;GigaSpaces Root&gt;\config</tt> directory, allowing you to select an existing cluster schema file to view.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<h2><a name="DeploymentsTabMenusandButtons-ConfiguredSystemPropertiesWindow"></a>Configured System Properties Window</h2>
+
+<p>The <b>System Properties</b> option opens a window listing all configured <a href="System Properties List.html" title="System Properties List">system properties</a>. The Configured System Properties window allows you to edit existing system properties, and add new properties.</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SettingsMenuOption_Settings_ConfiguredSystemProp_Window_6.5.jpg" align="absmiddle" border="0"/></p></div> 
+
+<p>To edit an existing value, double click it, and type in your changes:</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SettingsMenuOption_Settings_ConfiguredSystemProp_Window_Editing_6.5.jpg" align="absmiddle" border="0"/></p></div> 
+
+<p>To add a new value, click the + button (<img src="download/attachments/53903626/IMG365.gif" align="absmiddle" border="0"/>), which adds a new row. Type the property on the left side, and its value on the right side.</p>
+
+<p>Press <b>OK</b> to accept the changes and exit the window, or <b>Cancel</b> to exit without saving the changes.</p>
+
+<h1><a name="DeploymentsTabMenusandButtons-HelpMenu"></a>Help Menu</h1>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_HelpMenuOption_6.5.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>The <b>Help</b> menu provides the following options:</p>
+<ul>
+	<li><b>About</b> &#8211; provides product version information.</li>
+	<li><b>Online Help</b> &#8211; opens the <a href="http://www.gigaspaces.com/wiki/display/XAP8/8.0+Documentation+Home" title="8.0 Documentation Home">GigaSpaces Online Help homepage</a>.</li>
+</ul>
+
+
+<h2><a name="DeploymentsTabMenusandButtons-ButtonToolbar"></a>Button Toolbar</h2>
+
+<p>The button toolbar allows you to deploy, undeploy, and redeploy application, to manage lookup groups, and to reset your perspective.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<td class='confluenceTd'> <img src="download/attachments/53903626/GMC_space_groupManagementToolbarIcon_6.5.jpg" align="absmiddle" border="0"/> </td>
+<td class='confluenceTd'> Opens the <a href="#DeploymentsTabMenusandButtons-SettingsMenu">Discovery Group Selection</a> window </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <img src="download/attachments/53903626/GMC_space_ResetPerspectiveToolbarIcon_6.5.jpg" align="absmiddle" border="0"/> </td>
+<td class='confluenceTd'> Resets all main window tabs, returns docking windows to their initial size and location. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <img src="download/attachments/53903626/help.gif" align="absmiddle" border="0"/> </td>
+<td class='confluenceTd'> Opens the <a href="http://www.gigaspaces.com/wiki/display/XAP8/8.0+Documentation+Home" title="8.0 Documentation Home">GigaSpaces Online Help homepage</a> </td>
+</tr>
+</tbody></table>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

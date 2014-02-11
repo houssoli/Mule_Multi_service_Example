@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Benchmark View - GigaSpaces Browser</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Benchmark View - GigaSpaces Browser</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The Benchmark view provides a user interface for benchmarking the space. </p>
+</div>
+
+<h1><a name="BenchmarkView-GigaSpacesBrowser-Overview"></a>Overview</h1>
+
+<p>The Benchmark view provides a user interface for benchmarking the space.</p>
+
+<p>The following options are provided:</p>
+<ul>
+	<li>Specifying object type.</li>
+	<li>Specifying the JavaSpaces API or Map API operation to perform.</li>
+	<li>Specifying the number of iterations to perform.</li>
+	<li>Specifying the sampling rate.</li>
+	<li>Specifying Object size.</li>
+	<li>Specifying batch size.</li>
+	<li>Specifying the number of concurrent threads.</li>
+	<li>Specifying the transaction type.</li>
+	<li>Specify parallel operations. For example, running write and read operations in separate threads concurrently.</li>
+	<li>Specify distributed cache mode.</li>
+	<li>Export results to a CSV file.</li>
+	<li>Display results in graph and tabular form.</li>
+	<li>Benchmark configuration can be saved.</li>
+</ul>
+
+
+<p>The Benchmark view is comprised of 4 tabs:</p>
+
+<ul>
+	<li><b>Settings tab</b> &#8211; allows you to configure the benchmark parameters.</li>
+	<li><b>Table tab</b> &#8211; allows you to view the benchmark results in tabular format.</li>
+	<li><b>Graph tab</b> &#8211; allows you to view the benchmark results using graphs.</li>
+	<li><b>Summary tab</b> &#8211; includes the benchmark results summary.</li>
+</ul>
+
+
+<p>These options and tabs are described in the sections below.</p>
+
+<h1><a name="BenchmarkView-GigaSpacesBrowser-SettingsTab"></a>Settings Tab</h1>
+
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+
+<p>The <b>Settings</b> tab allows you to configure the benchmark parameters. </p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/gmc_space_benchmark_6.0.2.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>It contains the following areas:</p>
+<ul>
+	<li><b>Options</b></li>
+	<li><b>Lease</b></li>
+	<li>Admin operations</li>
+	<li><b>Operations</b></li>
+	<li><b>Transaction</b></li>
+	<li><b>Master-Local</b></li>
+	<li><b>Results Output</b></li>
+	<li><b>Configuration</b></li>
+</ul>
+
+
+<p>These areas are detailed in the sections below.</p>
+
+<h2><a name="BenchmarkView-GigaSpacesBrowser-Options"></a>Options</h2>
+
+<p>The Benchmark view <b>Options</b> area provides the following options:</p>
+
+<ul>
+	<li><b>Object type</b> &#8211; type of object writtten to the space, possible options: <b>Entry</b>, <b>POJO</b>, <b>JMS</b>, <b>Externalizable</b>, <b>Serializable</b>, <b>FIFO</b>, <b>POJO Externalizable</b> , <b>MetaDataEntry Externalizable</b>, <b>FIFO Externalizable</b>, <b>UID Externalizable</b>. The selected object type is explained in the <b>Description</b> area.</li>
+	<li><b>Threads</b> &#8211; the number of concurrent threads that run the test. This allows you to run multiple threads that call the selected operation at the same time.
+<br clear="all" /> <br clear="all" />
+<img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If you define that 1000 Entries be written to the space, and have 5 threads defined as part of the threads box, you will end up with 5000 Entries inside the space.
+<br clear="all" /> <br clear="all" /></li>
+	<li><b>Iterations</b> &#8211; the number of iterations the benchmark calls for the selected operation.
+<br clear="all" /> <br clear="all" /> 
+<img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> You can allow a read cycle to be conducted several times using the <b>Repeat Read/Get Operation</b> option.
+<br clear="all" /> <br clear="all" /></li>
+	<li><b>Entry size</b> &#8211; the size of the Entry payload in bytes that is written to the space. This option is relevant only for the write and put operations.</li>
+	<li><b>Sampling rate</b> &#8211; the benchmark provides the average TP reading in the <b>Graph</b> or <b>Table</b> tabs based on the sampling rate. For example, if you choose to write 5000 Entries to the space and the sampling rate is 1000, the results graph and table display 5 sampling points, which reflect the average TP of the write operation for the last sampling period (the last 1000 write operations). When using the <b>Repeat Read/Get Operation</b> option, you can select a sampling rate that is greater than the number of iterations.</li>
+	<li><b>Batches</b> &#8211; this option allows you to call GigaSpaces batch operations (<tt>writeMultiple, takeMultiple, readMultiple</tt>). The number specified in this box is the number of batches that are performed in order to complete the number of iterations specified. Specifying <tt>0</tt> as the batch size calls the regular APIs.</li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The numbers in the <b>Iterations</b>, <b>Sampling rate</b>, and <b>Read/Take timeout</b> boxes are in thousands, and the number in the <b>Entry size</b> box is in bytes.</p>
+
+<h2><a name="BenchmarkView-GigaSpacesBrowser-Lease"></a>Lease</h2>
+
+<p>Checking the <b>Return Lease</b> check defines that operations performed in the space also create a <tt>Lease</tt> object. You can specify the expiration time of the lease in the <b>Lease Time</b> area, or check the <b>FOREVER Lease</b> check box, which means the lease will not expire unless you remove it from the space.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Checking the <b>Return Lease</b> check box might decrease performance. </p>
+
+<h2><a name="BenchmarkView-GigaSpacesBrowser-AdminOperations"></a>Admin Operations</h2>
+
+<ul>
+	<li><b>Use Clustered Proxy</b> &#8211; <b>relevant only when working with clustered spaces</b>. This option defines that all operations in the cluster are performed on a clustered proxy, which is responsible for routing the operation to the relevant member/members. If a clustered proxy is not used, operations are performed directly on the selected cluster member, and not on the whole cluster.
+<br clear="all" /> <br clear="all" />
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> This checkbox is checked by default in <b>GigaSpaces version 6.5</b> and onwards (when working with a clustered space). <br clear="all" /> <br clear="all" /></li>
+	<li><b>Clean Space</b> - if checked, the target space is cleaned (all objects and templates are removed) prior to the start of the benchmark.</li>
+	<li><b>Display Thread TP</b> &#8211; this check box instructs the <a href="#BenchmarkView-GigaSpacesBrowser-GraphTab"><b>Graph</b> tab</a> to display the throughput of each thread separately. Different threads are represented by different colors.</li>
+</ul>
+
+
+<h2><a name="BenchmarkView-GigaSpacesBrowser-Operations"></a>Operations</h2>
+
+<h3><a name="BenchmarkView-GigaSpacesBrowser-JavaSpacesAPI"></a>JavaSpaces API </h3>
+
+<p>JavaSpaces operations use an Entry with 2 attributes:</p>
+<ul>
+	<li><tt>m_counter</tt> &#8211; <tt>java.lang.Long</tt>. This stores a running number. This is an indexed attribute. Take and read operations use this attribute for template matching.</li>
+	<li><tt>m_content</tt> &#8211; <tt>java.lang.Byte[]</tt>. This stores the payload data.</li>
+</ul>
+
+
+<p>The following operations can be performed when the <b>JavaSpaces</b> area is selected: </p>
+<ul>
+	<li><b>Write</b> &#8211; writes objects to the space, according to the number of iterations.</li>
+	<li><b>Read</b> &#8211; reads objects from the space, according to the number of iterations.</li>
+	<li><b>Take</b> &#8211; takes objects from the space, according to the number of iterations.</li>
+	<li><b>Write and Read</b> &#8211; writes and reads objects, according to the number of iterations. For example, defining 20,000 iterations in the <b>Iterations</b> text box writes 2,000 objects to the space, and reads those 2,000 objects from the space.</li>
+	<li><b>Write and Take</b> &#8211; writes and takes objects, according to the number of iterations. For example, defining 20,000 iterations in the <b>Iterations</b> text box writes 2,000 objects to the space, and takes those 2,000 objects from the space.</li>
+	<li><b>Write and Notify</b> &#8211; writes objects according to the number of iterations, and registers for notifications on those objects. For example, defining 20,000 iterations in the <b>Iterations</b> text box writes 2,000 objects to the space, sends 2,000 notifications, receives 2,000 notify acknowledgments, and registers for notifications on the written objects.</li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The referral to objects above means either Entries or POJOs, depending on the specified <b>Object Format</b>. </p>
+
+<h3><a name="BenchmarkView-GigaSpacesBrowser-MapAPI"></a>Map API</h3>
+
+<p>Map operations put an object with 2 attributes (value object) and a string key into the space.</p>
+
+<p>The following operations can be performed when the <b>Map</b> area is selected: </p>
+<ul>
+	<li><b>Put</b> &#8211; puts Entries in the space, according to the number of iterations.</li>
+	<li><b>Get</b> &#8211; gets Entries from the space, according to the number of iterations.</li>
+	<li><b>Remove</b> &#8211; removes Entries from the space, according to the number of iterations.</li>
+	<li><b>Put and Get</b> &#8211; puts Entries into the space, and gets Entries from the space, according to the number of iterations. For example, defining 20,000 iterations in the <b>Iterations</b> text box puts 2,000 Entries in the space, and gets those 2,000 Entries from the space.</li>
+	<li><b>Put and Remove</b> &#8211; puts Entries into the space, and removes Entries from the space. For example, defining 20,000 iterations in the <b>Iterations</b> text box puts 2,000 Entries in the space, and removes those 2,000 Entries from the space.</li>
+</ul>
+
+
+<h3><a name="BenchmarkView-GigaSpacesBrowser-ParallelOperations"></a>Parallel Operations</h3>
+
+<p>The <b>Parallel operations</b> check box is relevant only for <b>Write and Read</b>, <b>Write and Take</b>, <b>Put and Get</b>, and <b>Put and Remove</b> operations. When selecting this option, the operations are conducted simultaneously &#8211; i.e., a thread is spawned for the write operation, another one for the read operation, and these are executed at the same time, allowing the read thread to read an Entry that has been written by the write thread.</p>
+
+<h3><a name="BenchmarkView-GigaSpacesBrowser-RepeatRead%2FGetOperation"></a>Repeat Read/Get Operation</h3>
+
+<p>This option is relevant for the read or get operations. Specify the number of times to repeat the operation. This option allows you to benchmark the local cache.</p>
+
+<h2><a name="BenchmarkView-GigaSpacesBrowser-Transaction"></a>Transaction</h2>
+
+<p>The <b>Transaction</b> area allows you to perform operations under transactions:</p>
+<ul>
+	<li><b>None</b> &#8211; operations are called without using transactions.</li>
+	<li><b>Local</b> &#8211; the GigaSpaces Local Transaction Manager is used to create the transaction object with the operations.</li>
+	<li>Distributed - the Jini Distributed Transaction Manager is used to create the transaction object with the operations.<br/>
+In the <b>Txn Manager URL</b> text box, specify the host name and port in which your Jini Lookup Service is running: <br clear="all" /> <br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/GMC_space_benchmark_txManagerURL_6.1.jpg" align="absmiddle" border="0"/></p></div>
+<p><img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <b>Txn Manager URL</b> text box is <b>new in GigaSpaces version 6.5</b> and onwards.</p></li>
+	<li>You can choose how many operations are performed before a transaction is committed. Default is <b>Commit every 1 operation</b>, meaning the transaction is committed after every single operation.</li>
+</ul>
+
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details on transactions, refer to the Transaction Manager section.</p>
+
+<h2><a name="BenchmarkView-GigaSpacesBrowser-MasterLocal"></a>Master-Local</h2>
+
+<p>Distributed cache is relevant when using read or get operations. This option starts a local cache in the Space Browser's VM. When a read or get operation is called, the Entry is first searched for at the local cache. If the Entry is not found at the local cache, it is searched for at the master space and sent back to the browser. Any subsequent read for the Entry is conducted from the local cache.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details, see the Master Local Space&#42;**  section.</p>
+
+<h2><a name="BenchmarkView-GigaSpacesBrowser-ResultsOutput"></a>Results Output</h2>
+
+<p>To save the benchmark sample readings into a file, check the <b>Save results to file</b> check box, and specify a file. This generates a file with the results in tab-separated values.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In <b>GigaSpaces version 6.5</b> and onwards, the benchmark results are printed to an Excel file, which allows you to easily sort your results. To do this, open your printed Excel file, and select <b>Filter</b> &gt; <b>AutoFilter</b> from the <b>Data</b> menu at the top.</p>
+
+<h2><a name="BenchmarkView-GigaSpacesBrowser-Configuration"></a>Configuration</h2>
+
+<p>The <b>Configuration</b> area allows you to save specific options you selected in the <b>Service View</b>, instead of having to re-select them every time you run a new benchmark. You can save these options by clicking the <b>New</b> button. In the <b>New Configuration</b> dialog type the name of your choice, for example, <tt>myConfiguration</tt>:</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/GMC_space_benchmark_New_Configuration_dialog_small_6.0.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>Press <b>OK</b> to accept and close the dialog, and then click <b>Save</b>. The saved configuration now exists in the drop-down menu:</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/GMC_space_benchmark_Configuration_area_SavedConfiguration_6.0.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>You can add as many configurations as you like, and select the one you want to use from the drop-down menu. You can also delete or rename existing configurations using the <b>Delete</b> and <b>Rename</b> buttons.</p>
+</div>
+
+<h1><a name="BenchmarkView-GigaSpacesBrowser-TableTab"></a>Table Tab</h1>
+
+<p>The <b>Table</b> tab allows you to view the benchmark results in tabular format. The table provides the throughput for write, read, or take operations, and the client process memory available during the test period.</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/benchmark_table_tab.gif" align="absmiddle" border="0"/></p></div>
+
+<p>To clear the <b>Table</b> tab, click the <b>Clear</b> button.</p>
+
+<h1><a name="BenchmarkView-GigaSpacesBrowser-GraphTab"></a>Graph Tab</h1>
+
+<p>The <b>Graph</b> tab allows you to view the benchmark results using graphs. The graphs provided show the throughput for write/read/take operations and the client process memory available during the test period.</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/benchmark_graph_tab.gif" align="absmiddle" border="0"/></p></div>
+
+<p>To clear the <b>Graph</b> tab, click the <b>Clear</b> button.</p>
+
+<h1><a name="BenchmarkView-GigaSpacesBrowser-SummaryTab"></a>Summary Tab</h1>
+
+<p>The <b>Summary</b> tab includes the benchmark results summary.</p>
+
+<p>When running multiple benchmarks, the last benchmark summary is added to the previously displayed summaries.</p>
+
+<p>The Summary tab includes the client system environment &#8211; OS, J2SE, memory, network interfaces information, the total time of the benchmark, the average throughput, the number of bytes written/read from the space, and the edition and build of GigaSpaces.</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/benchmark_summary_tab.gif" align="absmiddle" border="0"/></p></div>
+
+<p>To clear the <b>Summary</b> tab, click the <b>Clear</b> button.</p>
+
+<h1><a name="BenchmarkView-GigaSpacesBrowser-StartingorStoppingtheBenchmark"></a>Starting or Stopping the Benchmark</h1>
+
+<p>After completing the benchmark settings, click the <b>Start</b> button to invoke the selected operation(s) based on the configuration defined in the <b>Settings</b> tab.</p>
+
+<p>To stop the currently running benchmark, click the <b>Stop</b> button.</p>
+
+<h1><a name="BenchmarkView-GigaSpacesBrowser-ProgressBar"></a>Progress Bar</h1>
+
+<p>The progress bar at the bottom of the <b>Service view</b> displays the current benchmark status.</p>
+
+<h1><a name="BenchmarkView-GigaSpacesBrowser-BenchmarkCLIUtility"></a>Benchmark CLI Utility</h1>
+
+<p>The benchmark utility provides a good tool for running performance benchmarks on the cache in various scenarios. This program performs a loop of write/put and read/get, or take/remove operations from a space, according to a different set of parameters. The result is the average time it took to perform the operations. You can define a sampling rate to allow you to track the intermediate performance while the benchmark example is running. You may also dump the results into a file to be converted into graphs and analyzed using a spreadsheet and analysis tools.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details, refer to the <a href="Benchmark Utility - GigaSpaces CLI.html" title="Benchmark Utility - GigaSpaces CLI">Benchmark Utility</a> section.</p>
+
+<p>***Link required</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

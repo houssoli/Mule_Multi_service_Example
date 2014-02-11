@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Introducing Spring Security</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Introducing Spring Security</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903635";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903635";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Introduction Spring Security Framework </p>
+</div>
+
+<h1><a name="IntroducingSpringSecurity-Introduction"></a>Introduction</h1>
+
+<p>Spring Security, historically also known as <tt>Acegi</tt> Security, provides a comprehensive security solution for handling authentication and authorization. Spring Security namespace provides directives for most common operations, allowing complete security configuration in just a few lines of XML.</p>
+
+<p>Spring Security comes with authentication providers for many occasions. Most common are the <b><tt>DaoAuthenticationProvider</tt></b> for retrieving user information from a database; <b><tt>LdapAuthenticationProvider</tt></b> for authentication against a Lightweight Directory Access Protocol (LDAP) server; <b><tt>JaasAuthenticationProvider</tt></b> for retrieving user information from a JAAS login configuration; etc.</p>
+
+<p>For more information, please refer to the <a href="http://static.springsource.org/spring-security/site/index.html">Spring Security website </a>.</p>
+
+<h1><a name="IntroducingSpringSecurity-AuthenticatingUsers"></a>Authenticating Users</h1>
+
+<p>In Spring Security, the authentication manager assumes the job of establishing a user's identity. An authentication manager is defined by the <tt>org.springframework.security.authentication.AuthenticationManager</tt> interface. The <tt>authenticate</tt> method will attempt to authenticate the user using the <tt>org.springframework.security.core.Authentication</tt> object (which carries the principal and credentials). If successful, the <tt>authenticate</tt> method returns a complete <tt>Authentication</tt> object, including information about the user's granted authorities. If authentication fails, an authentication exception will be thrown.</p>
+
+<p>The <tt>AuthenticationManager</tt> interface is quite simple and you could easily implement your own <tt>AuthenticationManager</tt>. But Spring Security comes with <tt>org.springframework.security.authentication.ProviderManager</tt>, an implementation of <tt>AuthenticationManager</tt> that is suitable for most situations.</p>
+
+<h1><a name="IntroducingSpringSecurity-Configuringaprovidermanager"></a>Configuring a provider manager</h1>
+
+<p><tt>ProviderManager</tt> is an authentication manager implementation that delegates responsibility for authentication to one or more authentication providers, as shown in the figure below.</p>
+
+<p>The purpose of <tt>ProviderManager</tt> is to enable you to authenticate users against multiple identity management sources. Rather than relying on itself to perform authentication, <tt>ProviderManager</tt> steps one by one through a collection of authentication providers, until one of them successfully authenticates the user (or until it runs out of providers). This makes it possible for Spring Security to support multiple mechanisms for a single request.</p>
+
+<p><img src="download/attachments/48235229/SpringSecurity-ProviderManager.png" align="absmiddle" border="0"/></p>
+
+<p>The following chunk of XML shows a typical configuration of <tt>ProviderManager</tt> in the Spring configuration file:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"authenticationManager"</span>
+     class=<span class="code-quote">"org.springframework.security.authentication.ProviderManager"</span>&gt;
+  &lt;property name=<span class="code-quote">"providers"</span>&gt;
+    &lt;list&gt;
+      &lt;ref local=<span class="code-quote">"daoAuthenticationProvider"</span>/&gt;
+      &lt;ref local=<span class="code-quote">"anonymousAuthenticationProvider"</span>/&gt;
+      &lt;ref local=<span class="code-quote">"ldapAuthenticationProvider"</span>/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</pre>
+</div></div>
+
+<p><tt>ProviderManager</tt> is given a list of authentication providers through its <tt>providers</tt> property. Typically, you'll only need one authentication provider, but in some cases, it may be useful to supply a list of several providers so that if authentication fails against one provider, another provider will be tried.</p>
+
+<p>Spring comes with numerous authentication providers. We will concentrate on a couple of the most commonly used authentication providers, to give an example how GigaSpaces authorities are to be managed. If you can't find an authentication provider that suits your security needs, you can always create your own by implementing the <tt>org.springframework.security.authentication.AuthenticationProvider</tt> interface.</p>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

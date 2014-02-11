@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Running in Standalone Mode</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Running in Standalone Mode</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903639";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903639";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Explains how to run your processing unit in standalone mode, which means that the processing unit is run under its own self-constructed classloader, based on the processing unit's directory  structure. </p>
+</div>
+
+<h1><a name="RunninginStandaloneMode-Overview"></a>Overview</h1>
+
+<p>The standalone processing unit container allows you to run a processing unit in standalone mode, which means that the processing unit constructs its own dedicated classloader, and automatically includes it its classpath all of the jar files located under the processing unit's <tt>lib</tt> directory. <br/>
+It's implementation class is <tt><a href="http://www.gigaspaces.com/docs/JavaDocOS7.0/org/openspaces/pu/container/standalone/StandaloneProcessingUnitContainer.html">org.openspaces.pu.container.standalone.StandaloneProcessingUnitContainer</a></tt>.</p>
+
+<p>The standalone processing unit container is built around Spring's <tt>ApplicationContext</tt> with several extensions relevant to GigaSpaces, such as <tt><a href="Obtaining Cluster Information.html" title="Obtaining Cluster Information">ClusterInfo</a></tt>.<br/>
+It contains a <tt>main()</tt> method and can be started from an external script or programmatically by using the <tt>ProcessingUnitContainerProvider</tt> abstraction.</p>
+
+<p>It should be used when you would like to run your processing unit in a non-managed environment (outside of the service grid) or from within your own code, and still benefit from the automatic classpath creation as with the managed mode. </p>
+
+<h1><a name="RunninginStandaloneMode-ExecutableStandaloneProcessingUnitContainer"></a>Executable StandaloneProcessingUnitContainer</h1>
+
+<p>The <tt>StandaloneProcessingUnitContainer</tt> provides an executable <tt>main()</tt> method that allows it to be run directly. The <tt>main()</tt> method uses the <tt>StandaloneProcessingUnitContainerProvider</tt> and command-line conventions in order to create the <tt>StandaloneProcessingUnitContainer</tt>. A required parameter is the processing unit location, pointing to the file-system location of the processing unit directory. The following is a list of all the possible command-line parameters available:</p>
+
+
+<p>The <tt>StandaloneProcessingUnitContainer</tt> class provides an executable <tt>main()</tt> method, allowing you to run it directly via a shell script for example. The <tt>main()</tt> method uses the <tt>StandaloneProcessingUnitContainerProvider</tt> class and program arguments in order to create the <tt>StandaloneProcessingUnitContainer</tt>. The following is a list of all the possible program arguments that can be specified to the <tt>StandaloneProcessingUnitContainer</tt>:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Option </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>&#45;config [configLocation]</tt> </td>
+<td class='confluenceTd'> Allows you to set/add a processing unit deployment descriptor location. <br clear="all" />
+ Follows the Spring <a href="http://static.springframework.org/spring/docs/2.5.x/reference/resources.html#resources-resourceloader">Resource Loader</a> including <a href="http://static.springframework.org/spring/docs/2.5.x/reference/resources.html#resources-app-ctx-wildcards-in-resource-paths">ant style patterns</a>. This parameter can be specified multiple times. <br clear="all" />
+ The default is <tt>classpath*:/META-INF/spring/pu.xml</tt>. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>&#45;cluster [cluster options]</tt> </td>
+<td class='confluenceTd'> Allows you to control the <tt>ClusterInfo</tt> injected into the container and the runtime topology <br clear="all" />
+ of the processing unit. <br clear="all" />
+ The following options are available (they are used automatically by any embedded space included <br clear="all" />
+ in the processing unit):
+<ul>
+	<li><tt>schema</tt> &#45; the cluster schema used by the processing unit. Possible values are <tt>sync-replicated</tt>, <tt>async-replicated</tt> and <tt>partitioned-sync2backup</tt></li>
+	<li><tt>total_members</tt> &#45; Determines the total members in the emulated cluster. Format is <tt>numberOfInstances[,numberOfBackups]</tt>, e.g. <tt>total_members 2,1</tt></li>
+	<li><tt>id</tt> &#8211; Mandatory. Determines the id of the processing unit instance the this container will run.</li>
+	<li><tt>backup_id</tt> &#8211; If you want the container to run a backup instance, use this parameter in conjunction with the <tt>id</tt> parameter. It will force the container to run the instance and will determines its backup ID.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>&#45;properties [property file location]</tt> </td>
+<td class='confluenceTd'> Allows you to <a href="Deployment Properties.html" title="Deployment Properties">inject properties</a> to the processing unit at deployment time. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>&#45;properties embed://[property1 name]=[property1 value];[property2 name]=[property2 value]</tt> </td>
+<td class='confluenceTd'> Allows you to <a href="Deployment Properties.html" title="Deployment Properties">directly inject properties</a> to the processing unit at startup time. </td>
+</tr>
+</tbody></table>
+
+<h1><a name="RunninginStandaloneMode-StartingtheStandaloneProcessingUnitContainerviathe%7B%7BpuInstance%7D%7DShellScript"></a>Starting the Standalone Processing Unit Container via the <tt>puInstance</tt> Shell Script </h1>
+
+<p>GigaSpaces comes with the <tt>puInstance</tt> shell script, which uses the <tt>StandaloneProcessingUnitContainer</tt> in order to run a processing unit directly from the command line.</p>
+
+<p>Here are some examples of using the <tt>puInstance</tt> script in order to run a processing unit:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="RunninginStandaloneMode-Unix"></a>Unix</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">puInstance.sh -cluster schema=partitioned total_members=2 id=1 data-processor.jar</pre>
+</div></div> 
+
+
+<h5><a name="RunninginStandaloneMode-Windows"></a>Windows</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">puInstance.bat -cluster schema=partitioned total_members=2 id=1 data-processor.jar</pre>
+</div></div>
+</div></div>
+
+<p>The above example starts a processing unit (which includes an embedded space) in a partitioned cluster schema, with two members and <tt>id=1</tt>. In order to run the full cluster, another <tt>puInstance</tt> has to be started with <tt>id=2</tt>.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="RunninginStandaloneMode-Unix"></a>Unix</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">puInstance.sh -cluster schema=partitioned-sync2backup total_members=1,1 id=1 backup_id=1 
+-properties runtime.properties data-processor.jar</pre>
+</div></div> 
+
+
+<h5><a name="RunninginStandaloneMode-Windows"></a>Windows</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">puInstance.bat -cluster schema=partitioned-sync2backup total_members=1,1 id=1 backup_id=1 
+-properties runtime.properties data-processor.jar</pre>
+</div></div>
+</div></div>
+
+<p>The above example starts a processing unit instance (with an embedded space) in a partitioned-sync2backup cluster schema, with one primary and one backup. It also uses an external properties file to inject property values at startup time.</p>
+
+<h1><a name="RunninginStandaloneMode-StartingaStandaloneProcessingUnitContainerProgrammatically"></a>Starting a StandaloneProcessingUnitContainer Programmatically </h1>
+
+<p>Here is an example of using a <tt>ProcessingUnitContainerProvider</tt> in order to create a standalone processing unit container programmatically:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">StandaloneProcessingUnitContainerProvider provider = <span class="code-keyword">new</span> StandaloneProcessingUnitContainerProvider(<span class="code-quote">"/usr/gigaspaces/data-processor.jar"</span>);
+<span class="code-comment">// provide cluster information <span class="code-keyword">for</span> the specific PU instance
+</span>ClusterInfo clusterInfo = <span class="code-keyword">new</span> ClusterInfo();
+clusterInfo.setSchema(<span class="code-quote">"partitioned"</span>);
+clusterInfo.setNumberOfInstances(2);
+clusterInfo.setInstnaceId(1);
+provider.setClusterInfo(clusterInfo);
+
+<span class="code-comment">// set the config location (override the <span class="code-keyword">default</span> one - classpath:/META-INF/spring/pu.xml)
+</span>provider.addConfigLocation(<span class="code-quote">"classpath:/test/my-pu.xml"</span>);
+
+<span class="code-comment">// Build the Spring application context and <span class="code-quote">"start"</span> it
+</span>StandaloneProcessingUnitContainer container = provider.createContainer();
+
+<span class="code-comment">// ...
+</span>
+container.close();</pre>
+</div></div>
+
+<p>The <tt>StandaloneProcessingUnitContainerProvider</tt> is constructed with a file-system path to the processing unit jar file. It constructs a new classloader and adds all the jar files in the processing unit's <tt>lib</tt> directory to it automatically. </p>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

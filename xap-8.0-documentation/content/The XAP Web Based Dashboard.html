@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : The XAP Web Based Dashboard</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>The XAP Web Based Dashboard</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903443";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903443";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Describes the all new XAP web based dashboard application </p>
+</div>
+
+<h1><a name="TheXAPWebBasedDashboard-Overview"></a>Overview</h1>
+<p>The XAP dashboard is a web application which was designed to enable XAP users to quickly understand the state of a running XAP cluster and monitor the running components, i.e. physical hosts, JVMs and deployed processing units. </p>
+
+<p>In terms of functionality, it does not replace the existing Java-based GUI (the GigaSpaces Management Center), but rather augments it and provides a lightweight alternative for monitoring a running cluster without the need to install the GigaSpaces XAP runtime and run the standalone Java-based user interface. </p>
+
+<h1><a name="TheXAPWebBasedDashboard-StartingtheDashboardWebApplication"></a>Starting the Dashboard Web Application </h1>
+
+<p>The dashboard web application is located under <tt>GigaSpaces root/tools/gs-webui</tt>. This directory contains the web application itself (in the form of a standard JEE <tt>.war</tt> file), and a launcher library and shell scripts used to start in standalone mode (see below). <br/>
+The dashboard web application can be started in one of the following ways: </p>
+
+<h2><a name="TheXAPWebBasedDashboard-StartingtheDashboardWebApplicationinStandaloneMode"></a>Starting the Dashboard Web Application in Standalone Mode </h2>
+
+<p>This is the simplest way to run the dashboard web application. Simply click the <tt>gs-webui.sh(bat)</tt> script to start a Jetty web container with the web dashboard application running within it. Once started, there's no need to deploy or perform any additional steps. </p>
+
+<p>The web container in the standalone mode listens by default on port 8099, so in order to view the dashboard application you will need to point your browser to <tt>http://&lt;standalone server host&gt;:8099</tt>, where <tt>&lt;standalone server host&gt;</tt> is the host on which you launched the <tt>gs-webui</tt> script. Note that in this mode, the default context path for the dashboard web application is the root context path ("/"). </p>
+
+<p>To override the default port, you can either use the <tt>com.gs.webui.port</tt> system property, or specify <tt>-port &lt;listen port&gt;</tt> as an argument to the <tt>gs-webui</tt> script. Here is an example on how it's done(starting to listen on port 80): </p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheXAPWebBasedDashboard-Linux"></a>Linux</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">#Specify port via a command line argument 
+./gs-webui.sh -port 80 
+
+#Specify port with a system property
+export WEBUI_JAVA_OPTIONS=-Dcom.gs.webui.port=80 
+./gs-webui.sh</pre>
+</div></div>
+
+
+<h5><a name="TheXAPWebBasedDashboard-Windows"></a>Windows</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">#Specify port via a command line argument 
+gs-webui.bat -port 80 
+
+#Specify port with a system property
+set WEBUI_JAVA_OPTIONS=-Dcom.gs.webui.port=80
+gs-webui.bat</pre>
+</div></div>
+</div></div>
+
+<p>Note that you can also use the <tt>WEBUI_JAVA_OPTIONS</tt> environment variable to set any JVM parameter, such as heap size (defaults to <tt>-Xmx512m</tt>) and other JVM settings. </p>
+
+<h2><a name="TheXAPWebBasedDashboard-DeployingtheDashboardWebApplicationtotheGigaSpacesRuntimeEnvironment"></a>Deploying the Dashboard Web Application to the GigaSpaces Runtime Environment</h2>
+<p>To deploy the dashboard web application to the GigaSpaces <a href="The Runtime Environment.html" title="The Runtime Environment">Runtime Environment</a>, you should simply point your deployment tool of choice (CLI, Admin API or the standalone Java-based UI) to the <tt>&lt;GigaSpaces root&gt;/tools/gs-webui/gs-webui.war</tt> file and deploy it. </p>
+
+<p>Note that in this case the web dashboard application actually monitors the runtime environment on which it runs. </p>
+
+<p>Here's an example of how to this with the CLI:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;GigaSpaces root&gt;/bin/gs.sh(bat} deploy -properties embed:<span class="code-comment">//web.port=80;web.context=/ \
+</span>&lt;GigaSpaces root&gt;/tools/gs-webui/gs-webui.war</pre>
+</div></div>
+<p>The above command will deploy the dashboard web application to the GigaSpaces runtime environment, listening on port 80 with the root context path. </p>
+
+<p>For more details on GigaSpaces XAP web application support, please refer to <a href="Web Application Support.html" title="Web Application Support">this page</a>.</p>
+
+<h2><a name="TheXAPWebBasedDashboard-DeployingtheDashboardWebApplicationtoa3rdPartyJEEServletContainer"></a>Deploying the Dashboard Web Application to a 3rd Party JEE Servlet Container  </h2>
+
+<p>It is also possible to deploy the web application to a 3rd party servlet container (e.g. Apache Tomcat). Please consult your web container documentation for deployment directions. </p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>When deploying to a 3rd party web container like tomcat, you will need to repackage the <tt>gs-webui.war</tt> file and add all the <tt>.jar</tt> files located under <tt>&lt;GigaSpaces root&gt;/lib/required</tt> to the <tt>WEB-INF/lib</tt> directory of the <tt>gs-webui.war</tt> file. By default, they are not part of the the <tt>gs-webui.war</tt> file since they are automatically included in the classpath of both the standalone container and the GigaSpaces <a href="The Runtime Environment.html" title="The Runtime Environment">Runtime Environment</a></td></tr></table></div>
+
+<h1><a name="TheXAPWebBasedDashboard-LoggingintotheWebDashboard"></a>Logging into the Web Dashboard </h1>
+
+<p>After you've started the dashboard web application, point your browser to the proper location (For example, if you stated it using the standalone web container, the default URL is <tt>http://&lt;standalone server host&gt;:8099</tt>. <br/>
+You will see the following login screen. Please refer to the text in the call-outs below for a more detailed explanation on the available options in this screen. <br/>
+<div align="center"><img src="download/attachments/48235229/dashboard-login.jpg" border="0"/></div></p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Supported Web Browsers</b> <br/>
+Currently, the web dashboard supports the following web browsers: 
+<ul>
+	<li><a href="http://www.mozilla.com/firefox/">Mozilla FireFox 3.6 or higher</a> (tested with 3.6.3)</li>
+	<li><a href="http://www.google.com/chrome">Google Chrome 5 or higher</a></li>
+</ul>
+
+
+<p><b>Internet explorer is not currently supported.</b></p></td></tr></table></div>
+
+<h1><a name="TheXAPWebBasedDashboard-UsingtheWebDashboard"></a>Using the Web Dashboard</h1>
+<p>Once you've passed the login screen, you will enter the dashboard's main screen. The web dashboard enables you to monitor the physical and logical resources of your cluster. The physical resources include the hosts and virtual machines, and the logical resources include the deployed processing units, spaces and web applications. Please refer the image below and the call-outs in it for more details. </p>
+
+<p><div align="center"><img src="download/attachments/48235229/main.png" border="0"/></div></p>
+
+<h1><a name="TheXAPWebBasedDashboard-DeployingwiththeWebUI"></a>Deploying with the Web UI</h1>
+<p>The Web UI supports the deployment of processing units, as depicted below.<br/>
+<div align="center"><img src="download/attachments/48235229/deploy.png" border="0"/></div></p>
+
+<h1><a name="TheXAPWebBasedDashboard-Operatingonhosts%2CJVMsandprocessingunit"></a>Operating on hosts, JVMs and processing unit</h1>
+<p>The image below shows the possible options of operating on each of the components displayed by the web UI.<br/>
+<div align="center"><img src="download/attachments/48235229/actions.png" border="0"/></div></p>
+
+<h1><a name="TheXAPWebBasedDashboard-RuntimeConsiderations"></a>Runtime Considerations </h1>
+<h2><a name="TheXAPWebBasedDashboard-DeploymentLocationoftheDashboardWebApplication"></a>Deployment Location of the Dashboard Web Application </h2>
+<p>Since the dashboard web application communicates with the runtime components of the GigaSpaces cluster, and receives notification from the GigaSpaces <a href="The Lookup Service.html" title="The Lookup Service">lookup service</a>, it is highly recommended to run the dashboard web application in the same network segment of the other cluster components. Note that this does not affect the dashboard web browser client, which communicates with the dashboard web application using standard http and can be located anywhere, provided that it has access to the dashboard web application. </p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

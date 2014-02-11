@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Writing Your First XTP Application</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Writing Your First XTP Application</h1>
+</div>
+<br>
+
+<style>
+.training-box{
+ float:right;
+ border-style:solid;
+ border-width:2px;
+ border-color:#003366;
+ width:160px;
+ min-width:160px;
+ background-color:#FFFFCC;
+ margin-left:10px;
+ margin-bottom:10px;
+ margin-right:20px;
+ padding:10px;
+}
+</style>
+<div class="training-box"><b>Wish to become a GigaSpaces professional and get training from our product experts? </b> <br/>
+<a href="http://www.gigaspaces.com/content/gigaspaces-training" target="training">Click here</a> for details about our various training education programs.</div>
+
+<script language="JavaScript">
+<!--
+// Get all div elemnts inside an array
+var elements = document.getElementsByTagName('div');
+i = 0 ;
+var singleDiv = elements[i];
+// Loop through the array and unhide every div element with name equals...
+while( singleDiv != null )
+{ 
+	if (singleDiv.getAttribute('name') == "showForVariantjava")
+	{
+		singleDiv.style.display = 'block';
+	}
+	singleDiv = elements[i++];
+}
+-->
+</script>
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903481";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903481";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+<p><b>Summary:</b> This tutorial explains how to build your first GigaSpaces Application in 4 easy steps, from basic API usage to scaling your application and making it highly available</p>
+
+
+<p><a name="WritingYourFirstXTPApplication-Step1"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<h2><a name="WritingYourFirstXTPApplication-BeforeYouBeginSetUpYourEnvironment"></a>Before You Begin - Set Up Your Environment</h2>
+<p>If you would like to run the tutorial sample application, <a href="Setting Up your IDE to work with GigaSpaces.html" title="Setting Up your IDE to work with GigaSpaces">download GigaSpaces and set up your development environment</a>.<br/>
+The sample application used in all steps is located in <img src="download/attachments/48235229/folder.jpg" align="absmiddle" border="0"/> &lt;GigaSpaces root&gt;\examples\helloworld</p>
+
+
+<p><a name="WritingYourFirstXTPApplication-Step2"></a></p>
+<h2><a name="WritingYourFirstXTPApplication-QuickStartGuideSteps"></a>Quick Start Guide Steps</h2>
+<p>We recommend that you follow these 4 basic tutorials in the specified order:</p></tr></tbody></table>
+<div class="panel" style="background-color: white;border-color: #3c78b5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+
+<td class="confluenceTd"  valign="top" width="7%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Step1.jpg" align="absmiddle" border="0"/></p></div>
+</td>
+<td class="confluenceTd"  valign="top" width="35%">
+<p><a href="Step One - Using Processing Units for Scaling.html" title="Step One - Using Processing Units for Scaling"><b>Using Processing Units for Scaling</b></a><font color="grey">~5 minutes</font></p>
+
+<p>A short introduction that shows what a Processing Unit is, and how it is used for scaling your applications</p>
+</td>
+<td class="confluenceTd"  valign="top" width="50%">
+<div class="" align='center'>
+<p><a href="Step One - Using Processing Units for Scaling.html" title="Step One - Using Processing Units for Scaling"><img src="download/attachments/48235229/What is a Processing Unit.jpg" align="absmiddle" border="0"/></a></p></div>
+</td></tr></tbody></table>
+</div></div>
+<div class="panel" style="background-color: white;border-color: #3c78b5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+
+<td class="confluenceTd"  valign="top" width="7%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Step2.jpg" align="absmiddle" border="0"/></p></div>
+</td>
+<td class="confluenceTd"  valign="top" width="35%">
+<p><a href="Step Two - Creating the Hello World Application.html" title="Step Two - Creating the Hello World Application"><b>Creating the Hello World Application</b></a><br/>
+<font color="grey">~10 minutes</font></p>
+
+<p>How to create, deploy, run and monitor your Processing Unit</p>
+
+<p><span id='tgl_content_2' class='cloakToggle'></span>  <sub><b>In this tutorial you will learn...</b></sub></p>
+
+
+<p><b>.</b> <sub>How to Create a scalable application using Processing Units</sub><br/>
+<b>.</b> <sub>How to run a Processing Unit within your IDE</sub></p>
+
+</td>
+<td class="confluenceTd"  valign="top" width="50%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/qsg_helloworld_processing_unit.gif" align="absmiddle" border="0"/></p></div>
+</td></tr></tbody></table>
+</div></div>
+
+<div class="panel" style="background-color: white;border-color: #3c78b5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+
+<td class="confluenceTd"  valign="top" width="7%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Step3.jpg" align="absmiddle" border="0"/></p></div>
+</td>
+<td class="confluenceTd"  valign="top" width="35%">
+<p><a href="Step Three - Deploying onto the Service Grid.html" title="Step Three - Deploying onto the Service Grid"><b>Deploying the Hello World Application onto the ServiceGrid</b></a><font color="grey">~10 minutes</font></p>
+
+<p>How to deploy the <em>Hello World Processing Unit</em> onto the grid enabled infrastructure (the ServiceGrid) to enable instant fail-over, recovery, SLA management and runtime monitoring capabilities for your application</p>
+
+<p><span id='tgl_content_3' class='cloakToggle'></span>  <sub><b>In this tutorial you will learn...</b></sub></p>
+
+
+<p><b>.</b> <sub>What the Service Grid is</sub><br/>
+<b>.</b> <sub>How to Start the Service Grid</sub><br/>
+<b>.</b> <sub>How to Use the Grid Manager (GSM) and the Grid Container(GSC)</sub><br/>
+<b>.</b> <sub>How to Deploy an application onto the Service Grid with the Management UI</sub><br/>
+<b>.</b> <sub>How to Monitor the Service Grid and deployed applications during runtime</sub></p>
+
+</td>
+<td class="confluenceTd"  valign="top" width="50%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/qsg_service_grid.gif" align="absmiddle" border="0"/></p></div>
+ </td></tr></tbody></table>
+</div></div>
+<div class="panel" style="background-color: white;border-color: #3c78b5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+
+<td class="confluenceTd"  valign="top" width="7%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Step4.jpg" align="absmiddle" border="0"/></p></div>
+</td>
+<td class="confluenceTd"  valign="top" width="35%">
+<p><a href="Step Four - Scaling the Hello World Application.html" title="Step Four - Scaling the Hello World Application"><b>Scaling the Hello World Application</b></a><font color="grey">~10 minutes</font></p>
+
+<p>How to scale the <em>Hello World Processing Unit</em> application</p>
+
+<p><span id='tgl_content_4' class='cloakToggle'></span>  <sub><b>In this tutorial you will learn...</b></sub></p>
+
+
+<p><b>.</b> <sub>How to use GigaSpaces' clustering and partitioning capabilities to scale the <em>Hello World Processing Unit</em> application</sub></p>
+
+</td>
+<td class="confluenceTd"  valign="top" width="50%">
+<div class="" align='left'>
+<p><img src="download/attachments/17301573/qsg_helloworld_scaling.gif" align="absmiddle" border="0"/></p></div>
+</td></tr></tbody></table>
+</div></div>
+
+<h2><a name="WritingYourFirstXTPApplication-GoBeyondtheBasics"></a>Go Beyond the Basics </h2>
+<p>After you have learned the basics, you can go to the <a href="Beyond the Basics.html" title="Beyond the Basics">more advanced tutorials</a> to dive into the details, and learn how to implement real world scenarios.</p>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Quick Start Guide.html" title="Quick Start Guide">Back to Quick Start Guide Home</a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr></tr></tbody></table>
+
+<p><font color="#ffffff">blank-line</font></p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

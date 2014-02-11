@@ -1,0 +1,350 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : LRU-Cache Policy</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>LRU-Cache Policy</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903489";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903489";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The LRU Cache policy </p>
+</div>
+<h1><a name="LRU-CachePolicy-Overview"></a>Overview</h1>
+<p>When running in LRU cache policy mode, the space evicts the "oldest" objects from its memory. "Oldest" objects are determined by the time they were written, updated or read in the space. In a persistent space mode, evicting a space object means that a space object is  simply be removed from the space memory, but is still be available through the underlying RDBMS. The space reloads this object back into the space memory only if it was requested by a specific read operation.</p>
+
+<p>The space memory manager uses a dedicated thread called <b>Evictor</b> - this thread handles the eviction of objects and identifying memory shortage events. In general, eviction can be done using:</p>
+<ul class="alternate" type="square">
+	<li><b>Max amount of space objects</b> - evicts objects one by one. Does not use batches. Very moderate mechanism. Turned on by default when running in LRU mode.</li>
+	<li><b>Available memory</b> - eviction is done in batches.</li>
+</ul>
+
+
+<p>Evicting an object from the space requires the space engine to lock the LRU chain during the object removal, and to update the relevant indexes. This means that the eviction based on <b>available memory</b> that is done in batches, might impact the space responsiveness to client requests. Still, you might need to use this in case you can't estimate the amount of objects within the space.</p>
+
+<h1><a name="LRU-CachePolicy-HowLRUEvictionWorks"></a>How LRU Eviction Works</h1>
+<p>LRU eviction has 2 eviction strategies:<br/>
+1. <b>Based on the maximum amount of objects within the space</b> - provides VERY deterministic behavior of the garbage collection and memory used and space responsively. With a reasonable client request rate, this provides very constant behavior without client hiccups when memory is reclaimed by the JVM. This runs by default when you have an LRU cache policy. In order to turn it off, you should have a very large number for the cache size property.</p>
+
+<p>This strategy checks the amount of space objects, and evicts the relevant object. One object is evicted when the maximum amount of objects is reached. This eviction routine is called when:</p>
+<ul class="alternate" type="square">
+	<li>Writing a new object into the space.</li>
+	<li>A transaction is committed or rolled-back.</li>
+</ul>
+
+
+<p>2. <b>Based on the amount of available memory the JVM hosting the space has</b> - when using this strategy, you should perform some tuning to provide deterministic behavior. This strategy is turned on when the <tt>space-config.engine.memory_usage.enabled</tt> value is <tt>true</tt>. This strategy is very complicated to use when you have multiple spaces running within the same JVM.</p>
+
+<h2><a name="LRU-CachePolicy-TheEvictionFlow"></a>The Eviction Flow</h2>
+<p>LRU eviction based on the amount of available memory, performs the following:</p>
+<ul class="alternate" type="square">
+	<li>Check used memory. If not breached, the <tt>space-config.engine.memory_usage.high_watermark_percentage</tt> exits. If yes, it starts the eviction cycle:
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><b>Start eviction loop</b></p>
+<ol>
+	<li>Evicts a batch - this releases objects from the space.</li>
+	<li>Objects evicted? If not - exit the eviction loop.</li>
+	<li>Wait for the JVM to start garbage collection to reclaim the released memory. The more objects are evicted in one batch, the more time it takes to reclaim the memory. This wait time is configured using the <tt>space-config.engine.memory_usage.retry_yield_time</tt> parameter. This step makes sure that the eviction cycle does not evict too many objects. This problem manifests itself when the <b>check used memory</b> phase is called, where the memory of the evicted objects has not been reclaimed yet, causing the JVM to return a wrong result for the used memory.</li>
+	<li>Check used memory. See below for the exact calculation that is performed.</li>
+	<li>If the amount of memory used has been breached, the low watermark percentage then exits the eviction loop.</li>
+	<li>Increase the eviction counter by one value.</li>
+	<li>If the eviction counter value is larger than <tt>space-config.engine.memory_usage.retry_count</tt>, throw a <tt>MemoryShortageException</tt>.</li>
+</ol>
+
+
+<p><b>End eviction loop</b></p></div></li>
+	<li>If the amount of memory used, is above the <tt>space-config.engine.memory_usage.high_watermark_percentage</tt> (for a non-write operation), or the <tt>space-config.engine.memory_usage.write_only_block_percentage</tt> (for a write operation) - throw a <tt>MemoryShortageException</tt>.</li>
+</ul>
+
+
+<p>The used memory rate is calculated via: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Used_memory_rate = (<span class="code-object">Runtime</span>.totalMemory() - <span class="code-object">Runtime</span>.freeMemory() * 100.0) / <span class="code-object">Runtime</span>.maxMemory()</pre>
+</div></div>
+
+<h1><a name="LRU-CachePolicy-SpaceMemoryShortageException"></a>SpaceMemoryShortageException</h1>
+<p>The <tt>org.openspaces.core.SpaceMemoryShortageException</tt> (which wraps the <tt>com.j_spaces.core.MemoryShortageException</tt>) is thrown when:</p>
+<ul>
+	<li>There are no more space objects to evict and the utilized memory is above the <tt>space-config.engine.memory_usage.high_watermark_percentage</tt> threshold.</li>
+	<li>There are no more space objects to evict and the utilized memory is above the <tt>space-config.engine.memory_usage.write_only_block_percentage</tt> threshold and a <b>write-type</b> operation has been called.
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/LRU_SpaceMemoryShortageException.jpg" align="absmiddle" border="0"/></p></div></li>
+</ul>
+
+
+<p>If a client is running a local cache, and the local cache cannot evict its data fast enough, or somehow there is no available memory for the local cache to function, the following is thrown:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">org.openspaces.core.SpaceMemoryShortageException: Memory shortage at: host: MachineHostName, 
+container: mySpace_container_container1, space mySpace_container_DCache, total memory: 1527 mb, 
+used memory: 1497 mb</pre>
+</div></div>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Note that the <b>_DCache</b> prefix is part of the space name - it indicates that the exception is thrown from the client local cache. In such a case, you should increase the <tt>space-config.engine.memory_usage.retry_count</tt> to a larger number. See more details at the <a href="http://www.gigaspaces.com/wiki/display/SBP/Moving+into+Production+Checklist#MovingintoProductionChecklist-LocalCache">Moving into Production Checklist </a> page.</td></tr></table></div>
+
+<h1><a name="LRU-CachePolicy-MonitoringtheMemoryManagerActivity"></a>Monitoring the Memory Manager Activity </h1>
+<p>You can monitor the memory manager activity for a space running in LRU mode by moving the <tt>com.gigaspaces.core.memorymanager</tt> logging entry to <tt>FINE</tt>.<br/>
+It displays log entries when evicting objects (starting, during, and when completing the eviction cycle), and when waiting for incoming activities. See below example for log entries displayed once an eviction cycle is executed:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">22:42:44,915  FINE [com.gigaspaces.core.memorymanager] - SpaceName: mySpace Cache eviction started: 
+Available memory[%]85.39833755194752
+22:42:44,917  FINE [com.gigaspaces.core.memorymanager] - Call evict on operation: <span class="code-keyword">true</span>
+22:42:44,925  FINE [com.gigaspaces.core.memorymanager] - Batch evicted size=500
+22:42:44,926  FINE [com.gigaspaces.core.memorymanager] - Call evict on operation: <span class="code-keyword">true</span>
+22:42:44,929  FINE [com.gigaspaces.core.memorymanager] - rate=85.46128254359517 free-memory=7305896 
+max-memory=50266112
+22:42:44,932  FINE [com.gigaspaces.core.memorymanager] - Call evict on operation: <span class="code-keyword">true</span>
+22:42:44,938  FINE [com.gigaspaces.core.memorymanager] - SpaceName: mySpace Cache eviction finished: 
+Available memory[%]85.46128254359517 evicted all entries.</pre>
+</div></div>
+
+<p>You may change the logging level of the <tt>com.gigaspaces.core.memorymanager</tt> while the space is running. Start JConsole (you may start it via the GigaSpaces Management Center) for the JVM hosting the space running and change the <tt>com.gigaspaces.core.memorymanager</tt> logging level to <tt>FINE</tt>. See below screenshot:<br/>
+<img src="download/attachments/48235236/memorymanager.jpg" align="absmiddle" border="0"/></p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>To change the <tt>com.gigaspaces.core.memorymanager</tt> logging level to its default value set it back to <tt>INFO</tt>.</td></tr></table></div>
+
+<h1><a name="LRU-CachePolicy-ControllingtheEvictionBehavior"></a>Controlling the Eviction Behavior</h1>
+<p>The <tt>space-config.engine.memory_usage</tt> properties provides options for controlling the space memory utilization, and allows you to evict objects from the space. Objects are evicted when the number of cached objects reaches its maximum size, or when memory usage reaches its limit.<br/>
+These are the default parameters given for memory usage. They should be in the following order:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">high_watermark_percentage &gt;= write_only_block_percentage &gt;= write_only_check_percentage &gt;= low_watermark_percentage</pre>
+</div></div>
+
+<p>See below example how you can configure the LRU eviction settings:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./mySpace"</span>&gt;
+  &lt;os-core:properties&gt;
+	&lt;props&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.enabled"</span>&gt;<span class="code-keyword">true</span>&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.cache_policy"</span>&gt;0&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.cache_size"</span>&gt;5000000&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.high_watermark_percentage"</span>&gt;90&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.write_only_block_percentage"</span>&gt;85&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.write_only_check_percentage"</span>&gt;76&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.low_watermark_percentage"</span>&gt;75&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.eviction_batch_size"</span>&gt;500&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.retry_yield_time"</span>&gt;2000&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.retry_count"</span>&gt;5&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.explicit-gc"</span>&gt;<span class="code-keyword">false</span>&lt;/prop&gt;	    
+	&lt;/props&gt;
+    &lt;/os-core:properties&gt;    
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+
+<h1><a name="LRU-CachePolicy-ExplicitEvictionofObjectsfromtheSpace"></a>Explicit Eviction of Objects from the Space </h1>
+
+<p>If needed, objects can be evicted explicitly from the space by calling the <tt>takeMultiple</tt> or <tt>clear</tt> operations on <a href="The GigaSpace Interface.html" title="The GigaSpace Interface">the GigaSpace interface</a> combined with the <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/com/j_spaces/core/client/TakeModifiers.html"><tt>TakeModifiers.EVICT_ONLY</tt></a> modifier. The <tt>clear</tt> operation only returns the number of objects actually evicted from the space. The <tt>takeMultiple</tt> operation returns the actual objects that were evicted. Here's usage example: </p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="LRU-CachePolicy-Usingclear%28%29"></a>Using clear()</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace gigaSpace = ...;
+User template = <span class="code-keyword">new</span> User(); 
+<span class="code-comment">// Using clear - evicts all the objects of type User from the space 
+</span><span class="code-object">int</span> numEvicted = gigaSpace.clear(template, TakeModifiers.EVICT_ONLY);</pre>
+</div></div>
+
+
+<h5><a name="LRU-CachePolicy-UsingtakeMultiple%28%29"></a>Using takeMultiple()</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace gigaSpace = ...;
+User template = <span class="code-keyword">new</span> User(); 
+<span class="code-comment">// Using takeMultiple - evicts all the objects of type User from the space
+</span>User[] evictedUsers = gigaSpace.takeMultiple(template, <span class="code-object">Integer</span>.MAX_VALUE, TakeModifiers.EVICT_ONLY);</pre>
+</div></div>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> It's important to note the following about the <tt>TakeModifiers.EVICT_ONLY</tt> modifier: </p>
+<ul>
+	<li>It can be used with any take operation - <tt>take</tt>, <tt>takeById</tt>, <tt>takeMultiple</tt>, etc.</li>
+	<li>If used with a space running in <tt>ALL_IN_CACHE</tt> cache policy, an <tt>IllegalArgumentException</tt> will be thrown when calling the take or clear operations.</li>
+	<li>When using this modifier, the timeout argument in operations that allow to specify a timeout, is not honored. The operations will always return immediately.</li>
+	<li>When using this modifier, the take or clear calls will never be propagated to the underlying database. So a take operation for example will return <tt>null</tt> even though a matching object exists in the underlying database</li>
+	<li>Object that take part in a transaction at the time of the clear or take calls, will not be evicted from the space</li>
+</ul>
+
+
+<h1><a name="LRU-CachePolicy-ReloadingData"></a>Reloading Data</h1>
+<p>When a persistent space (using <a href="External Data Source.html" title="External Data Source">External Data Source</a>, or JDBC Storage Adapter), running in <b>LRU cache policy mode</b>, is started/deployed, it loads data from the underlying data source before being available for clients to access. The default behavior is to load data up to 50% of the <tt>space-config.engine.cache_size</tt> value.</p>
+
+<p>When the <tt>space-config.engine.memory_usage</tt> is <tt>true</tt> (evicting data from the space, based on free heap size), is it recommended to have a large value for the <tt>space-config.engine.cache_size</tt> property. This instructs the space engine to ignore the amount of space objects when launching the eviction mechanism. This ensures that the eviction is based only on heap size free memory.</p>
+
+<p>The combination of large <tt>space-config.engine.initial_load</tt> and a large <tt>space-config.engine.cache_size</tt>, may lead to out-of-memory problems. To avoid this, configure the <tt>space-config.engine.initial_load</tt> to have a low value. With the example below, each partition will load 100000 objects - 10% out of the <tt>space-config.engine.cache_size</tt>:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./mySpace"</span> schema=<span class="code-quote">"persistent"</span> external-data-source=<span class="code-quote">"hibernateDataSource"</span>&gt;
+    &lt;os-core:properties&gt;
+        &lt;props&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.enabled"</span>&gt;<span class="code-keyword">true</span>&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.cache_policy"</span>&gt;0&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.initial_load"</span>&gt;10&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.cache_size"</span>&gt;1000000&lt;/prop&gt;
+            &lt;prop key=<span class="code-quote">"cluster-config.cache-loader.external-data-source"</span>&gt;<span class="code-keyword">true</span>&lt;/prop&gt;
+            &lt;prop key=<span class="code-quote">"cluster-config.cache-loader.central-data-source"</span>&gt;<span class="code-keyword">true</span>&lt;/prop&gt;
+        &lt;/props&gt;
+    &lt;/os-core:properties&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+<p>The <tt>space-config.engine.initial_load_class</tt> property can be used to specify specific class(s) data to load.</p>
+
+<h1><a name="LRU-CachePolicy-HowcanIgetDeterministicBehaviorDuringEvictionofObjects%3F"></a>How can I get Deterministic Behavior During Eviction of Objects?</h1>
+<p>In order to have deterministic behavior of the memory manager when evicting objects, based on the amount of free memory in such a way that it:</p>
+<ul class="alternate" type="square">
+	<li>does not evict too many objects.</li>
+	<li>does not consume too much time when reclaiming released objects memory.</li>
+	<li>has minimum impact on client response time.</li>
+</ul>
+
+
+<p>you should:</p>
+<ul class="alternate" type="square">
+	<li><b>have a small eviction batch size</b> - a very good rule of the thumb is the amount of new objects added to the space per second * 2. For example, if clients are adding 1000 new objects to the space per second, and we have 2 partitions, the batch size should be 1000.</li>
+	<li><b>have a sensible time for allowing the GC to reclaim the evicted objects</b> - a very good rule of the thumb is 2 seconds for 1000 objects, for a 5K object size. Needless to say, the CPU speed has an affect here. The recommendation here is good for a 2 MHz Intel CPU.</li>
+	<li><b>limit the amount of objects within the space using the <tt>space-config.engine.cache_size</tt> parameter</b> - this makes sure that the space does not miss garbage collection. Have some reasonable number here as a protection mechanism.</li>
+	<li><b>have a small amplitude between the high and low watermark percentage</b> - remember that with a 2G heap size, every 1% percent means 20M of memory. Reclaiming such an amount of memory takes 1-2 seconds.</li>
+</ul>
+
+
+<p>Here are good settings for a JVM with a <b>2G heap size</b> and a 5K object size. With the following settings, eviction happens once the JVM consumes more than 1.4 G.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./mySpace"</span> schema=<span class="code-quote">"persistent"</span> external-data-source=<span class="code-quote">"hibernateDataSource"</span>&gt;
+    &lt;os-core:properties&gt;
+        &lt;props&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.cache_policy"</span>&gt;0&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.cache_size"</span>&gt;200000&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.enabled"</span>&gt;<span class="code-keyword">true</span>&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.high_watermark_percentage"</span>&gt;70&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.write_only_block_percentage"</span>&gt;68&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.write_only_check_percentage"</span>&gt;65&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.low_watermark_percentage"</span>&gt;60&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.eviction_batch_size"</span>&gt;2000&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.retry_count"</span>&gt;100&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.explicit-gc"</span>&gt;<span class="code-keyword">false</span>&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.retry_yield_time"</span>&gt;4000&lt;/prop&gt;
+	&lt;/props&gt;
+    &lt;/os-core:properties&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+<p>Here are the Java arguments (using incremental GC) to use for the JVM running the Space/GSC:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Xmx2g -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:ParallelGCThreads=8 -XX:+UseParNewGC 
+-XX:+CMSIncrementalPacing -XX:MaxGCPauseMillis=1000</pre>
+</div></div>
+
+<p>When there are a small number of objects within the space (less than 50,000), with a relatively large size (100K and above), and you are running with an LRU cache policy, you should:</p>
+<ul class="alternate" type="square">
+	<li>have a small value for the <tt>space-config.engine.memory_usage.eviction_batch_size</tt>. A value of 10 is a good number.</li>
+	<li>have a relatively large value for the <tt>space-config.engine.memory_usage.retry_yield_time</tt>. A value of 200 (ms) is a good number.</li>
+</ul>
+
+
+<h1><a name="LRU-CachePolicy-GarbageCollectionBehaviorandSpaceResponseTimeTango"></a>Garbage Collection Behavior and Space Response Time Tango</h1>
+<p>In general, when the JVM garbage collection is called, there is a chance that clients accessing the space are affected. <br/>
+If the JVM is not using the incremental GC mode (i.e. regular behavior), the GC has the famous chain saw behavior - rapid memory reclaim of the recently evicted/referenced objects. This means a quick garbage collection, potentially having delays at the client side, or phantom OOME in the case that the JVM has not managed to evict fast enough. </p>
+
+<p>See below an example of regular GC behavior, when eviction is going on (based on available memory), and new objects are written into the space:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/mem1.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>Incremental GC behavior has more moderate activity with on-going garbage collection, without the risk of missing a garbage collection, and getting OOME - see below for an example of behavior when eviction is going on (based on available memory) and new objects are written into the space:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/mem2.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>When the LRU eviction is based on the maximum amount of objects, the memory utilization graph looks like this - a very small amplitude.</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/mem3.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>This behavior is achieved because the memory manager evicts objects one by one from the space, rather than in batches. So the amount of  work the JVM garbage collector needs to perform is relatively small. This also does not affect the clients communicating with the space, and provides a very deterministic response time - i.e. a very small chance of a client hiccup.</p>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>If you can estimate the amount of objects the space holds, and use the eviction based on the maximum number of objects within the space, this allows you to eliminate the  hiccups, and provide a very deterministic and constant response time.</td></tr></table></div>
+
+<h1><a name="LRU-CachePolicy-spaceconfig.engine.memoryusage.explicitgc"></a>space-config.engine.memory_usage.explicit-gc</h1>
+<p>The memory manager has a very delicate feature, called the <tt>explicit-gc</tt>. When enabled, the space performs an explicit Garbage Collection (GC) call before checking how much memory is used. When turned on, this blocks clients from accessing the space during the GC activity. This can cause a domino affect, resulting in un-needed failover, or client total hang. The problem  is severe in a clustered environment, where both the primary and backup space JVM make an explicit GC call at the same time, holding back the primary from both serving the client, and from sending operations to the backup. </p>
+
+<p>With a small value for the <tt>space-config.engine.memory_usage.retry_yield_time</tt>, or when the <tt>space-config.engine.memory_usage.explicit-gc</tt> is turned off (false as a value), the space might evict most of its data, once the <tt>space-config.engine.memory_usage.write_only_block_percentage</tt>, or the <tt>space-config.engine.memory_usage.high_watermark_percentage</tt> is breached.</p>
+
+<p>This happens since the JVM hosting the space might not perform garbage collection immediately between each eviction cycle, resulting in the memory usage remaining intact, causing another eviction cycle to be called. </p>
+
+<p>When using the <tt>space-config.engine.memory_usage.explicit-gc</tt> option:</p>
+<ul>
+	<li>Make sure that <tt>-XX:+DisableExplicitGC</tt> isn't set.</li>
+	<li>Add <tt>-XX:+ExplicitGCInvokesConcurrent</tt> - this might help to reduce the impact of the <tt>System.gc()</tt> calls.</li>
+	<li>Make sure that <tt>System.gc()</tt> is called before calculating available memory.</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

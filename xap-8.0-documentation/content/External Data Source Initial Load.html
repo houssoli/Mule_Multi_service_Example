@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : External Data Source Initial Load</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>External Data Source Initial Load</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903769";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903769";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  External Data Source (EDS) initial Load pre-load the space with data before it is available for clients. </p>
+</div>
+
+<h1><a name="ExternalDataSourceInitialLoad-Overview"></a>Overview</h1>
+<p>The GigaSpaces Data-Grid includes special interceptor that allow users to pre-load the Data-Grid with data before it is available for client access. This interceptor called Initial Load and has a default implementation that is using the Hibernate EDS to load data from a database directly into the Data-Grid instances. By default each Data-Grid primary partition loading its relevant data from the database (parallel load). <br/>
+<img src="download/attachments/48235229/eds_initial_load.jpg" align="absmiddle" border="0"/><br/>
+All irrelevant objects are filtered out during the data load process. You may optimize this activity by instructing each Data-Grid primary instance to a load-specific data set from the database via a custom query you may construct during the initial load phase.</p>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The Initial Load is supported with the <tt>partitioned-sync2backup</tt> cluster schema. If you would like to pre-load a clustered space using the Initial-Load without running backups you can use the <tt>partitioned-sync2backup</tt> and have ZERO as the amount of backups.</td></tr></table></div>
+<p>You can load 1T data into a Data-Grid in several minutes using this approach with the appropriate machines, network and database configuration.</p>
+
+<p>To implement your own Initial Load when using the Hibernate EDS you should implement the <tt>initialLoad</tt> method to construct one or more <tt>DefaultScrollableDataIterator</tt>.<br/>
+See example below:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">import</span> org.openspaces.persistency.hibernate.DefaultHibernateExternalDataSource;
+<span class="code-keyword">import</span> org.openspaces.persistency.hibernate.iterator.DefaultScrollableDataIterator;
+<span class="code-keyword">import</span> com.gigaspaces.datasource.DataIterator;
+ 
+<span class="code-keyword">public</span> class EDSInitialLoadExample <span class="code-keyword">extends</span> DefaultHibernateExternalDataSource
+{
+    @Override    
+    <span class="code-keyword">public</span> com.gigaspaces.datasource.DataIterator initialLoad() 
+    {
+        <span class="code-object">String</span> hquery = <span class="code-quote">"from Employee where age&gt;30"</span>;
+         DataIterator[] iterators = <span class="code-keyword">new</span> DataIterator[1];
+         <span class="code-object">int</span> iteratorCounter = 0;
+         <span class="code-object">int</span> fetchSize = 100;
+         <span class="code-object">int</span> from =-1;
+         <span class="code-object">int</span> size =-1;
+         iterators [ iteratorCounter++ ]  = <span class="code-keyword">new</span> DefaultScrollableDataIterator(hquery, getSessionFactory() , fetchSize, from, size);
+ 
+        <span class="code-comment">//..  you can have additional DefaultScrollableDataIterator created with multiple queries
+</span> 
+         <span class="code-keyword">return</span> createInitialLoadIterator(iterators);
+    }
+}</pre>
+</div></div>
+
+<p>Additional level of customization can be done by loading only the relevant data into the partition.<br/>
+In this case you should use the partition ID and total amount of partitions to form the correct database query. The relevant table column mapped to the routing field should have <tt>Numeric</tt> type to allow simple calculation of the matching rows that need to be retrieved from the database and loaded into the partition. This means your database query needs to "slice" the correct data set from the database tables based on the <tt>partition ID</tt>. The <tt>partition ID</tt> can be retrieved from the <tt>init(Properties) method</tt>. See below example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.test;
+<span class="code-keyword">import</span> java.util.Properties;
+
+<span class="code-keyword">import</span> org.openspaces.persistency.hibernate.DefaultHibernateExternalDataSource;
+<span class="code-keyword">import</span> org.openspaces.persistency.hibernate.iterator.DefaultScrollableDataIterator;
+<span class="code-keyword">import</span> com.gigaspaces.datasource.DataIterator;
+
+<span class="code-keyword">public</span> class EDSInitialLoadExample <span class="code-keyword">extends</span> DefaultHibernateExternalDataSource
+{
+	<span class="code-object">int</span> partitionID ;
+	<span class="code-object">int</span> total_partitions;
+	@Override
+	<span class="code-keyword">public</span> DataIterator initialLoad() 
+	{
+		<span class="code-object">String</span> hquery;
+		<span class="code-keyword">if</span> (total_partitions &gt; 1) {
+			hquery = <span class="code-quote">"from com.test.domain.Person where MOD(department,"</span>
+					+ total_partitions + <span class="code-quote">") = "</span> + (partitionID - 1);
+		} <span class="code-keyword">else</span> {
+			hquery = <span class="code-quote">"from com.test.domain.Person "</span>;
+		}
+
+		DataIterator[] iterators = <span class="code-keyword">new</span> DataIterator[1];
+		<span class="code-object">int</span> iteratorCounter = 0;
+		<span class="code-object">int</span> fetchSize = 100;
+		<span class="code-object">int</span> from =-1;
+		<span class="code-object">int</span> size =-1;
+		iterators[iteratorCounter++] = <span class="code-keyword">new</span> DefaultScrollableDataIterator(hquery, getSessionFactory() , fetchSize, from, size);
+		<span class="code-keyword">return</span> createInitialLoadIterator(iterators);
+	}
+
+	@Override	
+	<span class="code-keyword">public</span> void init(Properties props) 
+	{
+		<span class="code-keyword">super</span>.init(props);
+		partitionID  = <span class="code-object">Integer</span>.valueOf(props.get(STATIC_PARTITION_NUMBER).toString()).intValue();
+		total_partitions= <span class="code-object">Integer</span>.valueOf(props.get(NUMBER_OF_PARTITIONS).toString()).intValue();
+		<span class="code-object">System</span>.out.println(<span class="code-quote">"partitionID  "</span> + partitionID   + <span class="code-quote">" total_partitions "</span> + total_partitions);
+	}
+}</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Make sure the routing field (i.e. PERSON_ID) will be an Integer type.</p>
+
+<p>Since each space partition stores a subset of the data , based on the entry routing field hash code value , you need to load the data from the database in the same manner the client load balance the data when interacting with the different partitions.</p>
+
+<p>The database query using the MOD , PERSON_ID , numberOfPartitions and the partitionNumber is identical to the activity done by a space client when performing write/read/take operations with partitioned space.</p>
+
+<div class='panelMacro'><table class='warningMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>prop.get(ManagedDataSource.STATIC_PARTITION_NUMBER) first number will be 1. If the space is not partitioned it will return 0.<br/>
+prop.get(ManagedDataSource.NUMBER_OF_PARTITIONS) will return 1 for non partitioned space.</td></tr></table></div>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

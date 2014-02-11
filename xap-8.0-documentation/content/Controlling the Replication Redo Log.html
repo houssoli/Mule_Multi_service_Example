@@ -1,0 +1,350 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Controlling the Replication Redo Log</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Controlling the Replication Redo Log</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>   This section describes how to control the replication queue (aka the redo log), what options it provides, and what are the trade-offs involved with each option. </p>
+</div>
+
+<h1><a name="ControllingtheReplicationRedoLog-ReplicationRedoLog"></a>Replication Redo Log</h1>
+
+<p>On replicated clusters, each member, which is a source that sends replication events to its targets, has a replication redo log. This is a list of pending replication packets that need to be dispatched to the different targets. </p>
+
+<p><img src="download/attachments/48235229/persistent_redolog.jpg" align="absmiddle" border="0"/></p>
+
+<p>A replication packet is either a single non-transactional "destructive" (write/take/update) operation, or a group of such operations that are done under the same transaction. The redo log contains a single list that is kept for all the targets, and for each target a different state is maintained, which represents its position in the redo log. When the cluster is at a normal state, this redo log should remain at some low constant size. However, in certain common scenarios, such as a momentary network disconnection, or a burst of high load, the redo log keeps all the pending events that need to be replicated until the source member manages to re-establish connection with the target, or until the replication target manages to catch up with the temporary load. As a result the redo log size starts to increase, and it can become quite large, depending on the different cluster usage, which affects the rate of replicated events creation.</p>
+
+<h1><a name="ControllingtheReplicationRedoLog-RedoLogCapacityConfiguration"></a>Redo Log Capacity Configuration</h1>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The below configuration parameters have a significant effect on the behavior of the replication mechanism and the overall and performance of the space cluster. You should carefully evaluate every change you make to their default values, and consult the GigaSpaces support team if needed</td></tr></table></div>
+
+<p>Here are the parameters you may configure to tune the redo log behavior. You may configure the redo log behavior between replicated spaces and between the spaces and the Mirror:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Space Cluster Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value</th>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-capacity </td>
+<td class='confluenceTd'> Specifies the total capacity of replication packets the redo log can hold for a standard replication target.</td>
+<td class='confluenceTd'>150000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-memory-capacity </td>
+<td class='confluenceTd'> Specifies the maximum number of replication packets the redo log keeps in memory.</td>
+<td class='confluenceTd'>150000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-recovery-capacity </td>
+<td class='confluenceTd'> Specifies the total capacity of replication packets the redo log can hold for a standard replication target while it is undergoing a recovery process.</td>
+<td class='confluenceTd'>5000000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.on-redo-log-capacity-exceeded</td>
+<td class='confluenceTd'> See the <a href="#ControllingtheReplicationRedoLog-HandlinganIncreasingRedoLog">Handling an Increasing Redo Log</a> for details. </td>
+<td class='confluenceTd'> drop-oldest</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.on-missing-packets</td>
+<td class='confluenceTd'> Options: ignore , recover. See the <a href="#ControllingtheReplicationRedoLog-HandlingDroppedReplicationPackets">Handling Dropped Replication Packets</a> for details. </td>
+<td class='confluenceTd'> recover</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.mirror-service.redo-log-capacity </td>
+<td class='confluenceTd'> Specifies the total capacity of replication packets the redo log can hold for a mirror service replication target.</td>
+<td class='confluenceTd'>1000000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.mirror-service.on-redo-log-capacity-exceeded</td>
+<td class='confluenceTd'> See the <a href="#ControllingtheReplicationRedoLog-HandlinganIncreasingRedoLog">Handling an Increasing Redo Log</a> for details. </td>
+<td class='confluenceTd'> block-operations</td>
+</tr>
+</tbody></table>
+
+<p>The following parameters are low level configuration that relates to the swap redo log mechanism:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Space Cluster Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value</th>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.swap-redo-log.flush-buffer-packet-count </td>
+<td class='confluenceTd'> Specifies the number of packets buffer size that the swap redo log is using when flushing packets to the disk. </td>
+<td class='confluenceTd'> 500 </td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.swap-redo-log.segment-size</td>
+<td class='confluenceTd'> Specifies the size in bytes of each swap redo log segment file. </td>
+<td class='confluenceTd'> 10MB </td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.swap-redo-log.fetch-buffer-packet-count </td>
+<td class='confluenceTd'> Specifies the number of packets buffer size that the swap redo log is using when retrieving packets from the disk to the memory. </td>
+<td class='confluenceTd'> 500 </td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.swap-redo-log.max-scan-length</td>
+<td class='confluenceTd'> Specifies the maximum allowed scan length in bytes in swap redo log file in order to locate a packet. </td>
+<td class='confluenceTd'> 50KB </td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.swap-redo-log.max-open-cursors</td>
+<td class='confluenceTd'> Specifies the maximum number of open file descriptor that the swap redo log will use. </td>
+<td class='confluenceTd'> 10 </td>
+</tr>
+</tbody></table>
+
+
+<p>Here is an example how you should use the above:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> mirror=<span class="code-quote">"<span class="code-keyword">true</span>"</span>&gt;
+    &lt;os-core:properties&gt;
+	&lt;props&gt;
+	    &lt;prop key=<span class="code-quote">"cluster-config.groups.group.repl-policy.redo-log-capacity"</span>&gt;100000&lt;/prop&gt;
+	    &lt;prop key=<span class="code-quote">"cluster-config.groups.group.repl-policy.redo-log-memory-capacity"</span>&gt;100&lt;/prop&gt;
+	&lt;/props&gt;
+    &lt;/os-core:properties&gt;    
+&lt;/os-core:space&gt;</pre>
+</div></div>
+<p><br clear="all" />
+For all of these parameters, -1 specifies unlimited behavior. When the memory capacity is smaller than the entire capacity, if the memory capacity is reached, the redo log stores the remaining packets on the disk, thus preventing the JVM from running out of memory when the redo log size is increasing for the reasons mentioned above.</p>
+
+<p>The redo log capacity for a mirror service must be the same or higher than the redo log capacity for a non mirror target.</p>
+
+<h1><a name="ControllingtheReplicationRedoLog-HandlinganIncreasingRedoLog"></a>Handling an Increasing Redo Log</h1>
+
+<p>There are two major causes for the redo log size to increase to such an extent, that it may indicate or cause a future problem. One cause is long disconnections, and the other is when the target (i.e backup) space can't keep up with the source (i.e primary) space - e.g. a mirror service that persists the replicated data into a database, where the database is constantly slower than the rate of incoming replicated events. </p>
+
+<p>We'll look at the two most common replication targets:</p>
+<ul>
+	<li>A Backup</li>
+	<li>A Mirror</li>
+</ul>
+
+
+<p>A backup member has a significant difference compared to the mirror scenario. It can always perform a full recovery from its source (primary) partner. However, a mirror is a stateless component, which only tunnels the changes in the cluster to its target, normally a database. Therefore it cannot recover missing packets.</p>
+
+<p>To handle these scenarios, the redo log capacity should be used, and the type of action to take once the capacity is reached, can be configured. That action is configured for two types of replication targets - a mirror target and a non mirror target in the cluster schema. A mirror is configured in the mirror service element, and a non mirror target is configured in the replication policy element. </p>
+
+<p>Both have the same parameter name - <tt>on-redo-log-capacity-exceeded</tt>, and two available options:</p>
+<ul>
+	<li><b>block-operations</b> - all cluster operations that need to be replicated (write/update/take) are blocked until the redo log size decreases below the capacity. (Users get <tt>RedoLogCapacityExceededException</tt> exceptions while trying to execute these operations.)</li>
+	<li><b>drop-oldest</b> - the oldest packet in the redo log is dropped.</li>
+</ul>
+
+
+<p>Since a mirror can never recover missing packets, it should probably be configured with the <tt>block-operation</tt> mode when the redo log size is exceeded. Otherwise, changes can be dropped before reaching the database. Additionally, its redo log capacity should probably be higher for the same reason. If the redo log size reaches this state frequently, it means that the mirror is not handling the load, and the cluster and environment should be examined. </p>
+
+<p>A backup space can always fall back to full recovery, so it is reasonable to configure replication to it in <tt>drop-oldest</tt> mode, instead of <tt>block-operation</tt> mode. Also one can have a smaller redo log capacity, for it to avoid writing packets to disk when a long disconnection occurs and forcing a full recovery by the backup. If the redo log size is very large, it can even take more time just to replicate cluster changes, instead of just performing full recovery of the data.</p>
+
+<p>The <tt>redo-log-recovery-capacity</tt> parameter is used only when a target space member is currently recovering from a source space member (both target and source can never be a mirror space), when this happens, the redo log size of the source can increase since it holds the replication back log accumulated during the recovery process, and we would like it to be larger than the regular capacity. This is done by setting the <tt>redo-log-recovery-capacity</tt>, if this capacity is reached during a recovery process, new replicated operation will be blocked (With the same exception as above) until the size reduces.</p>
+
+<h1><a name="ControllingtheReplicationRedoLog-HandlingDroppedReplicationPackets"></a>Handling Dropped Replication Packets</h1>
+
+<p>An additional configurable property of replication, is how a backup replication target behaves when there are missing replication packets, due to packets being dropped when configuring the <tt>drop-oldest</tt> behavior at its source. An active space (primary) has no choice but to accept the state when expected replication packets are missing, and keep running as usual - e.g. an active-active replicated cluster. However, a backup space can be configured either to ignore missing packets, or once it encounters such a scenario, change its state to inconsistent. This causes it to be automatically redeployed, which forces a full recovery, thus keeping its state synchronized with the primary. This property is configured in the cluster schema replication policy element, by setting <tt>on-missing-packets</tt> to <tt>ignore</tt> or <tt>recover</tt>. A backup space has this configured to <tt>recover</tt> by default.</p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This property only affects spaces that are not in primary mode. Hence it has no affect on active-active topologies, and <tt>on-missing-packets</tt> is in <tt>ignore</tt> mode.</td></tr></table></div>
+
+<h1><a name="ControllingtheReplicationRedoLog-Recommendations"></a>Recommendations</h1>
+
+<ul>
+	<li>Configuring an unlimited redo log capacity and a limited memory capacity, can create a risky situation if there is a mirror, so this should be done with extreme care. When the redo log capacity is unlimited and the memory capacity is reached, the redo log is kept in the disk, if the mirror is not keeping up with the pace. This means that the redo log can increase and reach a huge size without being noticed (other than monitoring the redo log size via management facilities). This can create a very big gap between the cluster state and the database state without any automatic throttling. This can also eventually cause the disk to run out of space.</li>
+</ul>
+
+
+<ul>
+	<li>When using the <tt>drop-oldest</tt> replication mode on active-active topologies, or towards a mirror target, missing replication packets do cause differences between cluster members, and this should be taken into account.</li>
+</ul>
+
+
+<h1><a name="ControllingtheReplicationRedoLog-ApplicationSpecificTuning"></a>Application Specific Tuning</h1>
+
+<p>When tuning the redo log capacities for your application, you should tune the redo log capacities in two aspects: </p>
+<ul>
+	<li>allowed disconnection time</li>
+	<li>memory consumption</li>
+</ul>
+
+
+<p>For instance, consider the situation where you have a mirror, and you want the system to have a maximum backlog of the last 5 minutes when a mirror service is down, and after that you want to block new operations. In this case, you should consider what is the expected performance of a single partition per second - e.g. 5,000 transactions. Multiply this by 5 minutes, which results in a configuration of 1,500,000 <tt>redo-log-capacity</tt> for the mirror target, and operations are blocked (<tt>block-operations</tt>) when this size is reached. When it comes to memory consumption, you should have an approximation of the average memory size of each replication packet (single "destructive" transaction/non-transactional operation), e.g. 1Kb. Then if you wish to hold up to 200Mb of packets in memory, this results in 200,000 packets configured for the <tt>redo-log-memory-capacity</tt>.</p>
+
+<h1><a name="ControllingtheReplicationRedoLog-Limitations"></a>Limitations</h1>
+
+<p>When EDS is used with the central data source set to false, (which means each cluster member has its own private data base), a backup recovers from its private database once re-started and not from its primary space. Therefore if the <tt>drop-oldest</tt> replication mode is used, the dropped packets never reach the backup space and these members remain out of sync.</p>
+
+<h1><a name="ControllingtheReplicationRedoLog-BehaviorChangesbetween7.1andOlderVersions"></a>Behavior Changes between 7.1 and Older Versions</h1>
+
+<p>The following mechanisms are new to 7.1:</p>
+<ul>
+	<li>Swap with disk redo log.</li>
+	<li>On redo log capacity exceeded behavior (for both mirror and non mirror target).</li>
+	<li>Different redo log capacity between mirror and non mirror target.</li>
+	<li>On missing packets behavior.</li>
+</ul>
+
+
+<p>Versions prior to XAP 7.1 had only one configurable property regarding the redo log - <tt>cluster-config.groups.group.repl-policy.redo-log-capacity</tt>. The default for that property was -1, which means unlimited. There was no swap with disk mechanism, and as a result, even though the <tt>redo-log-capacity</tt> was set to unlimited, it was limited by the available memory, and the memory manager would block operations when the memory consumption was getting too high. In 7.1, if the <tt>redo-log-memory-capacity</tt> is limited, and the <tt>redo-log-capacity</tt> is unlimited, packets are written to disk, and therefore the redo log size is not blocked by the memory manager. Because we have improved the feature set when it comes to replication, we have also adjusted the default configuration for the partitioned-sync2backup schema, to better reflect the common scenario.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Property</th>
+<th class='confluenceTh'>7.0 Defaults</th>
+<th class='confluenceTh'>7.1 Defaults</th>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-capacity</td>
+<td class='confluenceTd'>-1</td>
+<td class='confluenceTd'>150000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-memory-capacity</td>
+<td class='confluenceTd'>-1</td>
+<td class='confluenceTd'>150000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-recovery-capacity</td>
+<td class='confluenceTd'>-1</td>
+<td class='confluenceTd'>5000000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.on-redo-log-capacity-exceeded</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>drop-oldest</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.on-missing-packets</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>recover</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.mirror-service.redo-log-capacity</td>
+<td class='confluenceTd'>-1</td>
+<td class='confluenceTd'>1000000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.mirror-service.on-redo-log-capacity-exceeded</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>block-operations</td>
+</tr>
+</tbody></table>
+
+<p>These are supposed to address the following scenario: a cluster tolerates a 4-5 minute backlog accumulated at the cluster members, without being replicated to the mirror, assuming a load of 3,000-5,000 transactions per second at each partition. Once the redo log size reaches this size, operations are blocked until the mirror reconnects and/or keeps up with the pace. For a backup space, the redo log is kept for a short disconnection of 20-30 seconds. Any disconnection longer than that is considered as if the backup is down, and it has to do a full recovery. Once the connection is re-established, its redo log is dropped without blocking operations.</p>
+
+<p>If a limited redo log capacity was used prior to 7.1, it is equivalent to the following properties in 7.1 (i.e a limit of 100,000 packets):</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Property</th>
+<th class='confluenceTh'>7.0 Settings</th>
+<th class='confluenceTh'>7.1 Equivallent Settings</th>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-capacity</td>
+<td class='confluenceTd'>100000</td>
+<td class='confluenceTd'>100000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-memory-capacity</td>
+<td class='confluenceTd'>N/A</td>
+<td class='confluenceTd'>100000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.redo-log-recovery-capacity</td>
+<td class='confluenceTd'>N/A</td>
+<td class='confluenceTd'>100000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.on-redo-log-capacity-exceeded</td>
+<td class='confluenceTd'>N/A</td>
+<td class='confluenceTd'>drop-oldest</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.groups.group.repl-policy.on-missing-packets</td>
+<td class='confluenceTd'>N/A</td>
+<td class='confluenceTd'>ignore</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.mirror-service.redo-log-capacity</td>
+<td class='confluenceTd'>N/A</td>
+<td class='confluenceTd'>100000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>cluster-config.mirror-service.on-redo-log-capacity-exceeded</td>
+<td class='confluenceTd'>N/A</td>
+<td class='confluenceTd'>drop-oldest</td>
+</tr>
+</tbody></table>
+
+<h1><a name="ControllingtheReplicationRedoLog-GettingtheRedoLogsize"></a>Getting the Redo Log size</h1>
+
+<p>You may get the redo log size via the GS-UI or via the API.</p>
+<h2><a name="ControllingtheReplicationRedoLog-ViewRedoSizeviatheGigaSpacesManagementCenter"></a>View Redo Size via the GigaSpaces Management Center</h2>
+
+<p>Enable the redo log size monitoring:<br/>
+<img src="download/attachments/48235229/red-log1.jpg" align="absmiddle" border="0"/></p>
+
+<p>A new column will be added to the space list table:<br/>
+<img src="download/attachments/48235229/red-log2.jpg" align="absmiddle" border="0"/></p>
+
+<h2><a name="ControllingtheReplicationRedoLog-GettheredologviatheAdminAPI"></a>Get the redo log via the Admin API</h2>
+<p>See below example using the Admin API that retrieve the redo log size:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Admin   admin = <span class="code-keyword">new</span> AdminFactory().createAdmin(); 
+Space space = admin.getSpaces().waitFor(spaceName, 10, TimeUnit.SECONDS); 
+SpacePartition partitions[]= space.getPartitions();
+SpacePartition partition = ...
+<span class="code-object">long</span> redologSize = partition.getPrimary().getStatistics().getReplicationStatistics().
+ getOutgoingReplication().getRedoLogSize();</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

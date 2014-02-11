@@ -1,0 +1,581 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Task Execution over the Space</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Task Execution over the Space</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903494";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903494";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Task executors allow you to easily execute grid-wide tasks on the space using the GigaSpace API. </p>
+</div>
+
+<h1><a name="TaskExecutionovertheSpace-Overview"></a>Overview</h1>
+
+<p>OpenSpaces comes with support for executing tasks in a collocated asynchronous manner with the Space (processing unit that started an embedded Space). Tasks can be executed directly on a specific cluster member using typical routing declarations. Tasks can also be executed in a "broadcast" mode on all the primary cluster members concurrently and reduced to a single result on the client side. Tasks are completely dynamic both in terms of content and class definitions (the task class definition does not have to be defined within the space classpath).</p>
+
+<p><img src="download/attachments/48235229/Executors_task_flow_basic.jpg" align="absmiddle" border="0"/></p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The following <a href="http://www.gigaspaces.com/wiki/display/SBP/Map-Reduce+Pattern+-+Executors+Example" title="Map-Reduce Pattern - Executors Example">example</a> demonstrates how to use the task execution API</td></tr></table></div>
+
+<h1><a name="TaskExecutionovertheSpace-TaskAPI"></a>Task API</h1>
+
+<p>The <tt>Task</tt> interface is defined as follows:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> Task&lt;T <span class="code-keyword">extends</span> Serializable&gt; <span class="code-keyword">extends</span> Serializable {
+
+  /**
+   * Computes a result, or <span class="code-keyword">throws</span> an exception <span class="code-keyword">if</span> unable to <span class="code-keyword">do</span> so.
+   *
+   * @<span class="code-keyword">return</span> computed result
+   * @<span class="code-keyword">throws</span> Exception <span class="code-keyword">if</span> unable to compute a result
+   */
+  T execute() <span class="code-keyword">throws</span> Exception;
+}</pre>
+</div></div>
+
+<p>Here is a simple implementation of a task that accepts a value that will be returned in the execute phase.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyTask <span class="code-keyword">implements</span> Task&lt;<span class="code-object">Integer</span>&gt; {
+
+  <span class="code-keyword">private</span> <span class="code-object">int</span> value;
+  
+  <span class="code-keyword">public</span> MyTask(<span class="code-object">int</span> value) {
+    <span class="code-keyword">this</span>.value = value;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+    <span class="code-keyword">return</span> value;
+  }
+}</pre>
+</div></div>
+
+<p>Executing the task itself uses the GigaSpace API with a routing value of 2 (the second parameter):</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">AsyncFuture&lt;<span class="code-object">Integer</span>&gt; <span class="code-keyword">future</span> = gigaSpace.execute(<span class="code-keyword">new</span> MyTask(2), 2);
+<span class="code-object">int</span> result = <span class="code-keyword">future</span>.get();</pre>
+</div></div>
+
+<h1><a name="TaskExecutionovertheSpace-AsyncAPI"></a>Async API</h1>
+
+<p><tt>Task</tt> execution is asynchronous in nature, returning an <tt>AyncFuture</tt> as the result of the execution allowing to get the result at a later stage in the code. <tt>AsyncFuture</tt> itself extends <tt>java.util.concurrent.Future</tt>.</p>
+
+<p>The main deficiency of <tt>java.util.concurrent.Future</tt> is the fact that a call to <tt>get</tt> results in a blocking call (either indefinitely or for a specific timeout) causing the execution of a <tt>Task</tt> to not be completely asynchronous in terms of user API flow. <tt>AsyncFuture</tt> adds the ability to register an <tt>AsyncFutureListener</tt> which will be executed once a result arrives. Here are the interfaces for both <tt>AsyncFuture</tt> and <tt>AsyncFutureListener</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> AsyncFuture&lt;V&gt; <span class="code-keyword">extends</span> Future&lt;V&gt; {
+
+    void setListener(AsyncFutureListener&lt;V&gt; listener);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> AsyncFutureListener&lt;T&gt; {
+
+    /**
+     * A callback when a result of an async invocation arrives.
+     */
+    void onResult(AsyncResult&lt;T&gt; result);
+}</pre>
+</div></div>
+
+<p>Passing the listener can be done by setting it on the <tt>AsyncFuture</tt> or when executing a task using the <tt>GigaSpace</tt> API as an additional parameter.</p>
+
+<p><tt>AsyncResult</tt> can be used to extract the result or the exception of the execution. Here it is:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> AsyncResult&lt;T&gt; {
+
+    /**
+     * Returns the result of the async invocation. Returns &lt;code&gt;<span class="code-keyword">null</span>&lt;/code&gt;
+     * in <span class="code-keyword">case</span> of an exception. {@link #getException()} should be checked <span class="code-keyword">for</span>
+     * successful execution.
+     */
+    T getResult();
+
+    /**
+     * In <span class="code-keyword">case</span> of an async invocation failure, returns the exception causing it.
+     * If the invocation is successful, <span class="code-keyword">this</span> method returns &lt;code&gt;<span class="code-keyword">null</span>&lt;/code&gt;. 
+     */
+    Exception getException();
+}</pre>
+</div></div>
+
+<h1><a name="TaskExecutionovertheSpace-TaskRouting"></a>Task Routing</h1>
+
+<p>When executing a single <tt>Task</tt> there are several ways its routing can be controlled. The simplest form is by passing the routing information as a parameter to the execute command, for example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">AsyncFuture&lt;<span class="code-object">Integer</span>&gt; <span class="code-keyword">future</span> = gigaSpace.execute(<span class="code-keyword">new</span> MyTask(2), 2);
+<span class="code-object">int</span> result = <span class="code-keyword">future</span>.get();</pre>
+</div></div>
+
+<p>The routing parameter value will be used as the routing value. In case it is a POJO defined with a @SpaceRouting on one of its properties, the value of that property will be used as the routing information when passed as a parameter. For example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> void Order {
+
+  <span class="code-comment">// ...
+</span>
+  @SpaceRouting
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> getOrderRouting() {
+    <span class="code-comment">// ...
+</span>  }
+}
+
+Order order = <span class="code-keyword">new</span> Order();
+AsyncFuture&lt;<span class="code-object">Integer</span>&gt; <span class="code-keyword">future</span> = gigaSpace.execute(<span class="code-keyword">new</span> MyTask(2), order);
+<span class="code-object">int</span> result = <span class="code-keyword">future</span>.get();</pre>
+</div></div>
+
+<p>Routing information can also be defined on the <tt>Task</tt> itself either using <tt>@SpaceRouting</tt> annotation or using the optional <tt>TaskRoutingProvider</tt> interface (for non annotations based configuration). Here are how they can be used:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TaskExecutionovertheSpace-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyTask <span class="code-keyword">implements</span> Task&lt;<span class="code-object">Integer</span>&gt; {
+
+  <span class="code-keyword">private</span> <span class="code-object">int</span> value;
+  
+  <span class="code-keyword">public</span> MyTask(<span class="code-object">int</span> value) {
+    <span class="code-keyword">this</span>.value = value;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+    <span class="code-keyword">return</span> value;
+  }
+  
+  @SpaceRouting
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> routing() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.value;
+  }
+}</pre>
+</div></div> 
+
+
+<h5><a name="TaskExecutionovertheSpace-Interface"></a>Interface</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyTask <span class="code-keyword">implements</span> Task&lt;<span class="code-object">Integer</span>&gt; <span class="code-keyword">implements</span> TaskRoutingProvider {
+
+  <span class="code-keyword">private</span> <span class="code-object">int</span> value;
+  
+  <span class="code-keyword">public</span> MyTask(<span class="code-object">int</span> value) {
+    <span class="code-keyword">this</span>.value = value;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+    <span class="code-keyword">return</span> value;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> getRouting() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.value;
+  }
+}</pre>
+</div></div>
+</div></div>
+
+<p>Once the routing information is defined on the <tt>Task</tt>, it can be executed (without the need for additional parameters):</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">AsyncFuture&lt;<span class="code-object">Integer</span>&gt; <span class="code-keyword">future</span> = gigaSpace.execute(<span class="code-keyword">new</span> MyTask(2));
+<span class="code-object">int</span> result = <span class="code-keyword">future</span>.get();</pre>
+</div></div>
+
+<h1><a name="TaskExecutionovertheSpace-DistributedTaskAPI"></a>DistributedTask API</h1>
+
+<p>A <tt>DistributedTask</tt> is a task that ends up executing more than once (concurrently) and returns a result that is a reduced operation of all the different executions. </p>
+
+<p>Phase 1 - Sending the Tasks to be executed:<br/>
+<img src="download/attachments/48235229/DistributedTaskExecution_phase1.jpg" align="absmiddle" border="0"/></p>
+
+<p>Phase 2 - Getting the results back to be reduced:<br/>
+<img src="download/attachments/48235229/DistributedTaskExecution_phase2.jpg" align="absmiddle" border="0"/></p>
+
+<p>Here is the <tt>DistributedTask</tt> API:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> AsyncResultsReducer&lt;T, R&gt; {
+
+  R reduce(List&lt;AsyncResult&lt;T&gt;&gt; results) <span class="code-keyword">throws</span> Exception;
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> DistributedTask&lt;T <span class="code-keyword">extends</span> Serializable, R&gt; <span class="code-keyword">extends</span> Task&lt;T&gt;, AsyncResultsReducer&lt;T, R&gt; {
+}</pre>
+</div></div>
+
+<p>The distributed task interface extends both <tt>Task</tt> and <tt>AsyncResultsReducer</tt>. The <tt>Task</tt> interface is used to execute a specific execution of the distributed task (there will be several executions of it), and the <tt>AsyncResultsReducer</tt> is used to reduce the results of all the executions.</p>
+
+<p>Lets write a (very) simple example of a <tt>DistributedTask</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyDistTask <span class="code-keyword">implements</span> DistributedTask&lt;<span class="code-object">Integer</span>, <span class="code-object">Long</span>&gt; {
+
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+    <span class="code-keyword">return</span> 1;
+  }
+  
+  <span class="code-keyword">public</span> <span class="code-object">Long</span> reduce(List&lt;AsyncResult&lt;<span class="code-object">Integer</span>&gt;&gt; results) <span class="code-keyword">throws</span> Exception {
+    <span class="code-object">long</span> sum = 0;
+    <span class="code-keyword">for</span> (AsyncResult&lt;<span class="code-object">Integer</span>&gt; result : results) {
+      <span class="code-keyword">if</span> (result.getException() != <span class="code-keyword">null</span>) {
+        <span class="code-keyword">throw</span> result.getException();
+      }
+      sum += result.getResult();
+    }
+    <span class="code-keyword">return</span> sum;
+  }
+}</pre>
+</div></div>
+
+<p>The above task simply returns <tt>1</tt> for its <tt>execute</tt> operation, and the reducer simply sums all the executions. If there was an exception thrown during the <tt>execute</tt> operation (in our case, it will never happen), the exception will be throws back to the user during the <tt>reduce</tt> operation.</p>
+
+<p>A distributed task is used when either executing a task the is directed to several nodes based on different routing values, or one that is broadcast to all the primary nodes of the cluster. Executing a distributed task on several nodes based on different routing values can be done as follows:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">AsyncFuture&lt;<span class="code-object">Long</span>&gt; <span class="code-keyword">future</span> = gigaSpace.execute(<span class="code-keyword">new</span> MyDistTask(), 1, 4, 6, 7);
+<span class="code-object">long</span> result = <span class="code-keyword">future</span>.get(); <span class="code-comment">// result will be 4</span></pre>
+</div></div>
+
+<p>In the above case, the distributed task is executed (concurrently and asynchronously) on 4 nodes that correspond to routing values of <tt>1</tt>, <tt>4</tt>, <tt>6</tt>, and <tt>7</tt>.</p>
+
+<p>Broadcasting the execution to all current primary nodes can be done by simply executing <b>just</b> the distributed task. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">AsyncFuture&lt;<span class="code-object">Long</span>&gt; <span class="code-keyword">future</span> = gigaSpace.execute(<span class="code-keyword">new</span> MyDistTask());
+<span class="code-object">long</span> result = <span class="code-keyword">future</span>.get(); <span class="code-comment">// result will be the number of primary spaces</span></pre>
+</div></div>
+
+<p>In this case, the distributed task will be executed on all the primary spaces of the cluster.</p>
+
+<h2><a name="TaskExecutionovertheSpace-AsyncResultFilter"></a>AsyncResultFilter</h2>
+
+<p>When executing a distributed task, results arrive in an asynchronous manner and once all the results have arrived, the <tt>AsyncResultsReducer</tt> is used to reduce them. The <tt>AsyncResultFitler</tt> can be used to as a callback and filter mechanism to be invoked for each result that arrives.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> AsyncResultFilter&lt;T&gt; {
+
+    /**
+     * Controls what should be done with the results.
+     */
+    <span class="code-keyword">enum</span> Decision {
+
+        /**
+         * Continue processing the distributed task.
+         */
+        CONTINUE,
+
+        /**
+         * Break out of the processing of the distributed task and move
+         * to the reduce phase.
+         */
+        BREAK,
+
+        /**
+         * Skip <span class="code-keyword">this</span> result and <span class="code-keyword">continue</span> processing the <span class="code-keyword">rest</span> of the results.
+         */
+        SKIP
+    }
+
+    /**
+     * A callback invoked <span class="code-keyword">for</span> each result that arrives as a result of a distributed task execution allowing
+     * to access the result that caused <span class="code-keyword">this</span> event, the events received so far, and the total expected results.
+     */
+    Decision onResult(AsyncResultFilterEvent&lt;T&gt; event);
+}</pre>
+</div></div>
+
+<p>The filter can be used to control if a result should be used or not (the <tt>SKIP</tt> decision). If a we have enough results and we can move to the reduce phase (the <tt>BREAK</tt> decision). Or, if we should continue accumulating results (the <tt>CONTINUE</tt> decision).</p>
+
+<p>The filter can also be used as a way to be identify that results have arrived and we can do something within our application as a result of that. Note, in this case, make sure that heavy processing should be performed on a separate (probably pooled) thread.</p>
+
+<h1><a name="TaskExecutionovertheSpace-ExecutorBuilderAPI"></a>ExecutorBuilder API</h1>
+
+<p>The executor builder API allows to combine several task executions (both distributed ones and non distributed ones) into a seemingly single execution (with a reduce phase). Think of the <tt>ExecutorBuilder</tt> as a cartridge that accumulates all the tasks to be executed, and then executes all of them at once giving back a reduced result (in a concurrent and asynchronous manner). Here is an example of the API:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">AsyncFuture&lt;<span class="code-object">Integer</span>&gt; <span class="code-keyword">future</span> = gigaSpace.executorBuilder(<span class="code-keyword">new</span> SumReducer&lt;<span class="code-object">Integer</span>, <span class="code-object">Integer</span>&gt;(<span class="code-object">Integer</span>.class))
+                                .add(<span class="code-keyword">new</span> MyTask(2))
+                                .add(<span class="code-keyword">new</span> MyOtherTask(), 3)
+                                .add(<span class="code-keyword">new</span> MyDistTask())
+                                .execute();
+<span class="code-object">Integer</span> result = <span class="code-keyword">future</span>.get();</pre>
+</div></div>
+
+<p>In the above case, there are several tasks that are "added" to the <tt>ExecutorBuilder</tt>, executed (in a similar manner to a single distributed task) and then reduced using a sum reducer that is provided when building the <tt>ExecutorBuilder</tt>.</p>
+
+<p>The <tt>ExecutorBuilder</tt> can also be passed an optional <tt>AsyncResultFilter</tt> if the reducer also implements it.</p>
+
+<h1><a name="TaskExecutionovertheSpace-SpaceInjection"></a>Space Injection</h1>
+
+<p>The most common scenario for using executors is by interacting with the collocated Space the task in executed on. A <tt>GigaSpace</tt> instance, which works against a collocated Space can be easily injected either using annotations or using an interface. Here is an example:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TaskExecutionovertheSpace-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TemplateCountTask <span class="code-keyword">implements</span> DistributedTask&lt;<span class="code-object">Integer</span>, <span class="code-object">Long</span>&gt; {
+
+  <span class="code-keyword">private</span> <span class="code-object">Object</span> template;
+  
+  @TaskGigaSpace
+  <span class="code-keyword">private</span> <span class="code-keyword">transient</span> GigaSpace gigaSpace;
+  
+  <span class="code-keyword">public</span> TemplateCountTask(<span class="code-object">Object</span> template) {
+    <span class="code-keyword">this</span>.template = template;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+    <span class="code-keyword">return</span> gigaSpace.count(template);
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Long</span> reduce(List&lt;AsyncResult&lt;<span class="code-object">Integer</span>&gt;&gt; results) <span class="code-keyword">throws</span> Exception {
+    <span class="code-object">long</span> sum = 0;
+    <span class="code-keyword">for</span> (AsyncResult&lt;<span class="code-object">Integer</span>&gt; result : results) {
+      <span class="code-keyword">if</span> (result.getException() != <span class="code-keyword">null</span>) {
+        <span class="code-keyword">throw</span> result.getException();
+      }
+      sum += result.getResult();
+    }
+    <span class="code-keyword">return</span> sum;
+  }
+}</pre>
+</div></div> 
+
+
+<h5><a name="TaskExecutionovertheSpace-Interface"></a>Interface</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class TemplateCountTask <span class="code-keyword">implements</span> DistributedTask&lt;<span class="code-object">Integer</span>, <span class="code-object">Long</span>&gt;, TaskGigaSpaceAware {
+
+  <span class="code-keyword">private</span> <span class="code-object">Object</span> template;
+  
+  <span class="code-keyword">private</span> <span class="code-keyword">transient</span> GigaSpace gigaSpace;
+  
+  <span class="code-keyword">public</span> TemplateCountTask(<span class="code-object">Object</span> template) {
+    <span class="code-keyword">this</span>.template = template;
+  }
+  
+  <span class="code-keyword">public</span> void setGigaSpace(GigaSpace gigaSpace) {
+    <span class="code-keyword">this</span>.gigaSpace = gigaSpace;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+    <span class="code-keyword">return</span> gigaSpace.count(template);
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Long</span> reduce(List&lt;AsyncResult&lt;<span class="code-object">Integer</span>&gt;&gt; results) <span class="code-keyword">throws</span> Exception {
+    <span class="code-object">long</span> sum = 0;
+    <span class="code-keyword">for</span> (AsyncResult&lt;<span class="code-object">Integer</span>&gt; result : results) {
+      <span class="code-keyword">if</span> (result.getException() != <span class="code-keyword">null</span>) {
+        <span class="code-keyword">throw</span> result.getException();
+      }
+      sum += result.getResult();
+    }
+    <span class="code-keyword">return</span> sum;
+  }
+}</pre>
+</div></div>
+</div></div>
+
+<h2><a name="TaskExecutionovertheSpace-InjectingaClusteredSpaceProxy"></a>Injecting a Clustered Space Proxy</h2>
+<p>You may use the <tt>ApplicationContextAware</tt> interface to inject a clustered proxy into the Task implementation. This is useful when the Task should access other partitions. See below example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyTask <span class="code-keyword">implements</span> Task&lt;<span class="code-object">Integer</span>&gt;, ApplicationContextAware {
+
+    @TaskGigaSpace
+    <span class="code-keyword">private</span> <span class="code-keyword">transient</span> GigaSpace colocatedSpace;
+    <span class="code-keyword">private</span> <span class="code-keyword">transient</span> GigaSpace clusteredSpace;
+    
+    <span class="code-keyword">public</span> MyTask() {
+    }
+    
+    <span class="code-keyword">public</span> void setApplicationContext(ApplicationContext applicationContext)
+            <span class="code-keyword">throws</span> BeansException {
+        clusteredSpace= (GigaSpace) applicationContext.getBean(<span class="code-quote">"clusteredGigaSpace"</span>);
+    }
+....    
+}</pre>
+</div></div>
+
+<p>where the pu.xml should have:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;
+&lt;os-core:giga-space id=<span class="code-quote">"clusteredGigaSpace"</span> space=<span class="code-quote">"space"</span> clustered=<span class="code-quote">"<span class="code-keyword">true</span>"</span>/&gt;</pre>
+</div></div>
+
+<h1><a name="TaskExecutionovertheSpace-TaskResourceInjection"></a>Task Resource Injection</h1>
+<p>A task might need to make use of resources defined within the processing unit it is executed at (which are not the collocated Space). For example, have access to a bean defined within the collocated processing unit. A <tt>Task</tt> executed goes through the same lifecycle of a bean defined within a processing unit (except for the fact that it is not registered with a processing unit). Thanks to this fact, injecting resources can be done using annotations (<tt>@Autowired</tt> and <tt>@Resource</tt>) or lifecycle interfaces (such as <tt>ApplicationContextAware</tt>).</p>
+
+<p>In order to enable resource injection, the Task must either be annotated with <tt>AutowireTask</tt> or implement the marker interface <tt>AutowireTaskMarker</tt>. Here is an example of injecting a resource of type <tt>OrderDao</tt> registered under the bean name <tt>orderDao</tt>. The <tt>OrderDao</tt> is then used to count the number of orders for each node.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@AutowireTask
+<span class="code-keyword">public</span> class OrderCountTask <span class="code-keyword">implements</span> DistributedTask&lt;<span class="code-object">Integer</span>, <span class="code-object">Long</span>&gt; {
+
+  <span class="code-keyword">private</span> <span class="code-object">Object</span> template;
+  
+  @Resource(name = <span class="code-quote">"orderDao"</span>)
+  <span class="code-keyword">private</span> <span class="code-keyword">transient</span> OrderDao orderDao;
+  
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+    <span class="code-keyword">return</span> orderDao.countOrders();
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Long</span> reduce(List&lt;AsyncResult&lt;<span class="code-object">Integer</span>&gt;&gt; results) <span class="code-keyword">throws</span> Exception {
+    <span class="code-object">long</span> sum = 0;
+    <span class="code-keyword">for</span> (AsyncResult&lt;<span class="code-object">Integer</span>&gt; result : results) {
+      <span class="code-keyword">if</span> (result.getException() != <span class="code-keyword">null</span>) {
+        <span class="code-keyword">throw</span> result.getException();
+      }
+      sum += result.getResult();
+    }
+    <span class="code-keyword">return</span> sum;
+  }
+}</pre>
+</div></div>
+
+<p>When enabling autowiring of tasks, OpenSpaces annotations/interface injection can also be used such as <tt>ClusterInfo</tt> injection.</p>
+
+<h1><a name="TaskExecutionovertheSpace-BuiltinReducers"></a>Built in Reducers</h1>
+
+<p>OpenSpaces comes with several built in reducers and distributed tasks that can be used to perform common reduce operations (such as Min, Max, Avg and Sum). For example, if you use a simple <tt>Task</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyTask <span class="code-keyword">implements</span> Task&lt;<span class="code-object">Integer</span>&gt; {
+
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+    <span class="code-keyword">return</span> 1;
+  }
+}</pre>
+</div></div>
+
+<p>We can easily make a distributed task out of it that sums all the results using the <tt>SumTask</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">AsyncFuture&lt;<span class="code-object">Integer</span>&gt; <span class="code-keyword">future</span> = gigaSpace.execute(<span class="code-keyword">new</span> SumTask&lt;<span class="code-object">Integer</span>, <span class="code-object">Integer</span>&gt;(<span class="code-object">Integer</span>.class, <span class="code-keyword">new</span> MyTask()));
+<span class="code-object">int</span> result = <span class="code-keyword">future</span>.get(); <span class="code-comment">// returns the number of active cluster members</span></pre>
+</div></div>
+
+<p>In the above case, <tt>SumTask</tt> is a distributed task that wraps a simple <tt>Task</tt>. It automatically implements the <tt>reduce</tt> operation by summing all the results. This execution will result in executing a distributed task against all the primaries.</p>
+
+<p><tt>SumTask</tt> uses internally the <tt>SumReducer</tt> which is just implements <tt>AsyncResultsReducer</tt>. The reducer, by itself, can be used with APIs that just use a reducer, for example, the <tt>ExecutorBuilder</tt> construction.</p>
+
+<h1><a name="TaskExecutionovertheSpace-Transactions"></a>Transactions</h1>
+
+<p>Executors fully support transactions similar to other <tt>GigaSpace</tt> API. Once an <tt>execute</tt> operation is executed within a declarative transaction, it will automatically join it. The transaction itself is then passed to the node the task executed on and added declaratively to it. This means that <b>any</b> <tt>GigaSpace</tt> operation performed within the task <tt>execute</tt> operation will automatically join the transaction started on the <b>client</b> side.</p>
+
+<p>An exception thrown within the <tt>execute</tt> operation will not cause the transaction to rollback (since it might be a valid exception). Transaction commit/rollback is controlled just by the client the executed the task.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When executing distributed tasks or tasks that executed on more than one node within the same execution should use the distributed transaction manager. Tasks that execute just on a single node can use the distributed transaction manager, but should use the local transaction manager.</p>
+
+<p><a name="TaskExecutionovertheSpace-j.u.c.ExecutorService"></a></p>
+<h1><a name="TaskExecutionovertheSpace-j.u.cExecutorService"></a>j.u.c ExecutorService</h1>
+<p>OpenSpaces executors support allows to easily implement java.util.concurrent.ExecutorService which allows to support the <tt>ExecutorService</tt> API and executed <tt>Callable</tt> and <tt>Runnable</tt> as tasks within the Space. Here is an example of how to get an <tt>ExecutorService</tt> implementation based on OpenSpaces executors and use it:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">ExecutorService executorService = TaskExecutors.newExecutorService(gigaSpace);
+Future&lt;<span class="code-object">Integer</span>&gt; <span class="code-keyword">future</span> = executorService.submit(<span class="code-keyword">new</span> MyCallable());
+<span class="code-object">int</span> result = <span class="code-keyword">future</span>.get();</pre>
+</div></div>
+
+<p>The <tt>java.util.concurrent</tt> support also comes with built in adapters from <tt>Callable</tt>/<tt>Runnable</tt> to <tt>Task</tt>/<tt>DistributedTask</tt>. The adapters are used internally to implement the <tt>ExecutorService</tt>, but can be used on their own. The adapters can be constructed easily using utility methods found within the <tt>TaskExecutors</tt> factory. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// convert a simple callable to task
+</span>Task&lt;<span class="code-object">Integer</span>&gt; task1 = TaskExecutors.task(<span class="code-keyword">new</span> MyCallable());
+<span class="code-comment">// convert a simple callable to distributed task
+</span>DistributedTask&lt;<span class="code-object">Integer</span>&gt; task2 = TaskExecutors.task(<span class="code-keyword">new</span> MyCallable(), 
+                                      <span class="code-keyword">new</span> SumReducer&lt;<span class="code-object">Integer</span>, <span class="code-object">Integer</span>&gt;(<span class="code-object">Integer</span>.class));</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

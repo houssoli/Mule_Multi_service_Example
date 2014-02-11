@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Cluster Replication Filters</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Cluster Replication Filters</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903426";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903426";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  How to call custom business logic when data is replicated in a replicated cluster topology. </p>
+</div>
+<h1><a name="ClusterReplicationFilters-Overview"></a>Overview</h1>
+<p>When constructing a replicated space topology you may need to call some business logic when data is replicated. GigaSpaces provides the <tt>IReplicationFilter</tt> plug-in interface <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/j_spaces/core/cluster/IReplicationFilter.html" target="_blank">com.j_spaces.core.cluster.IReplicationFilter</a>, that allows you to build business logic that is called when data is sent through the replication channel.</p>
+
+<p>The <tt>IReplicationFilter</tt> methods are called before data is sent to the replication channel from the source space (output mode) and after coming out from the replication channel - i.e. before written to the target space (input mode). The replication filter should implement the <tt>IReplicationFilter</tt> interface methods.  </p>
+
+<p><img src="download/attachments/48235229/replicationfilter.jpg" align="absmiddle" border="0"/></p>
+
+<p>The replication filter can be used to monitor or alter the data passed through the replication channel. The replication channel passes <tt>IReplicationFilterEntry</tt> objects that store the replicated data. You should <tt>DefaultReplicationFilterProviderFactory</tt> and set its Replication Filter implementation when constructing the Space. You can use the same replication filter implementation class for both input and output replication modes. Here are the classes you will be using with your Replication Filter implementation: </p>
+<ul>
+	<li><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/j_spaces/core/cluster/IReplicationFilterEntry.html" target="_blank">com.j_spaces.core.cluster.IReplicationFilterEntry</a> &#8211; stores the space object data that is passed into the <tt>IReplicationFilter</tt>.</li>
+	<li><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/j_spaces/core/cluster/IReplicationFilter.html" target="_blank">com.j_spaces.core.cluster.IReplicationFilter</a> &#8211; a replication filter is an interface called when a replication event is triggered. Two types of replication filters can be defined &#8211; an input replication and an output replication. If both of the classes specified (for input and output) are the same, only one filter object will be used for both input and output replication.</li>
+	<li><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/j_spaces/core/cluster/ReplicationFilterException.html" target="_blank">com.j_spaces.core.cluster.ReplicationFilterException</a> &#8211; the <tt>ReplicationFilterException</tt> is thrown when there are errors that occur in the replication filter.  Errors can happen in the source or target space. The error is wrapped as part of the <tt>ReplicationFilterException</tt> and thrown back to the client. The <tt>ReplicationFilterException</tt> includes methods that includes information about the origin of the error, replication mode (input/output), the implementation class and the underlying exception. The <tt>ReplicationFilterException.getCause()</tt> should be used to retrieve the original exception that occurred.</li>
+</ul>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td> you can <b>control the replication at the operation level, using configuration only</b>. For more details, refer to the <a href="Replication Operations.html" title="Replication Operations">Replication Operations</a> section.</td></tr></table></div>
+
+<h1><a name="ClusterReplicationFilters-GuidelinesforClusterReplicationFilters"></a>Guidelines for Cluster Replication Filters</h1>
+<ul>
+	<li>In order to block a space object to be replicated, assign a <tt>ReplicationOperationType.DISCARD</tt> value as the operation type.</li>
+	<li>Don't overwrite the <tt>m_Key</tt> (serial number) field of the packet.</li>
+	<li>Object field values (<tt>m_FieldsValues</tt> array) may be changed, but notice that if the serialization type of the space is not 0 (that is, fields are serialized inside the space) &#8211; then each non-native field (i.e. not from the Java.lang package) is stored in the array in a serialized format.</li>
+	<li>For outgoing replication packets (output replication Filter), if you want to change  the values of some fields, deep-cloning of the <tt>m_FieldsValues</tt> array is needed, since the <tt>m_FieldsValues</tt> is a reference to the array stored in the space internal data structures.</li>
+	<li>When using synchronous replication and an error has been occurs at the replication filter implementation, <tt>ReplicationFilterException</tt> is thrown back into the relevant thread at the client application. The <tt>ReplicationFilterException</tt> can be originated at the source or target space. The <tt>ReplicationFilterException</tt> will include the relevant information to identify the origin and the underlying exception that caused the problem.</li>
+	<li>When using asynchronous replication and an error has been occurs at the replication filter implementation, the space replication channel will be disabled, and an error will be logged into the space log file and displayed at the space console. The client application continues to function against its source space but there will not be any replication to the target space. In order to enable the replication, you should use the <tt>IRemoteJSpaceAdmin.changeReplicationState()</tt>.</li>
+	<li>All replication packets are sent according to their replication policy. When either the Interval Milliseconds or the Interval Operations times out, a replication event is executed. <tt>ReplicationOperationType.DISCARD</tt> packets are sent when a sequence of operations performed on one space does not need to be performed again on the replicated members. For example, when using asynchronous replication mode, a sequence of write and take on the same object does not need to replicated. Therefore, a <tt>ReplicationOperationType.DISCARD</tt> packet is sent. In contrast, the take operation is always replicated to ensure data consistency.</li>
+</ul>
+
+
+<h1><a name="ClusterReplicationFilters-ExampleReplicationFilter"></a>Example - Replication Filter</h1>
+<p>The following example will start two spaces replicating data to each other. The replication filter will display the replicated data that is passed through the replication channel. The example displays all objects sent via the output filter. When an object with the data <b>Block me</b> is passed, it is blocking by setting the replication Operation Type to <tt>ReplicationOperationType.DISCARD</tt>.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="ClusterReplicationFilters-TheSpaceClass"></a>The Space Class</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.test;
+
+<span class="code-keyword">import</span> com.gigaspaces.annotation.pojo.SpaceClass;
+<span class="code-keyword">import</span> com.gigaspaces.annotation.pojo.SpaceId;
+
+@SpaceClass
+<span class="code-keyword">public</span> class MyClass {
+	
+		<span class="code-object">String</span> id;
+		<span class="code-object">String</span> data;
+
+		@SpaceId(autoGenerate = <span class="code-keyword">false</span>)
+		<span class="code-keyword">public</span> <span class="code-object">String</span> getId() {
+			<span class="code-keyword">return</span> id;
+		}
+
+		<span class="code-keyword">public</span> void setId(<span class="code-object">String</span> id) {
+			<span class="code-keyword">this</span>.id = id;
+		}
+
+		<span class="code-keyword">public</span> <span class="code-object">String</span> getData() {
+			<span class="code-keyword">return</span> data;
+		}
+
+		<span class="code-keyword">public</span> void setData(<span class="code-object">String</span> data) {
+			<span class="code-keyword">this</span>.data = data;
+		}
+}</pre>
+</div></div>
+ 
+
+
+<h5><a name="ClusterReplicationFilters-TheApplication"></a>The Application</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.test;
+
+<span class="code-keyword">import</span> org.openspaces.core.GigaSpace;
+<span class="code-keyword">import</span> org.openspaces.core.GigaSpaceConfigurer;
+<span class="code-keyword">import</span> org.openspaces.core.space.UrlSpaceConfigurer;
+<span class="code-keyword">import</span> org.openspaces.core.space.filter.replication.DefaultReplicationFilterProviderFactory;
+
+<span class="code-keyword">public</span> class ReplicationFilterTestMain {
+
+	<span class="code-keyword">public</span> <span class="code-keyword">static</span> void main(<span class="code-object">String</span>[] args) <span class="code-keyword">throws</span> Exception{
+		DefaultReplicationFilterProviderFactory repFactory  = <span class="code-keyword">new</span> DefaultReplicationFilterProviderFactory ();
+		repFactory.setOutputFilter(<span class="code-keyword">new</span> RepFilter());
+		repFactory.afterPropertiesSet();
+		
+		GigaSpace gigaspace1 = <span class="code-keyword">new</span> GigaSpaceConfigurer(
+			<span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space?cluster_schema=sync_replicated&amp;total_members=2&amp;id=1"</span>)
+		.replicationFilterProvider(repFactory)).
+		gigaSpace();
+
+		GigaSpace gigaspace2 = <span class="code-keyword">new</span> GigaSpaceConfigurer(
+			<span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space?cluster_schema=sync_replicated&amp;total_members=2&amp;id=2"</span>)).
+		gigaSpace();
+
+		MyClass o1 = <span class="code-keyword">new</span> MyClass();
+		o1.setId(<span class="code-quote">"1"</span>);
+		o1.setData(<span class="code-quote">"AAA"</span>);
+		gigaspace1.write(o1);
+
+		MyClass o2 = <span class="code-keyword">new</span> MyClass();
+		o2.setId(<span class="code-quote">"2"</span>);
+		o2.setData(<span class="code-quote">"Block me"</span>);
+
+		gigaspace1.write(o2);
+
+		MyClass o3 = gigaspace2.readById(MyClass.class,<span class="code-quote">"1"</span>);
+		<span class="code-keyword">if</span> (o3 != <span class="code-keyword">null</span>)			
+			<span class="code-object">System</span>.out.println(<span class="code-quote">"Replicated <span class="code-object">Object</span> ID 1 value is:"</span> + o3.getData());
+		MyClass o4 = gigaspace2.readById(MyClass.class,<span class="code-quote">"2"</span>);
+		<span class="code-keyword">if</span> (o4 != <span class="code-keyword">null</span>)			
+			<span class="code-object">System</span>.out.println(<span class="code-quote">"Replicated <span class="code-object">Object</span> ID 2 value is:"</span> + o4.getData());
+		<span class="code-keyword">else</span>
+			<span class="code-object">System</span>.out.println(<span class="code-quote">"<span class="code-object">Object</span> ID 2 has not been replicated"</span>);
+	}
+}</pre>
+</div></div>
+ 
+
+
+<h5><a name="ClusterReplicationFilters-TheReplicationFilter"></a>The Replication Filter</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.test;
+
+<span class="code-keyword">import</span> java.util.concurrent.atomic.AtomicInteger;
+
+<span class="code-keyword">import</span> org.openspaces.core.GigaSpace;
+<span class="code-keyword">import</span> org.openspaces.core.GigaSpaceConfigurer;
+
+<span class="code-keyword">import</span> com.j_spaces.core.IJSpace;
+<span class="code-keyword">import</span> com.j_spaces.core.client.ClientUIDHandler;
+<span class="code-keyword">import</span> com.j_spaces.core.cluster.IReplicationFilter;
+<span class="code-keyword">import</span> com.j_spaces.core.cluster.IReplicationFilterEntry;
+<span class="code-keyword">import</span> com.j_spaces.core.cluster.ReplicationOperationType;
+<span class="code-keyword">import</span> com.j_spaces.core.cluster.ReplicationPolicy;
+
+<span class="code-keyword">public</span> class RepFilter <span class="code-keyword">implements</span> IReplicationFilter{
+
+	@Override
+	<span class="code-keyword">public</span> void close() {
+		
+	}
+
+	GigaSpace gigaspace = <span class="code-keyword">null</span>;
+	@Override
+	<span class="code-keyword">public</span> void init(IJSpace space, <span class="code-object">String</span> paramUrl,
+			ReplicationPolicy replicationPolicy) {
+		<span class="code-comment">// TODO Auto-generated method stub
+</span>		gigaspace  = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).gigaSpace();
+		<span class="code-object">System</span>.out.println(<span class="code-quote">"Rep Filter - Created "</span>+gigaspace);
+	}
+
+	AtomicInteger counter = <span class="code-keyword">new</span> AtomicInteger(0);
+	@Override
+	<span class="code-keyword">public</span> void process(<span class="code-object">int</span> direction,
+		IReplicationFilterEntry replicationEntry,
+		<span class="code-object">String</span> remoteSpaceMemberName) {
+	
+	<span class="code-object">String</span> filterDirectionStr = "";
+	<span class="code-object">String</span> operationCodeStr = "";
+        
+       <span class="code-keyword">switch</span>( direction ) {
+           <span class="code-keyword">case</span> IReplicationFilter.FILTER_DIRECTION_INPUT:
+            filterDirectionStr=<span class="code-quote">"INPUT"</span>;  
+           <span class="code-keyword">break</span>;
+            <span class="code-keyword">case</span> IReplicationFilter.FILTER_DIRECTION_OUTPUT:
+                filterDirectionStr=<span class="code-quote">"OUTPUT"</span>;
+            <span class="code-keyword">break</span>;
+       }
+       
+       counter.incrementAndGet();   <span class="code-comment">// increment the number of entries processed.
+</span>
+       <span class="code-object">System</span>.out.println(
+                <span class="code-quote">"\nDefaultReplicationFilter"</span>
+                + <span class="code-quote">"\n\t | Space: "</span> + gigaspace
+                + <span class="code-quote">"\n\t | Packet No."</span>+ counter
+                + <span class="code-quote">"\n\t | Direction: "</span>+ filterDirectionStr
+                + <span class="code-quote">"\n\t | Operation code: "</span>+ operationCodeStr
+                + <span class="code-quote">"\n\t | Entry packet UID: "</span>
+                + <span class="code-quote">"\n\t | 2Str: "</span>+ replicationEntry.toString()
+                + replicationEntry.getUID() + <span class="code-quote">"\n"</span>);
+
+       /*
+         * Lets Block the <span class="code-quote">"Block me"</span> object on its way out
+         */
+        <span class="code-keyword">if</span> (direction == IReplicationFilter.FILTER_DIRECTION_OUTPUT
+                &amp;&amp; replicationEntry.getOperationType().equals(ReplicationOperationType.WRITE)
+                &amp;&amp; replicationEntry.getFieldsValues() != <span class="code-keyword">null</span>
+                &amp;&amp; replicationEntry.getFieldValue(<span class="code-quote">"data"</span>).equals(<span class="code-quote">"Block me"</span>))
+        {
+            <span class="code-object">System</span>.out.println(<span class="code-quote">"\t | ==&gt; Filter blocked outgoing object\n"</span>);
+            <span class="code-comment">// dismiss replication packet:
+</span>            replicationEntry.discard();
+        }
+       
+	}
+}</pre>
+</div></div>
+</div></div>
+
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

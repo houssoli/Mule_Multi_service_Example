@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Pessimistic Locking</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Pessimistic Locking</h1>
+</div>
+<br>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Summary:</b> In the pessimistic locking approach, your program must explicitly obtain a lock using a transaction on one or more objects before making any changes.<br/>
+<b>Contents:</b>
+<div class="error"><span class="error">Error formatting macro: toc: java.lang.NullPointerException</span> </div> </td></tr></table></div>
+
+<h1><a name="PessimisticLocking-Overview"></a>Overview</h1>
+<p>The pessimistic locking protocol provides data consistency in a multi user transactional environment. It should be used when there might be a large number of clients trying to read and update the same object(s) at the same time. This protocol utilize the system resources (CPU, network) in a very efficient manner both at the client and space server side.</p>
+
+<p>This scenario is different from the optimistic locking protocol since we assume with the pessimistic locking protocol, that every object that is read and retrieved from the space will eventually be updated where the transaction duration is relatively very short. </p>
+
+<p>To enforce a sole reader and sole updater for the object we explicitly lock the object via a transaction using the <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/j_spaces/core/client/ReadModifiers.html" target="_blank">ReadModifiers.EXCLUSIVE_READ_LOCK</a>. </p>
+
+<p>When performing read operations without locking the object via a transaction, users can immediately perform an update operation, without having to wait for other users to complete their transaction (since there is none). However, there is no guarantee that the update operation will be performed on the latest version of the object.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The optimistic locking protocol assumes that a client that retrieved an object from the space, might or might not update the object, so it never locks the object when it is reading it. This makes the object accessible for large amount of users avoiding the need to wait for the lock to be released. Using the optimistic locking protocol when every object that is read is also updated, will consume unnecessary resources at the client and space side since all the clients will try to get the latest version of the object when updating it.</p>
+
+<p>To implement the pessimistic locking protocol you should have the following:</p>
+<ul class="alternate" type="square">
+	<li>Start a transaction. You may use spring automatic transaction demarcation by annotating the method as <tt>@Transactional</tt>.</li>
+	<li>Read the object using the <tt>Exclusive read Lock</tt> modifier.  This will block other transactions from reading the same object. If there is another transaction locking the object, the read operation will wait for the transaction (according to the specified timeout) to be completed (commit or abort) and return the latest version of the object. You may read multiple objects during this phase.</li>
+	<li>Modify the object data. Execute your business logic. This might involve calculations, etc.</li>
+	<li>Update the object within the space. You may update multiple objects.</li>
+	<li>Commit the transaction. This will happen automatically when the transactional method will be completed.</li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Having the above executed at the space side via <a href="Executor Based Remoting.html" title="Executor Based Remoting">Executor Based Remoting</a> or <a href="Task Execution over the Space.html" title="Task Execution over the Space">Task Executors</a> is highly recommended. This will shorten the transaction time period since all space operations will be executed against a collocated space.</p>
+
+<h1><a name="PessimisticLocking-Example"></a>Example</h1>
+
+<p>See below example illustrating the usage of the exclusive locking mode implementing pessimistic locking:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Transactional (propagation=Propagation.REQUIRES_NEW)
+<span class="code-keyword">public</span> void executeOrders(<span class="code-object">Integer</span> orderIDs[]) <span class="code-keyword">throws</span> Exception
+{
+	Order orders[] = <span class="code-keyword">new</span> Order [orderIDs[].length];
+	<span class="code-keyword">for</span> (<span class="code-object">int</span> i=0;i&lt;orderIDs.length;i++)
+	{
+		orders[i]= space.readById(Order.class, orderIDs[i],orderIDs[i],5000,ReadModifiers.EXCLUSIVE_READ_LOCK);
+                <span class="code-keyword">if</span> (orders[i] != <span class="code-keyword">null</span>)
+		     orders[i].setStatus(DONE);
+	}
+	<span class="code-object">Object</span> rets[] = space.updateMultiple(orders, <span class="code-keyword">new</span> <span class="code-object">long</span>[orderIDs.size()], UpdateModifiers.UPDATE_ONLY);
+		
+	<span class="code-keyword">for</span> (<span class="code-object">int</span> i=0;i&lt;rets.length;i++)
+	{
+		<span class="code-keyword">if</span> (rets[i] == <span class="code-keyword">null</span>)
+		{
+			<span class="code-keyword">throw</span> (<span class="code-keyword">new</span> ReadTimeOutException(<span class="code-quote">"can't update object "</span> + orders[i]));
+		}
+		
+		<span class="code-keyword">if</span> (rets[i] <span class="code-keyword">instanceof</span> Exception)
+		{
+			<span class="code-keyword">if</span> (rets[i] <span class="code-keyword">instanceof</span> EntryNotInSpaceException)
+			{
+				<span class="code-keyword">throw</span> (EntryNotInSpaceException)rets[i];
+			}
+			<span class="code-keyword">else</span> <span class="code-keyword">if</span> (rets[i] <span class="code-keyword">instanceof</span> OperationTimeoutException )
+			{
+				<span class="code-keyword">throw</span> (OperationTimeoutException)rets[i];
+			}
+			<span class="code-keyword">else</span>
+			{
+				<span class="code-keyword">throw</span> (Exception)rets[i];
+			}
+		}
+	}
+}</pre>
+</div></div>
+
+<h1><a name="PessimisticLocking-ImportantConsiderations"></a>Important Considerations</h1>
+<ul class="alternate" type="square">
+	<li>Starting with XAP 7.1.2 GigaSpaces throws <tt>java.lang.IllegalArgumentException: Using {{EXCLUSIVE_READ_LOCK</tt> modifier without a transaction is illegal}} exception as a protection mechanism when performing exclusive read <b>without</b> using a transaction. You must use a transaction when using exclusive read lock.</li>
+	<li>Pessimistic locking decreases concurrency because objects might be locked for long periods of time.</li>
+	<li>Locking objects also imposes more work on the space server since read operations are transactional.</li>
+	<li>When there is a conflict, users have to "get in line" to wait for an object to become unlocked. These users may, themselves, already have other objects locked while they're waiting. If any of these objects needed by a user are further ahead in line, then you will have a "deadlock," which can be difficult to manage.</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

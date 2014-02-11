@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : CPP API Usage Example</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>CPP API Usage Example</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903589";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903589";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Example application that demonstrates using the GigaSpaces C++ API. </p>
+</div>
+
+<h1><a name="CPPAPIUsageExample-Overview"></a>Overview</h1>
+
+<p>The API Usage Example demonstrates using the GigaSpaces C++ API to perform space operations. </p>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> To learn about GigaSpaces C++ API, refer to the <a href="GigaSpaces CPP API.html" title="GigaSpaces CPP API">GigaSpaces C++ API</a> section.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> It is assumed that you have read the <a href="CPP API Hello World Example.html" title="CPP API Hello World Example">GigaSpaces CPP API Hello World Example</a> which serves as a starting point.</p>
+
+<p>The code for this example is located at <tt>&lt;GigaSpaces Root&gt;\cpp\examples\APIUsageExample</tt>.</p>
+
+<p>This example runs by default using a predefined <b>embedded space</b>. It can work with any given space (embedded, remote or clustered) simply by providing the space URL as an argument.</p>
+
+<h1><a name="CPPAPIUsageExample-BuildingandRunningtheExample"></a>Building and Running the Example</h1>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> This example can be built and run on <b>Windows OS</b> only. If you use <b>Visual Studio</b> open the solution <tt>examples.sln</tt> located in <tt>&lt;GigaSpaces Root&gt;\cpp\examples</tt>. It is recommended to set your solution configuration to <tt>Release</tt> and do a rebuild that will generate all related files.</p>
+
+<p>For more information on setting the environment refer to <a href="Installing CPP API Package.html#InstallingCPPAPIPackage-SettingtheEnvironment">Installing C++ Package</a>.</p>
+
+<p>After running the example the console will have the following output:</p>
+<div class="preformatted panel" style="border-style: solid;border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>Retrieved a space proxy to /./APIUsageExampleEmbeddedSpace?groups=CPP-GROUP
+Did snapshot for Person class
+Running ...
+Basic read, write and take
+Batch operations
+Number of persons that live in New York is: 50
+Number of persons that live in New York aged 30+ is: 35
+Total number of person entries removed from space: 100
+Using Transactions
+Using GSIterator
+Number of values in iteration: 100
+Number of values in blocking iteration: 100
+Event Session API (Notifications)
+Total number of notifications received: 100
+
+DONE
+Press Enter to end API Usage Example...
+</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The API Usage Example can work with any given space simply by providing the space URL as an argument. To do so change the project Command Arguments and specify the space URL string. For example, <tt>jini://localhost/*/mySpace</tt>.</p>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

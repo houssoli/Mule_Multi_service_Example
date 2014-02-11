@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Mule Processing Unit</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Mule Processing Unit</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903467";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903467";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The Mule Processing Unit allows you to run Mule within a Processing Unit, thus leveraging all of the Processing Unit and SLA-driven container capabilities. </p>
+</div>
+
+<h1><a name="MuleProcessingUnit-Overview"></a>Overview</h1>
+
+<p>OpenSpaces allows to configure, package and deploy a <a href="Packaging and Deployment.html" title="Packaging and Deployment">Processing Unit</a>. The OpenSpaces Mule integration allows you to run a pure Mule application (with or without OpenSpaces special extension points and transports) as a Processing Unit.</p>
+
+<h1><a name="MuleProcessingUnit-Configuration"></a>Configuration</h1>
+
+<p>In order to run Mule as a Processing Unit within the <tt>pu.xml</tt> file (which is a Spring application context), the following needs to be defined:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.esb.mule.pu.OpenSpacesMuleContextLoader"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"location"</span> value=<span class="code-quote">"/META-INF/spring/mule.xml"</span>/&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+<p>In the example above, the <tt>OpenSpacesMuleContextLoader</tt> loads a Mule application as defined in the <tt>mule.xml</tt> configuration file. The <tt>location</tt> parameter is optional and defaults to the value specified in the example above.</p>
+
+<h1><a name="MuleProcessingUnit-Packaging"></a>Packaging</h1>
+
+<p>Packaging of the Processing Unit should follow the <a href="The Processing Unit Structure and Configuration.html" title="The Processing Unit Structure and Configuration">Processing Unit structure</a>.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When deploying a Processing Unit into the <a href="Deploying onto the Service Grid.html" title="Deploying onto the Service Grid">SLA-driven container</a>, Mule JAR files should be "installed" into the GigaSpaces installation (on each node). The following minimum set of JARs need to be copied into <b><tt>&lt;GigaSpaces Root&gt;\lib\platform\mule</tt></b> (if the Mule directory does not exists, create it).</p>
+
+<ul>
+	<li>Copy the following JAR files from <tt>&lt;Mule Root&gt;\lib\mule</tt> to <tt>&lt;GigaSpaces Root&gt;\lib\platform\mule</tt>:<br/>
+<tt>mule-core</tt>, <tt>mule-module-spring-config</tt>, <tt>mule-module-spring-extras</tt>. Other transports (if used) should be copied as well.</li>
+	<li>Copy the following JAR files from <tt>&lt;Mule Root&gt;\lib\opt</tt> to <tt>&lt;GigaSpaces Root&gt;\lib\platform\mule</tt>:<br/>
+<tt>commons-beanutils</tt>, <tt>commons-collections</tt>, <tt>commons-io</tt>, <tt>commons-lang</tt>, <tt>commons-pool</tt>, <tt>jug-2.0.0-asl</tt>, <tt>backport-util-concurrent</tt>. Other required JAR files can be copied as well (or they can be put in the Processing Unit <tt>lib</tt> directory).</li>
+</ul>
+
+
+<p>Note, since version 7.0, the required mule jar files can also be placed within the processing unit <tt>lib</tt> directory, without "installing" mule into each GSC node installation.</p>
+
+<h4><a name="MuleProcessingUnit-PackagingforMuleexample"></a>Packaging for Mule example</h4>
+<p>In the <a href="http://www.gigaspaces.com/wiki/display/SBP/Mule+ESB+Example" title="Mule ESB Example">Mule ESB example</a>, the following jars are required and should be placed under &lt;GigaSpaces Root&gt;\lib\platform\mule</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">backport-util-concurrent-3.1-osgi.jar
+commons-beanutils-1.7.0-osgi.jar
+commons-collections-3.2-osgi.jar
+commons-io-1.3.1-osgi.jar
+commons-lang-2.4-osgi.jar
+commons-pool-1.4.jar
+jug-2.0.0-osgi-asl.jar
+mule-core-2.2.1.jar
+mule-module-client-2.2.1.jar
+mule-module-spring-config-2.2.1.jar
+mule-module-spring-extras-2.2.1.jar
+mule-transport-quartz-2.2.1.jar
+quartz-all-1.6.0-osgi.jar</pre>
+</div></div>
+
+<h1><a name="MuleProcessingUnit-Running%2FDeploying"></a>Running/Deploying</h1>
+
+<p>Once the Processing Unit is packaged, it can be run using the different options that come with OpenSpaces: </p>
+
+<ul>
+	<li><a href="Running in Standalone Mode.html" title="Running in Standalone Mode">Standalone</a></li>
+	<li><a href="Deploying onto the Service Grid.html" title="Deploying onto the Service Grid">SLA driven container</a></li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

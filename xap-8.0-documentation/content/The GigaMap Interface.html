@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : The GigaMap Interface</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>The GigaMap Interface</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903813";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903813";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The <tt>IMap</tt>/<tt>JCache</tt> <tt>Cache</tt> API is abstracted in OpenSpaces by a simple wrapper: the <tt>GigaMap</tt> interface. </p>
+</div>
+
+
+<h1><a name="TheGigaMapInterface-Overview"></a>Overview</h1>
+
+<p>OpenSpaces provides a simpler Map/<tt>JCache</tt> API using the <tt>GigaMap</tt> interface, by wrapping the <tt>IMap</tt> (and the <tt>JCache</tt> <tt>Cache</tt>), and simplifying both the API and its programming model. The interface allows for declarative transactions, coherent runtime exception hierarchy, and more.</p>
+
+<p>Here is a very simple example of how to define it:</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheGigaMapInterface-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:map id=<span class="code-quote">"map"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-map id=<span class="code-quote">"gigaMap"</span> map=<span class="code-quote">"map"</span> /&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="TheGigaMapInterface-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"map"</span> class=<span class="code-quote">"org.openspaces.core.map.MapFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaMap"</span> class=<span class="code-quote">"org.openspaces.core.GigaMapFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"map"</span> ref=<span class="code-quote">"map"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="TheGigaMapInterface-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IMap map = <span class="code-comment">// get IMap either by injection or code creation
+</span>GigaMap gigaMap = <span class="code-keyword">new</span> GigaMapConfigurer(map).gigaMap();</pre>
+</div></div>
+</div></div>
+<p>The <tt>GigaMap</tt> interface is a thin wrapper built on top of <tt>IMap</tt>. Within a single Processing Unit (or Spring application context), several <tt>GigaMap</tt> instances can be defined, each with different characteristics.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>IMap</tt> interface is not hidden, and can be used even when using the <tt>GigaMap</tt> interface. <tt>GigaMap</tt> simplifies most operations used with the space (compared to <tt>IMap</tt>), but some operations still require access to <tt>IMap</tt>, which can be accessed through the <tt>GigaMap</tt> API.</p>
+
+<h1><a name="TheGigaMapInterface-CacheOperations"></a>Cache Operations</h1>
+
+<p>The <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/GigaMap.html" target="_blank">GigaMap</a> provides the exact semantic as the <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html">java.util.Map</a> interface: clear, containsKey, put, putAll, get and remove methods. In addition it includes the lock , putAndUnlock , and the unlock methods.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IMap map = <span class="code-comment">// get IMap either by injection or code creation
+</span>GigaMap gigaMap = <span class="code-keyword">new</span> GigaMapConfigurer(map).gigaMap();
+gigaMap.put(key , value);
+
+<span class="code-object">Object</span> value = gigaMap.get(key);
+
+<span class="code-object">Object</span> value = gigaMap.remove(key);
+
+gigaMap.lock(key);
+
+gigaMap.unlock(key);</pre>
+</div></div>
+
+<h1><a name="TheGigaMapInterface-LocalCache"></a>Local Cache</h1>
+
+<p>The GigaMap support <a href="Local View and Local Cache.html" title="Local View and Local Cache">local cache</a> configuration. This will provide a front end client cache that will be used with get operations. The local cache will be loaded on demand. </p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/local_cache.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>Here is an example for a GigaMap construct with a local cache:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:local-cache id=<span class="code-quote">"localCacheSpace"</span> space=<span class="code-quote">"space"</span> update-mode=<span class="code-quote">"PULL"</span> &gt;</span>
+    <span class="code-tag">&lt;os-core:properties&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.engine.cache_size"</span>&gt;</span>50000<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.high_watermark_percentage"</span>&gt;</span>65<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.write_only_block_percentage"</span>&gt;</span>63<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.write_only_check_percentage"</span>&gt;</span>60<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.engine.memory_usage.low_watermark_percentage"</span>&gt;</span>55<span class="code-tag">&lt;/prop&gt;</span>
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/os-core:properties&gt;</span>
+<span class="code-tag">&lt;/os-core:local-cache&gt;</span>
+
+<span class="code-tag">&lt;os-core:map id=<span class="code-quote">"map"</span> space=<span class="code-quote">"localCacheSpace"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-map id=<span class="code-quote">"gigaMap"</span> map=<span class="code-quote">"map"</span> /&gt;</span></pre>
+</div></div>
+
+<h1><a name="TheGigaMapInterface-DeclarativeTransactions"></a>Declarative Transactions</h1>
+
+<p>There is no need to provide a Jini transaction object for the different map operations. <tt>GigaMap</tt> with the different OpenSpaces <a href="Transaction Management.html" title="Transaction Management">transaction managers</a> and Spring allow simple declarative definition of transactions. This means that if there is an ongoing transaction running, most operations performed using the <tt>GigaMap</tt> interface join it, using Spring's rich transaction support.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> It is highly recommended to read the <a href="http://static.springframework.org/spring/docs/2.0.x/reference/transaction.html">transaction management chapter</a> in the Spring reference documentation.</p>
+
+<h2><a name="TheGigaMapInterface-TransactionProvider"></a>Transaction Provider</h2>
+
+<p>OpenSpaces provides a pluggable transaction provider using the following interface:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> TransactionProvider {
+
+    Transaction getCurrentTransaction(<span class="code-object">Object</span> transactionalContext, IJSpace space);
+
+    <span class="code-object">int</span> getCurrentTransactionIsolationLevel(<span class="code-object">Object</span> transactionalContext);
+}</pre>
+</div></div>
+<p>OpenSpaces comes with a default transaction provider implementation, which uses Spring and its transaction manager in order to obtain the currently running transactions, and automatically use them under transactional operations.</p>
+
+<p><tt>GigaMap</tt> allows access to current running transactions using the transaction provider. The following code example shows how the <tt>put</tt> operation can be performed using <tt>IMap</tt> (users normally won't be required to do so):</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gigaMap.getMap().put(<span class="code-quote">"key"</span>, <span class="code-quote">"value"</span>, gigaMap.getCurrentTransaction(), 1000);</pre>
+</div></div>
+
+<h1><a name="TheGigaMapInterface-TransactionIsolationLevel"></a>Transaction Isolation Level</h1>
+
+<p>GigaSpaces supports three isolation levels: <tt>READ_UNCOMMITTED</tt>, <tt>READ_COMMITTED</tt> and <tt>REPEATABLE_READ</tt> (default). When using <tt>GigaMap</tt>, the default isolation level it is performed under can be defined in the following manner:</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheGigaMapInterface-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:map id=<span class="code-quote">"map"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-map id=<span class="code-quote">"gigaMap"</span> map=<span class="code-quote">"map"</span> default-isolation-level=<span class="code-quote">"READ_COMMITTED"</span>/&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="TheGigaMapInterface-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"map"</span> class=<span class="code-quote">"org.openspaces.core.map.MapFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaMap"</span> class=<span class="code-quote">"org.openspaces.core.GigaMapFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"map"</span> ref=<span class="code-quote">"map"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"defaultIsolationLevelName"</span> value=<span class="code-quote">"READ_COMMITTED"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="TheGigaMapInterface-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IMap map = <span class="code-comment">// get IMap either by injection or code creation
+</span>GigaMap gigaMap = <span class="code-keyword">new</span> GigaMapConfigurer(map).defaultIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED)
+                                            .gigaMap();</pre>
+</div></div>
+</div></div>
+<p>In addition, Spring allows you to define the isolation level on the transaction definition itself:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Transactional(readOnly = <span class="code-keyword">true</span>)
+<span class="code-keyword">public</span> class DefaultFooService <span class="code-keyword">implements</span> FooService {
+
+    <span class="code-keyword">private</span> GigaMap gigaMap;
+
+    <span class="code-keyword">public</span> void setGigaMap(GigaMap gigaMap) {
+    	<span class="code-keyword">this</span>.gigaMap = gigaMap;
+    }
+
+    <span class="code-keyword">public</span> Foo getFoo(<span class="code-object">String</span> fooName) {
+        <span class="code-comment">// <span class="code-keyword">do</span> something
+</span>    }
+
+    <span class="code-comment">// these settings have precedence <span class="code-keyword">for</span> <span class="code-keyword">this</span> method
+</span>    @Transactional(readOnly = <span class="code-keyword">false</span>, propagation = Propagation.REQUIRES_NEW, isolation  = Isolation.READ_COMMITTED)
+    <span class="code-keyword">public</span> void updateFoo(Foo foo) {
+        <span class="code-comment">// <span class="code-keyword">do</span> something
+</span>    }
+}</pre>
+</div></div>
+<p>In the above example, any operation performed using <tt>GigaMap</tt> in the <tt>updateFoo</tt> method automatically works under the <tt>READ_COMMITTED</tt> isolation level.</p>
+
+<h1><a name="TheGigaMapInterface-ExceptionHierarchy"></a>Exception Hierarchy</h1>
+
+<p>OpenSpaces is built on top of the Spring <a href="http://static.springframework.org/spring/docs/2.0.x/reference/dao.html#dao-exceptions">consistent exception hierarchy</a> by translating all of the different JavaSpaces exceptions and GigaSpaces exceptions into runtime exceptions, consistent with the Spring exception hierarchy. All the different exceptions exist in the <tt>org.openspaces.core</tt> package.</p>
+
+<p>OpenSpaces provides a pluggable exception translator using the following interface:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> ExceptionTranslator {
+
+    DataAccessException translate(Throwable e);
+}</pre>
+</div></div>
+<p>A default implementation of the exception translator is automatically used, which translates most of the relevant exceptions into either Spring data access exceptions, or concrete OpenSpaces runtime exceptions (in the <tt>org.openspaces.code</tt> package).</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

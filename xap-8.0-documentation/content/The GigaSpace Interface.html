@@ -1,0 +1,686 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : The GigaSpace Interface</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>The GigaSpace Interface</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903389";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903389";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The JavaSpaces API is abstracted in OpenSpaces by a simple wrapper: the <tt>GigaSpace</tt> interface. </p>
+</div>
+
+<h1><a name="TheGigaSpaceInterface-Overview"></a>Overview</h1>
+
+<p>OpenSpaces provides a simpler space API using the <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/GigaSpace.html" target="_blank">GigaSpace</a> interface, by wrapping the <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/j_spaces/core/IJSpace.html" target="_blank">IJSpace</a> (and the Jini <a href="http://www.gigaspaces.com/docs/JiniApi/net/jini/space/JavaSpace.html">JavaSpace</a>), and simplifying both the API and its programming model. </p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><a href='http://www.gigaspaces.com/wiki/download/attachments/48235229/space_basic_operations.jpg' target='space_basic_operations.jpg' onClick='window.open("http://www.gigaspaces.com/wiki/download/attachments/48235229/space_basic_operations.jpg", "space_basic_operations.jpg", "height=465,width=663,menubar=no,status=no,toolbar=no"); return false;'><img src="download/thumbnails/48235229/space_basic_operations.jpg" align="absmiddle" border="0"/></a></p></div>
+
+<p>The interface allows the POJO domain model to be stored in the space (using GigaSpaces POJO support), declarative transactions, usage of Java 5 Generics, coherent runtime exception hierarchy, and more.</p>
+
+<p>Here is a very simple example of how to define it:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheGigaSpaceInterface-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-comment">// get Space either by injection or code creation
+</span>
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p>The <tt>GigaSpace</tt> interface is a thin wrapper built on top of <tt>IJSpace</tt>. Within a single Processing Unit (or Spring application context), several <tt>GigaSpace</tt> instances can be defined, each with different characteristics.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>IJSpace</tt> interface is not hidden, and can be used even when using the <tt>GigaSpace</tt> interface. <tt>GigaSpace</tt> simplifies most operations used with the space (compared to <tt>IJSpace</tt>), but some operations still require access to <tt>IJSpace</tt>, which can be accessed through the <tt>GigaSpace</tt> API.</p>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>
+<ul class="alternate" type="square">
+	<li>The <tt>GigaSpace</tt> variable represents a remote or embedded space proxy (for a single space or clustered) and <b>should be constructed only</b> once throughout the lifetime of the application process.</li>
+	<li>You should treat the <tt>GigaSpace</tt> variable as a singleton to be shared across multiple different threads.</li>
+	<li>The <tt>GigaSpace</tt> interface is a thread safe and there is no need to create a <tt>GigaSpace</tt> variable per application thread.</li>
+	<li>In case the space has been fully terminated (no backup or primary instances running any more) the client space proxy will try to reconnect to the clustered space based on the <a href="Proxy Connectivity.html" title="Proxy Connectivity">Proxy Connectivity</a> settings. It will will keep trying to reconnect based on the <tt>space-config.proxy-settings.connection-retries</tt> value set as part of the <a href="The Space Component.html" title="The Space Component">space component</a> parameters. Once it will fail to reconnect, an error will be displayed.</li>
+</ul>
+</td></tr></table></div>
+
+<h1><a name="TheGigaSpaceInterface-Operations"></a>Operations</h1>
+<p>The <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/GigaSpace.html" target="_blank">GigaSpace</a> interface includes the following main operations:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'><a href="Space Object ID Operations.html" title="Space Object ID Operations">Id Based operations</a></th>
+<th class='confluenceTh'><a href="#TheGigaSpaceInterface-BatchOperations">Batch operations</a></th>
+<th class='confluenceTh'><a href="#TheGigaSpaceInterface-AsynchronousOperations">Asynchronous operations</a></th>
+<th class='confluenceTh'>Data Count operations</th>
+</tr>
+<tr>
+<td class='confluenceTd'><a href="Space Object ID Operations.html#SpaceObjectIDOperations-ReadinganObjectusingitsID">readById</a><br clear="all" />
+takeById<br clear="all" />
+<a href="Space Object ID Operations.html#SpaceObjectIDOperations-ReadingMultipleObjectsusingtheirIDs">readByIds</a><br clear="all" />
+takeByIds<br clear="all" />
+readIfExistsById<br clear="all" />
+takeIfExistsById</td>
+<td class='confluenceTd'>readMultiple<br clear="all" />
+takeMultiple<br clear="all" />
+writeMultiple<br clear="all" />
+readByIds<br clear="all" />
+takeByIds</td>
+<td class='confluenceTd'>asyncRead<br clear="all" />
+asyncTake<br clear="all" />
+execute</td>
+<td class='confluenceTd'>count</td>
+</tr>
+</tbody></table>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'><a href="SQLQuery.html" title="SQLQuery">Data Query operations</a></th>
+<th class='confluenceTh'>Data Insert and Update operations</th>
+<th class='confluenceTh'>Business logic execution operations</th>
+<th class='confluenceTh'>Data removal operations</th>
+</tr>
+<tr>
+<td class='confluenceTd'>read<br clear="all" />
+readMultiple<br clear="all" />
+<a href="Paging Support with Space Iterator.html" title="Paging Support with Space Iterator">iterator</a></td>
+<td class='confluenceTd'>write<br clear="all" />
+writeMultiple</td>
+<td class='confluenceTd'>execute<br clear="all" />
+executorBuilder</td>
+<td class='confluenceTd'>clean<br clear="all" />
+clear<br clear="all" />
+take<br clear="all" />
+takeMultiple</td>
+</tr>
+</tbody></table>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The <tt>clear</tt> and <tt>clean</tt> operations does not remove the space class definition from the space. You should restart the space to allow it to drop the class definitions.</td></tr></table></div>
+
+<h1><a name="TheGigaSpaceInterface-ClusteredFlag"></a>Clustered Flag</h1>
+
+<p>When configuring a <a href="The Space Component.html" title="The Space Component">Space</a> an <tt>IJSpace</tt> instance is registered with Spring application context. When starting an embedded space with a cluster topology, or when looking up a remote space started with a cluster topology, a clustered proxy is returned. A clustered proxy is a smart proxy that performs operations against the whole cluster.</p>
+
+<p>Many times, especially when working with a Processing Unit that starts an embedded space, operations against the space should be performed directly on the cluster member. This is a core concept of SBA and Processing Unit, where most if not all operations should be performed in-memory without leaving the processing unit boundaries when a Processing Unit starts an embedded space.</p>
+
+<p>The decision of working directly with a cluster member or against the whole cluster is done in the <tt>GigaSpace</tt> level. The <tt>GigaSpacesFactoryBean</tt> provides a clustered flag with the following logic as the default value: If the space is started in embedded mode (for example, <tt>/./space</tt>), the clustered flag is set to <tt>false</tt>. When the space is looked up in a remote protocol (Jini or RMI), the clustered flag is set to <tt>true</tt>. Naturally, the flag can be set explicitly. Here is an example of how the clustered flag can be configured:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheGigaSpaceInterface-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- By default, since we are starting in embedded mode, clustered=false --&gt;</span></span>
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"directGigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"clusteredGigaSpace"</span> space=<span class="code-quote">"space"</span> clustered=<span class="code-quote">"true"</span>/&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-Plain"></a>Plain</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- By default, since we are starting in embedded mode, clustered=false --&gt;</span></span>
+<span class="code-tag">&lt;bean id=<span class="code-quote">"directGigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"clusteredGigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"clustered"</span> value=<span class="code-quote">"true"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-comment">// get Space either by injection or code creation
+</span>
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).clustered(<span class="code-keyword">true</span>).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p>The above example shows a typical scenario where the clustered flag is used. Within a Processing Unit, an application might need to access both the cluster member and the whole cluster directly.</p>
+
+<h1><a name="TheGigaSpaceInterface-SimplerAPI"></a>Simpler API</h1>
+
+<p>The <tt>GigaSpace</tt> interface provides a simpler space API by utilizing Java 5 generics, and allowing sensible defaults. Here is an example of the space take operation as defined within <tt>GigaSpace</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> GigaSpace {
+
+    <span class="code-comment">// ....
+</span>    
+    &lt;T&gt; T take(T template) <span class="code-keyword">throws</span> DataAccessException;
+    
+    &lt;T&gt; T take(T template, <span class="code-object">long</span> timeout) <span class="code-keyword">throws</span> DataAccessException;
+}</pre>
+</div></div>
+
+<p>In the example above, the take operation can be performed without specifying a timeout. The default take timeout is <tt>0</tt> (no wait), and can be overridden when configuring the <tt>GigaSpace</tt> factory. In a similar manner, the read timeout and write lease can be specified.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheGigaSpaceInterface-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> default-take-timeout=<span class="code-quote">"1000"</span>/&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"defaultTakeTimeout"</span> value=<span class="code-quote">"1000"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-comment">// get Space either by injection or code creation
+</span>
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).defaultTakeTimeout(1000).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>See more examples for the <tt>GigaSpace</tt> interface usage with the <a href="POJO Support.html" title="POJO Support">POJO Support</a> section.</td></tr></table></div>
+
+<h1><a name="TheGigaSpaceInterface-writeOperation"></a>write Operation</h1>
+<p>A write operation places a copy of an object into the space. The object passed to the write is not affected by the operation. Each write operation places a new object into the space unless there is an object with the same <tt>ID</tt> already stored within the space. In such a case an <b>update operation</b> will be performed implictly. If you would like to change this default behavior you should change the update mode to use the <tt>UpdateModifiers.WRITE_ONLY</tt> mode. When updating an object with many fields you may use the <tt>PARTIAL_UPDATE</tt> mode.</p>
+
+<p>When performing a write operation you may provide a lease (time to live) duration (in milliseconds time unit) for the object. The write invocation returns a <a href="Leases.html" title="Leases">Lease</a> object allowing you to cancel or renew the object lease. When the lease expires, the object is removed from the space. The default lease duration is <tt>FOREVER</tt>. An <tt>IllegalArgumentException</tt> will be thrown if the lease time requested is negative. If you don't need the returned lease use the <tt>NOWriteLeaseMode=true</tt> modifier.</p>
+
+<p>If a write returns without throwing an exception, that object is committed to the space, possibly within a transaction. If a <tt>RemoteException</tt> is thrown, the write may or may not have been successful. If any other exception is thrown, the object was not written into the space.</p>
+
+<p>Writing an object into a space might generate <a href="Notify Container.html" title="Notify Container">notifications</a> to registered objects.</p>
+
+<h1><a name="TheGigaSpaceInterface-IDBasedOperations"></a>ID Based Operations</h1>
+<p>You may read or remove objects from the space using their ID using the <tt>readByID</tt>,<tt>takeByID</tt>,<tt>readIfExistsById</tt>,<tt>takeIfExistsById</tt>, <tt>readByIDs</tt> or the <tt>takeByIDs</tt> operations. See the <a href="Space Object ID Operations.html" title="Space Object ID Operations">Space Object ID Operations</a> section for details.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The <tt>readByID</tt> and <tt>readByIDs</tt> have a special performance optimization when running a <a href="Local View and Local Cache.html" title="Local View and Local Cache">local cache or a local view</a>.</td></tr></table></div>
+
+<h1><a name="TheGigaSpaceInterface-readIfExistsandreadOperations"></a>readIfExists and read Operations</h1>
+<p>The two forms of the <tt>read</tt> operations query the space for an object that matches the template/<a href="SQLQuery.html" title="SQLQuery">SQLQuery</a> provided. If a match is found, a copy of the matching object is returned. If no match is found, <tt>null</tt> is returned. Passing a <tt>null</tt> reference as the template will match any object. </p>
+
+<p>Any matching object can be returned. Successive read requests with the same template may or may not return equivalent objects, even if no intervening modifications have been made to the space. Each invocation of <tt>read</tt> may return a new object even if the same object is matched in the space. If you would like to read objects in the same order they have been written into the space you should perform the read objects in a <a href="FIFO Support.html" title="FIFO Support">FIFO mode</a>.</p>
+
+<p>A <tt>readIfExists</tt> operation will return a matching object, or a <tt>null</tt> if there is currently no matching object in the space. If the only possible matches for the template have <b>conflicting locks</b> from one or more other transactions, the <tt>timeout</tt> value specifies how long the client is willing to wait for interfering transactions to settle before returning a value. If at the end of that time no value can be returned that would not interfere with transactional state, <tt>null</tt> is returned. Note that, due to the remote nature of the space, <tt>read</tt> and <tt>readIfExists</tt> may throw a <tt>RemoteException</tt> if the network or server fails prior to the <tt>timeout</tt> expiration.</p>
+
+<p>A <tt>read</tt> operation acts like a <tt>readIfExists</tt> except that it will wait until a matching object is found or until transactions settle, whichever is longer, up to the timeout period.</p>
+
+<p>In both read methods, a timeout of <tt>JavaSpace.NO_WAIT</tt> means to return immediately, with no waiting, which is equivalent to using a zero timeout. An <tt>IllegalArgumentException</tt> will be thrown if a negative timeout value is used.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The <tt>read</tt> operation default timeout is <tt>JavaSpace.NO_WAIT</tt>.</td></tr></table></div>
+
+<h1><a name="TheGigaSpaceInterface-takeIfExistsandtakeOperations"></a>takeIfExists and take Operations</h1>
+<p>The <tt>take</tt> operations perform exactly like the corresponding <tt>read</tt> operations, except that the matching object is <b>removed</b> from the space on one atomic operation. Two <tt>take</tt> operations will <b>never return</b> copies of the same object, although if two equivalent objects were in the space the two <tt>take</tt> operations could return equivalent objects.</p>
+
+<p>If a <tt>take</tt> returns a non-null value, the object has been removed from the space, possibly within a transaction. This modifies the claims to once-only retrieval: A take is considered to be successful only if all enclosing transactions commit successfully. If a <tt>RemoteException</tt> is thrown, the take may or may not have been successful. If an <tt>UnusableEntryException</tt> is thrown, the take <tt>removed</tt> the unusable object from the space. If any other exception is thrown, the take did not occur, and no object was removed from the space.</p>
+
+<p>With a <tt>RemoteException</tt>, an object can be removed from a space and yet never returned to the client that performed the take, thus losing the object in between. In circumstances in which this is unacceptable, the take can be wrapped inside a transaction that is committed by the client when it has the requested object in hand.</p>
+
+<p>If you would like to take objects from the space in the same order they have been written into the space you should perform the take objects in a <a href="FIFO Support.html" title="FIFO Support">FIFO mode</a>.</p>
+
+<p>Taking an object from the space might generate <a href="Notify Container.html" title="Notify Container">notifications</a> to registered objects/queries.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The <tt>take</tt> operation default timeout is <tt>JavaSpace.NO_WAIT</tt>.</td></tr></table></div>
+
+<h1><a name="TheGigaSpaceInterface-BatchOperations"></a>Batch Operations</h1>
+<ul>
+	<li>The <tt>readMultiple</tt> and <tt>takeMultiple</tt> operations boost the performance, since they perform multiple operations using one call. These methods returns the matching results in one result object back to the client. This allows the client and server to utilize the network bandwidth in an efficient manner. In some cases, these batch operations can be up to 10 times faster than multiple single based operations.</li>
+	<li>The <tt>readMultiple</tt> and <tt>takeMultiple</tt> operations should be handled with care, since they can return a large data set (potentially all the space data). This might cause an out of memory error in the space and client process. You should use the <a href="#TheGigaSpaceInterface-SpaceIterator">GSIterator</a> to return the result in batches (paging) in such cases.</li>
+	<li>Destructive batch operations (<tt>takeMultiple</tt> , <tt>writeMultiple</tt> , <tt>updateMultiple</tt>) should be performed with transactions - this allows the client to roll back the space to its initial state prior the operation was started, in case of a failure.</li>
+	<li>When calling <tt>writeMultiple</tt> or <tt>updateMultiple</tt>, make sure <tt>null</tt> values are not part of the passed array.</li>
+	<li>When using <tt>writeMultiple</tt>, you should verify that duplicated entries (with the same ID) do not appear as part of the passed array, since the identity of the object is determined based on its <tt>ID</tt> and not based on its reference. This is extremely important with an embedded space, since <tt>writeMultiple</tt> injects the ID value into the object after the write operation (when autogenerate=false).</li>
+	<li>The <tt>readMultiple</tt> and <tt>takeMultiple</tt> operations <b>do not support timeout</b> operations. The simple way to achieve this is by calling the <tt>read</tt> operation first with the proper timeout, and if non-null values are returned, perform the batch operation.</li>
+	<li>Exception handling - batch operations many throw the following Exceptions. Make sure you catch these and act appropriately:
+	<ul>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/WriteMultiplePartialFailureException.html" target="_blank">org.openspaces.core.WriteMultiplePartialFailureException</a></li>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/WriteMultipleException.html" target="_blank">org.openspaces.core.WriteMultipleException</a></li>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/ReadMultipleException.html" target="_blank">org.openspaces.core.ReadMultipleException</a></li>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/TakeMultipleException.html" target="_blank">org.openspaces.core.TakeMultipleException</a></li>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/ClearException.html" target="_blank">org.openspaces.core.ClearException</a></li>
+	</ul>
+	</li>
+</ul>
+
+
+<h1><a name="TheGigaSpaceInterface-SpaceIterator"></a>Space Iterator</h1>
+<p>The <a href="Paging Support with Space Iterator.html" title="Paging Support with Space Iterator">Paging Support with Space Iterator</a> allows you to iterate over large amount of space objects in a <b>paging approach</b>. It avoids the need to retrieve the entire result set in one batch as the <tt>readMultiple</tt> since it is fetching the result set in batches. This optimizes the resource utilization (memory and CPU) involved when executing the query both at the client and server side.</p>
+
+<h1><a name="TheGigaSpaceInterface-AsynchronousOperations"></a>Asynchronous Operations</h1>
+
+<p>The GigaSpace interface supports asynchronous read and asynchronous take operations through the GigaSpace interface. Both return a <a href="http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Future.html">Future&lt;T&gt;</a> object, where T is the type of the object the request returns. Future&lt;T&gt;.get() can be used to query the object to see if a result has been returned or not.</p>
+
+<p>Alternatively, asyncRead and asyncTake also accept an implementation of <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/com/gigaspaces/async/AsyncFutureListener.html">AsyncFutureListener&lt;T&gt;</a>, which will have its <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/com/gigaspaces/async/AsyncFutureListener.html#onResult(com.gigaspaces.async.AsyncResult)">onResult(AsyncFuture&lt;T&gt;)</a> method called when the result has been populated. This does not affect the return type of the Future&lt;T&gt;, but provides an additional mechanism for handling the asynchronous response.</p>
+
+<p>Asynchronous <tt>write</tt> operation can be implemented using a <a href="Task Execution over the Space.html" title="Task Execution over the Space">Task</a>, where the <tt>Task</tt> implementation include a write operation. With this approach the <tt>Task</tt> is sent to the space and executed in an asynchronous manner. The write operation itself will be completed once both the primary and the backup will acknowledge the operation. This activity will be performed as a background activity from the client perspective. </p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheGigaSpaceInterface-SpaceClass"></a>Space Class</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyClass <span class="code-keyword">implements</span> Serializable{
+	<span class="code-object">String</span> data;
+	<span class="code-object">Integer</span> id;	
+	<span class="code-keyword">public</span> MyClass(){}
+	<span class="code-keyword">public</span> MyClass(<span class="code-object">int</span> id , <span class="code-object">String</span> data){
+		<span class="code-keyword">this</span>.id = id;
+		<span class="code-keyword">this</span>.data = data;
+	}
+	<span class="code-keyword">public</span> MyClass(<span class="code-object">int</span> id){<span class="code-keyword">this</span>.id = id;}		
+	<span class="code-keyword">public</span> <span class="code-object">String</span> getData() {<span class="code-keyword">return</span> data;}
+	<span class="code-keyword">public</span> void setData(<span class="code-object">String</span> data) {<span class="code-keyword">this</span>.data = data;}	
+	@SpaceId (autoGenerate = <span class="code-keyword">false</span>)
+	@SpaceRouting
+	<span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {<span class="code-keyword">return</span> id;}
+	<span class="code-keyword">public</span> void setId(<span class="code-object">Integer</span> id) {<span class="code-keyword">this</span>.id = id;}	
+}</pre>
+</div></div>
+
+
+<h5><a name="TheGigaSpaceInterface-AsyncFutureListener"></a>AsyncFutureListener</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class AsyncListener <span class="code-keyword">implements</span> AsyncFutureListener&lt;MyClass&gt;{
+	<span class="code-object">String</span> operation;
+	<span class="code-keyword">public</span> AsyncListener(<span class="code-object">String</span> operation)
+	{
+		<span class="code-keyword">this</span>.operation=operation;
+	}
+	<span class="code-keyword">public</span> void onResult(AsyncResult&lt;MyClass&gt; result) {
+		<span class="code-object">System</span>.out.println(<span class="code-quote">"Async "</span> + operation+ 
+			<span class="code-quote">" Operation Listener - Found matching object:"</span>+
+				result.getResult());
+	}
+}</pre>
+</div></div>
+
+
+
+<h5><a name="TheGigaSpaceInterface-AsyncRead"></a>Async Read</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace space = <span class="code-keyword">new</span> GigaSpaceConfigurer (<span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>)).gigaSpace();
+</span>AsyncFuture&lt;MyClass&gt; futureRead =  space.asyncRead(<span class="code-keyword">new</span> MyClass(1), 10000, <span class="code-keyword">new</span> AsyncListener(<span class="code-quote">"Read"</span>));</pre>
+</div></div>
+
+
+<h5><a name="TheGigaSpaceInterface-AsyncTake"></a>Async Take</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace space = <span class="code-keyword">new</span> GigaSpaceConfigurer (<span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>)).gigaSpace();
+</span>AsyncFuture&lt;MyClass&gt; futureTake =  space.asyncTake(<span class="code-keyword">new</span> MyClass(1), 10000, <span class="code-keyword">new</span> AsyncListener(<span class="code-quote">"Take"</span>));</pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-AsyncWrite"></a>Async Write</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace space = <span class="code-keyword">new</span> GigaSpaceConfigurer (<span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>)).gigaSpace();
+</span>MyClass obj = <span class="code-keyword">new</span> MyClass(1,<span class="code-quote">"AAA"</span>);
+space.execute(<span class="code-keyword">new</span> AsyncWriteTask(obj));</pre>
+</div></div> 
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>The AsyncWriteTask</b></div><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class AsyncWriteTask <span class="code-keyword">implements</span> Task&lt;<span class="code-object">Integer</span>&gt;{
+	MyClass obj;
+	<span class="code-keyword">public</span> AsyncWriteTask (MyClass obj)
+	{
+		<span class="code-keyword">this</span>.obj=obj;
+	}
+	@TaskGigaSpace
+	GigaSpace space;
+	<span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+		<span class="code-object">Thread</span>.sleep(1000);
+		space.write (obj);
+		<span class="code-keyword">return</span> 1;
+	}
+}</pre>
+</div></div>
+</div></div>
+
+<h1><a name="TheGigaSpaceInterface-DeclarativeTransactions"></a>Declarative Transactions</h1>
+
+<p>As seen in the take API above, there is no need to provide a Jini transaction object for the different space operations. <tt>GigaSpace</tt> with the different OpenSpaces <a href="Transaction Management.html" title="Transaction Management">transaction managers</a> and Spring allow simple declarative definition of transactions. This boils down to the fact that if there is an ongoing transaction running, any operation performed using the <tt>GigaSpace</tt> interface joins it, using Spring's rich transaction support.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In order to have GigaSpace transactional, the transaction manager must be provided as a reference when constructing the GigaSpace bean. For example (using the distributed transaction manager):</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheGigaSpaceInterface-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:distributed-tx-manager id=<span class="code-quote">"transactionManager"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.openspaces.core.transaction.manager.DistributedJiniTransactionManager"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> It is highly recommended to read the <a href="http://static.springframework.org/spring/docs/3.0.x/reference/transaction.html">transaction management chapter</a> in the Spring reference documentation.</p>
+
+<h2><a name="TheGigaSpaceInterface-TransactionProvider"></a>Transaction Provider</h2>
+
+<p>OpenSpaces provides a pluggable transaction provider using the following interface:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> TransactionProvider {
+
+    Transaction getCurrentTransaction(<span class="code-object">Object</span> transactionalContext, IJSpace space);
+
+    <span class="code-object">int</span> getCurrentTransactionIsolationLevel(<span class="code-object">Object</span> transactionalContext);
+}</pre>
+</div></div>
+
+<p>OpenSpaces comes with a default transaction provider implementation, which uses Spring and its transaction manager in order to obtain the currently running transactions and automatically use them under transactional operations.</p>
+
+<p><tt>GigaSpace</tt> allows access to the current running transaction using the transaction provider. The following code example shows how the take operation can be performed using <tt>IJspace</tt> (users normally won't be required to do so):</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gigaSpace.getSpace().take(obj, gigaSpace.getCurrentTransaction(), 1000);</pre>
+</div></div>
+
+<h1><a name="TheGigaSpaceInterface-TransactionIsolationLevel"></a>Transaction Isolation Level</h1>
+
+<p>GigaSpaces supports three isolation levels: <tt>READ_UNCOMMITTED</tt>, <tt>READ_COMMITTED</tt> and <tt>REPEATABLE_READ</tt> (default). When using <tt>GigaSpace</tt>, the default isolation level that it will perform under can be defined in the following manner:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheGigaSpaceInterface-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> default-isolation=<span class="code-quote">"READ_COMMITTED"</span>/&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"defaultIsolationLevelName"</span> value=<span class="code-quote">"READ_COMMITTED"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TheGigaSpaceInterface-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-comment">// get Space either by injection or code creation
+</span>
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space)
+                          .defaultIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED)
+                          .gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p>In addition, Spring allows you to define the isolation level on the transaction definition itself:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Transactional(readOnly = <span class="code-keyword">true</span>)
+<span class="code-keyword">public</span> class DefaultFooService <span class="code-keyword">implements</span> FooService {
+
+    <span class="code-keyword">private</span> GigaSpace gigaSpace;
+    
+    <span class="code-keyword">public</span> void setGigaSpace(GigaSpace gigaSpace) {
+    	<span class="code-keyword">this</span>.gigaSpace = gigaSpace;
+    }
+
+    <span class="code-keyword">public</span> Foo getFoo(<span class="code-object">String</span> fooName) {
+        <span class="code-comment">// <span class="code-keyword">do</span> something
+</span>    }
+
+    <span class="code-comment">// these settings have precedence <span class="code-keyword">for</span> <span class="code-keyword">this</span> method
+</span>    @Transactional(readOnly = <span class="code-keyword">false</span>, 
+                   propagation = Propagation.REQUIRES_NEW, 
+                   isolation  = Isolation.READ_COMMITTED)
+    <span class="code-keyword">public</span> void updateFoo(Foo foo) {
+        <span class="code-comment">// <span class="code-keyword">do</span> something
+</span>    }
+}</pre>
+</div></div>
+
+<p>In the above example, any operation performed using <tt>GigaSpace</tt> in the <tt>updateFoo</tt> method automatically works under the <tt>READ_COMMITTED</tt> isolation level.</p>
+
+<h1><a name="TheGigaSpaceInterface-ExceptionHierarchy"></a>Exception Hierarchy</h1>
+
+<p>OpenSpaces is built on top of the Spring <a href="http://static.springframework.org/spring/docs/2.0.x/reference/dao.html#dao-exceptions">consistent exception hierarchy</a> by translating all of the different JavaSpaces exceptions and GigaSpaces exceptions into runtime exceptions, consistent with the Spring exception hierarchy. All the different exceptions exist in the <tt>org.openspaces.core</tt> package.</p>
+
+<p>OpenSpaces provides a pluggable exception translator using the following interface:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> ExceptionTranslator {
+
+    DataAccessException translate(Throwable e);
+}</pre>
+</div></div>
+
+<p>A default implementation of the exception translator is automatically used, which translates most of the relevant exceptions into either Spring data access exceptions, or concrete OpenSpaces runtime exceptions (in the <tt>org.openspaces.core</tt> package).</p>
+
+<h2><a name="TheGigaSpaceInterface-ExceptionhandlingforBatchOperations"></a>Exception handling for Batch Operations</h2>
+<p>Batch operations many throw the following Exceptions. Make sure you catch these and act appropriately:</p>
+<ul>
+	<li>
+	<ul>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/WriteMultiplePartialFailureException.html" target="_blank">org.openspaces.core.WriteMultiplePartialFailureException</a></li>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/WriteMultipleException.html" target="_blank">org.openspaces.core.WriteMultipleException</a></li>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/ReadMultipleException.html" target="_blank">org.openspaces.core.ReadMultipleException</a></li>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/TakeMultipleException.html" target="_blank">org.openspaces.core.TakeMultipleException</a></li>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/ClearException.html" target="_blank">org.openspaces.core.ClearException</a></li>
+	</ul>
+	</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

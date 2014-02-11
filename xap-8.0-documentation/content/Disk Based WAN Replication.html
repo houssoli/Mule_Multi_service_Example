@@ -1,0 +1,632 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Disk Based WAN Replication</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Disk Based WAN Replication</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Disk Based WAN Replication </p>
+</div>
+
+<h1><a name="DiskBasedWANReplication-Overview"></a>Overview</h1>
+
+<p>Geographically distributed applications tend to become common nowadays. The main challenge introduced by such deployment is the WAN which introduces&nbsp; latencies and low bandwidth.</p>
+
+<p>This module offers a transparent solution providing cluster interconnection with multi-master and atomic behavior while providing high performance.</p>
+
+<p>By relying on GigaSpaces' Mirror component no change is required to connect remote clusters together. Gateway components receive deltas of changes from Mirror components and act as unique connection points between clusters over the WAN.</p>
+
+<h1><a name="DiskBasedWANReplication-Architecture"></a>Architecture</h1>
+
+
+<h2><a name="DiskBasedWANReplication-SupportedTopologies"></a>Supported Topologies</h2>
+
+<p>A topology is the sum of all sites that are part of a deployment. Each master site replicates changes to all destination sites.</p>
+
+<h3><a name="DiskBasedWANReplication-Singlemaster"></a>Single master</h3>
+
+<p><img src="download/attachments/48235229/wan-disk-single-master.png" align="absmiddle" border="0"/></p>
+
+<p>In single master topology only one site propagates changes to all others.</p>
+
+<h3><a name="DiskBasedWANReplication-Multiownermaster"></a>Multi-owner master</h3>
+
+<p><img src="download/attachments/48235229/wan-disk-multi-owner-master.png" align="absmiddle" border="0"/></p>
+
+<p>In  multi-owner master topology multiple sites propagate changes to  all others but each master is responsible for its own subset of the  global data. An identified object can only be modified by a single master site.</p>
+
+<h3><a name="DiskBasedWANReplication-Multimaster"></a>Multi master</h3>
+
+<p><img src="download/attachments/48235229/wan-disk-multi-master.png" align="absmiddle" border="0"/></p>
+
+<p>In multi master topology multiple sites will propagate changes to all others. Concurrent modifications must be coordinated between master sites (for instance by relying on the <b>gateway-lock-manager</b> module).</p>
+
+<h2><a name="DiskBasedWANReplication-Architecturecomponents"></a>Architecture components</h2>
+
+<p><img src="download/attachments/48235229/wan-disk-architecture.png" align="absmiddle" border="0"/></p>
+
+<p>The Gateway infrastructure is composed of 2 main components:</p>
+<ul>
+	<li>the Mirror</li>
+	<li>the Gateway</li>
+</ul>
+
+
+<h3><a name="DiskBasedWANReplication-TheMirrorComponent"></a>The Mirror Component</h3>
+
+<p>The Mirror component is the entry point in the Gateway infrastructure.  Changes are received asynchronously as batches to be propagated without impact on the original cluster. The mirror is State-less.</p>
+
+
+<h3><a name="DiskBasedWANReplication-TheGatewayComponent"></a>The Gateway Component</h3>
+
+<p>The Gateway component is the unique connection between clusters and act as a redo-log for changes to be replicated. All states are kept in a primary-backup synchronously persisted space.</p>
+
+<p>Processing is performed by sub-components:</p>
+<ul>
+	<li>Duplicator</li>
+	<li>Sender</li>
+	<li>Propagator</li>
+</ul>
+
+
+<h2><a name="DiskBasedWANReplication-ApplicationWorkflow"></a>Application Workflow</h2>
+
+
+<h3><a name="DiskBasedWANReplication-Cluster%28source%29"></a>Cluster (source)</h3>
+
+<p>A client performs operations on the cluster.</p>
+
+<h3><a name="DiskBasedWANReplication-Mirrorcomponent%28source%29"></a>Mirror component (source)</h3>
+
+<ol>
+	<li>Changes are asynchronously sent to the Mirror as a batch of BulkItem Objects and delegated to our BulkDataPersister implementation.</li>
+	<li>BulkItems are filtered (resonance handling), converted to ExternalEntry,  eventually serialized and compressed then encapsulated in an object  which is sent to the Gateway component.</li>
+</ol>
+
+
+<h3><a name="DiskBasedWANReplication-Gatewaycomponent%28source%29"></a>Gateway component (source)</h3>
+
+<ol>
+	<li>The Duplicator sub-component creates one reference object&nbsp; per destination site with a field identifying the destination.</li>
+	<li>The Sender sub-component take this new Reference object, populates its content using the referenced object and send it to the destination Gateway component.</li>
+</ol>
+
+
+<h3><a name="DiskBasedWANReplication-Gatewaycomponent%28destination%29"></a>Gateway component (destination)</h3>
+
+<p>The Propagator sub-component take the object and propagates all changes, as ExternalEntry, to the local cluster.</p>
+
+<h3><a name="DiskBasedWANReplication-Mirrorcomponent%28destination%29"></a>Mirror component (destination)</h3>
+
+<ol>
+	<li>Propagated changes are asynchronously batched to the Mirror component (resonance effect).</li>
+	<li>Our BulkDataPersister implementation notices those objects have just been introduced and filters them.</li>
+</ol>
+
+
+<h1><a name="DiskBasedWANReplication-Features"></a>Features</h1>
+
+
+<h2><a name="DiskBasedWANReplication-FIFOsupport"></a>FIFO support</h2>
+
+<p>FIFO is supported and all cluster changes are propagated in the correct order, accordingly to the GigaSpaces FIFO support.</p>
+
+<h2><a name="DiskBasedWANReplication-Atomicity"></a>Atomicity</h2>
+
+<p>Atomicity is ensured and all changes performed under a transaction will be propagated in an 'all or nothing' unit.</p>
+
+<h2><a name="DiskBasedWANReplication-Filtering"></a>Filtering</h2>
+
+<p>Changes are replicated from a site to another can be filtered using pluggable logic. Each destination site may have a different filtering configuration.</p>
+
+<h1><a name="DiskBasedWANReplication-Limitations"></a>Limitations</h1>
+
+
+<h2><a name="DiskBasedWANReplication-Replication"></a>Replication</h2>
+
+<p>Only non-transient objects will be replicated to destination sites.</p>
+
+
+<h2><a name="DiskBasedWANReplication-FIFOsupport"></a>FIFO support</h2>
+
+<p>As GigaSpaces doesn't ensure FIFO across partitions Gateway doesn't ensure this either.</p>
+
+<h2><a name="DiskBasedWANReplication-Lease"></a>Lease</h2>
+
+<p>Lease are propagated as Forever.</p>
+
+<h2><a name="DiskBasedWANReplication-Transactionusage"></a>Transaction usage</h2>
+
+<p>Clients interacting with a cluster connected to a Gateway cannot create transaction over different clusters. A transaction must use a single cluster.</p>
+
+<h2><a name="DiskBasedWANReplication-Transactionsmergedinasinglebatch"></a>Transactions merged in a single batch</h2>
+
+<p>Batches of changes sent to the BulkDataPersiter by the Mirror do not allow splitting changes as part of multiple transactions. As a consequence whole batches will be propagated atomically (under a distributed transaction). This might include changes originally not under a transaction or several transactions merged.</p>
+
+<h2><a name="DiskBasedWANReplication-Constraintsontypedefinition"></a>Constraints on type definition</h2>
+
+<p>If you are either using LockManager or the distributed transaction  atomicity feature then all your types must provide version metadata  through SpaceVersion annotation.</p>
+
+<p>Some scenarios might propagate changes twice if the SpaceVersion metadata is not provided.</p>
+
+<h2><a name="DiskBasedWANReplication-TypedefinitionandLockManager"></a>Type definition and LockManager</h2>
+
+<p>The type of an Object being locked using the LockManager must be known to all involved clusters. This can be done by:</p>
+<ul>
+	<li>adding their definition to the cluster classpath</li>
+	<li>introducing their definition using snapshot before their first manipulation by the LockManager</li>
+</ul>
+
+
+<h2><a name="DiskBasedWANReplication-Classdefinition"></a>Class definition</h2>
+
+<p>Due to a GigaSpaces limitation, when you want to use a POJO object, you have to introduce its definition in your cluster. This limitation manifests under specific scenario (for instance, using Hibernate persistency in a mirror used on a destination site). Please consider carefully if you need to apply this workaround or not. GigaSpaces will fix this issue in an upcoming release (8.0).</p>
+
+<p>Type definition introduction must be performed at cluster startup. The following code introduces the definition of your classes in the cluster. You have to copy it in your cluster's PU (pu.xml file).</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;beans
+    xmlns=<span class="code-quote">"http://www.springframework.org/schema/beans"</span>
+    <span class="code-keyword">xmlns:xsi</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema-instance"</span>
+    <span class="code-keyword">xmlns:os-core</span>=<span class="code-quote">"http://www.openspaces.org/schema/core"</span>
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    	http://www.openspaces.org/schema/core http://www.openspaces.org/schema/core/openspaces-core.xsd"&gt;
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Define your beans here--&gt;</span></span>
+    <span class="code-tag">&lt;bean id="" ... /&gt;</span>
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Define your space here --&gt;</span></span>
+    <span class="code-tag">&lt;os-core:space id=<span class="code-quote">"simpleEDSTestDest"</span> url=<span class="code-quote">"/./simpleEDSTestDest"</span> /&gt;</span>
+    <span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"simpleEDSTestDestGS"</span> space=<span class="code-quote">"simpleEDSTestDest"</span> /&gt;</span>
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Bean for snapshoting the POJOs --&gt;</span></span>
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"spaceInitBean"</span> class=<span class="code-quote">"fr.fastconnect.gigaspaces.SnapshotEntries"</span>&gt;</span>
+	    <span class="code-tag">&lt;constructor-arg ref=<span class="code-quote">"simpleEDSTestDestGS"</span> /&gt;</span>
+	    <span class="code-tag">&lt;constructor-arg&gt;</span>
+	        <span class="code-tag">&lt;list&gt;</span>
+			<span class="code-tag">&lt;value&gt;</span>fr.fastconnect.gateway.model.ClassToSnapshot1<span class="code-tag">&lt;/value&gt;</span>
+			<span class="code-tag">&lt;value&gt;</span>fr.fastconnect.gateway.model.ClassToSnapshot2<span class="code-tag">&lt;/value&gt;</span>
+			<span class="code-tag">&lt;value&gt;</span>fr.fastconnect.gateway.model.ClassToSnapshot3<span class="code-tag">&lt;/value&gt;</span>
+	        <span class="code-tag">&lt;/list&gt;</span>
+	    <span class="code-tag">&lt;/constructor-arg&gt;</span>
+   <span class="code-tag">&lt;/bean&gt;</span>
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+<p>And add the following class to your PU:package fr.fastconnect.gigaspaces;</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">import</span> java.util.List;
+<span class="code-keyword">import</span> java.util.logging.Level;
+<span class="code-keyword">import</span> java.util.logging.Logger;
+
+<span class="code-keyword">import</span> org.openspaces.core.GigaSpace;
+<span class="code-keyword">public</span> class SnapshotEntries {
+	<span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">final</span> Logger log = Logger.getLogger(<span class="code-quote">"YOUR_LOGGER_DEFINITION"</span>);
+
+	<span class="code-keyword">private</span> GigaSpace space;
+	<span class="code-keyword">private</span> List&lt;<span class="code-object">String</span>&gt; classesToSnapshot;
+
+	<span class="code-keyword">public</span> void setSpace(GigaSpace space) {
+		<span class="code-keyword">this</span>.space = space;
+	}
+
+	<span class="code-keyword">public</span> void setClassesToSnapshot(List&lt;<span class="code-object">String</span>&gt; classesToSnapshot) {
+		<span class="code-keyword">this</span>.classesToSnapshot = classesToSnapshot;
+	}
+
+	<span class="code-keyword">public</span> SnapshotEntries(GigaSpace space, List&lt;<span class="code-object">String</span>&gt; classesToSnapshot) {
+		log.info(<span class="code-quote">"Initialising SnapshotEntries class"</span>);
+
+		<span class="code-keyword">if</span> (log.isLoggable(Level.FINER)) {
+			log.finer(<span class="code-quote">"<span class="code-object">Number</span> of classes to snapshot: "</span> + (classesToSnapshot != <span class="code-keyword">null</span> ? classesToSnapshot.size() : <span class="code-quote">"<span class="code-keyword">null</span>"</span>));
+		}
+
+		<span class="code-keyword">if</span> (classesToSnapshot != <span class="code-keyword">null</span>) {
+			<span class="code-keyword">for</span> (<span class="code-object">String</span> classToSnapshot : classesToSnapshot) {
+				<span class="code-keyword">try</span> {
+					<span class="code-object">Class</span>&lt;?&gt; clazz = <span class="code-object">Class</span>.forName(classToSnapshot);
+					<span class="code-object">Object</span> newInstance = clazz.newInstance();
+					space.snapshot(newInstance);
+
+					<span class="code-keyword">if</span> (log.isLoggable(Level.CONFIG)) {
+						log.config(<span class="code-quote">"Snapshoting class :"</span> + newInstance.getClass().getName());
+					}
+				} <span class="code-keyword">catch</span> (Exception e) {
+					log.log(Level.SEVERE, <span class="code-quote">"An error occured when snapshoting classes: "</span> + e.getMessage(), e);
+				}
+			}
+		}
+	}
+}</pre>
+</div></div>
+
+<h2><a name="DiskBasedWANReplication-FIFOSupportpropagation"></a>FIFO Support propagation</h2>
+
+<p>The GigaSpaces Gateway only propagates FifoSupport.ALL  and FifoSupport.OFF. FifoSupport.OPERATION is propagated as  FifoSupport.OFF.</p>
+
+<h2><a name="DiskBasedWANReplication-ComplexObjects"></a>Complex Objects</h2>
+
+<p>If  you use complex objects (an object having a field of another type not provided by the JVM), you have to disable the compression feature. You can  do that by modifying the file compressor.xml in the mirror's pu to use the "NeverCompressionStrategy" for the bean  compression-strategy. Here is how the file should look like:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;beans
+    xmlns=<span class="code-quote">"http://www.springframework.org/schema/beans"</span> <span class="code-keyword">xmlns:xsi</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema-instance"</span>
+    xsi:schemaLocation=<span class="code-quote">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;
+
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"serializer"</span> class=<span class="code-quote">"fr.fastconnect.gateway.serialization.implementation.CustomSerializer"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"compressor"</span> class=<span class="code-quote">"fr.fastconnect.gateway.compression.implementation.ZipCompressor"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"object-compressor"</span> class=<span class="code-quote">"fr.fastconnect.gateway.compression.ObjectCompressor"</span> &gt;</span>
+        <span class="code-tag">&lt;constructor-arg ref=<span class="code-quote">"serializer"</span> /&gt;</span>
+        <span class="code-tag">&lt;constructor-arg ref=<span class="code-quote">"compressor"</span> /&gt;</span>
+    <span class="code-tag">&lt;/bean&gt;</span>
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Here is the strategy to use if you plan to have complex objects --&gt;</span></span>
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"compression-strategy"</span> class=<span class="code-quote">"fr.fastconnect.gateway.compression.strategy.implementation.NeverCompressionStrategy"</span> /&gt;</span>
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+
+<h4><a name="DiskBasedWANReplication-.NETclient"></a>.NET client</h4>
+
+<p>.NET client must have the POJO definition class in the JVM's classpath. To add a jar in the classpath, see the page: <a href="http://www.gigaspaces.com/wiki/display/XAP71NET/Jvm+Configuration">http://www.gigaspaces.com/wiki/display/XAP71NET/Jvm+Configuration</a>. It explains how to modify your App.config file.</p>
+
+<p>Moreover, the space must have the POJO definition for the complex objects if you use a database. For that, you have to snapshot all the complex  objects in all your clusters at the start of the cluster.</p>
+
+
+<h1><a name="DiskBasedWANReplication-Configuration"></a>Configuration</h1>
+
+<p>Gateway components have to be configured to match your infrastructure.</p>
+
+<p>The main configuration parameters that will need to be adapted are:</p>
+<ul>
+	<li>your cluster Mirror url parameter to point to the Mirror PU</li>
+	<li>gateway PU cluster - to point to your local cluster</li>
+	<li>jdbc.url to point to the correct H2 instance</li>
+</ul>
+
+
+<h2><a name="DiskBasedWANReplication-MirrorPU"></a>Mirror PU</h2>
+
+<p>Mirror default PU can be configured by modifying <b>mirror/META-INF/spring/pu.properties</b>. All properties are optional. Here is an example of properties you can modify:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"># Embedded mirror space.
+# Following properties can be set:
+#   mirror.url (optional, <span class="code-keyword">default</span> '/./mirror-service')
+#   mirror.lookup-groups (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   mirror.lookup-locators (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+
+# Remote gateway space.
+# Following properties can be set:
+#   gateway.url (optional, <span class="code-keyword">default</span> 'jini:<span class="code-comment">//*/*/gateway')
+</span>#   gateway.lookup-groups (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   gateway.lookup-locators (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   gateway.security-enabled (optional, <span class="code-keyword">default</span> <span class="code-keyword">false</span>)
+#   gateway.username (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   gateway.password (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)</pre>
+</div></div>
+<p><b>mirror.</b> properties relates to embedded mirror space started by the mirror component.<br/>
+<b>gateway.</b> properties relates to the gateway space started by the gateway component.</p>
+
+<h3><a name="DiskBasedWANReplication-GatewayPU"></a>Gateway PU</h3>
+
+<p>Gateway PU can be configured by modifying <b>gateway/META-INF/spring/pu.properties</b>. All properties are optional. Here is an example of properties you can modify:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"># Gateway configuration
+#   master (optional, <span class="code-keyword">default</span> '<span class="code-keyword">true</span>')
+#   filtering.enabled (optional, <span class="code-keyword">default</span> '<span class="code-keyword">false</span>')
+
+# Embedded gateway space.
+# Following properties can be set:
+#   gateway.url (optional, <span class="code-keyword">default</span> '/./gateway')
+#   gateway.lookup-groups (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   gateway.lookup-locators (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   gateway.security-enabled (optional, <span class="code-keyword">default</span> <span class="code-keyword">false</span>. If set to <span class="code-keyword">true</span>, provide the security.username and security.password properties)
+#   security.username=user
+#   security.password=password
+
+# Remote local cluster.
+# Following properties can be set:
+#   cluster.url (optional, <span class="code-keyword">default</span> 'jini:<span class="code-comment">//*/*/cluster')
+</span>#   cluster.lookup-groups (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   cluster.lookup-locators (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   cluster.security-enabled (optional, <span class="code-keyword">default</span> <span class="code-keyword">false</span>)
+#   cluster.username (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+#   cluster.password (optional, <span class="code-keyword">default</span> <span class="code-keyword">null</span>)
+
+# Gateway persistence
+# Following properties can be set:
+#   jdbc.driver (optional, <span class="code-keyword">default</span> 'org.h2.Driver')
+#   jdbc.url (optional, <span class="code-keyword">default</span> 'jdbc:h2:tcp:<span class="code-comment">//localhost:8043/~/persistenceDataSource;CACHE_SIZE=262144;ACCESS_MODE_DATA=rws;WRITE_DELAY=0;LOG=2;TRACE_LEVEL_SYSTEM_OUT=0'
+</span>#   jdbc.port (optional, <span class="code-keyword">default</span> '8043')
+#   jdbc.username (optional, <span class="code-keyword">default</span> 'sa')
+#   jdbc.password(optional, <span class="code-keyword">default</span> '')</pre>
+</div></div>
+<p><b>master</b> &#45; controls whether this site will propagate modification to remote destinations or not.<br/>
+<b>security.username</b> &#45; defines the username to use when deploying the gateway space in secured mode (see gateway.security-enabled).<br/>
+<b>security.password</b> &#45; defines the password associated with the username when the gateway space is secured (see gateway.security-enabled).<br/>
+<b>gateway.</b> &#45; properties relates to the embedded gateway space started by the gateway component.<br/>
+<b>cluster.</b> &#45; properties relates to the local cluster.<br/>
+<b>jdbc.</b> &#45; properties relates to underlying database used for Gateway persistence.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If <tt>LOOKUPLOCATORS</tt> is not set then you must use a different gateway name for  each site. Otherwise a source gateway will propagate changes to itself.</p>
+
+<h3><a name="DiskBasedWANReplication-Accessingasecuredcluster"></a>Accessing a secured cluster</h3>
+
+<p>The Gateway Processing Unit must be configured to interact with a secured cluster.</p>
+
+<p>Security  can be enabled by setting the property 'cluster.security-enabled' to  true in pu.properties. Modify bean cluster-giga-space in pu.xml to  provide correct credentials.The provided user must have all rights.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">...
+    <span class="code-tag">&lt;fc-os:spaceretry id=<span class="code-quote">"cluster-space-retry"</span> max-retry-init=<span class="code-quote">"1"</span> wait-time=<span class="code-quote">"5000"</span>&gt;</span>
+        <span class="code-tag">&lt;os-core:space id=<span class="code-quote">"cluster-space"</span> url=<span class="code-quote">"${cluster.url}"</span> lookup-groups=<span class="code-quote">"${cluster.lookup-groups}"</span> lookup-locators=<span class="code-quote">"${cluster.lookup-locators}"</span>&gt;</span>
+            <span class="code-tag">&lt;os-core:security secured=<span class="code-quote">"${cluster.security-enabled}"</span> username=<span class="code-quote">"${cluster.username}"</span> password=<span class="code-quote">"${cluster.password}"</span> /&gt;</span>
+        <span class="code-tag">&lt;/os-core:space&gt;</span>
+    <span class="code-tag">&lt;/fc-os:spaceretry&gt;</span>
+    ...</pre>
+</div></div>
+
+<h3><a name="DiskBasedWANReplication-Accessingasecuredgateway"></a>Accessing a secured gateway</h3>
+
+<p>The Mirror Processing Unit must be configured to interact with a secured gateway.</p>
+
+<p>Security  can be enabled by setting the property 'gateway.security-enabled' to  true in pu.properties and supplying the correct credentials for  'gateway.username' and 'gateway.password'. The provided user must have all rights.</p>
+
+<h3><a name="DiskBasedWANReplication-Filtering"></a>Filtering</h3>
+
+<p>Each site can be configured to filter a subset of modifications to be propagated to an identified remote site.</p>
+
+<p><b>gateway/META-INF/spring/fr/fastconnect/gateway/core/filters.xml</b></p>
+
+<p>To add your own filter for a particular remote site modify the predefined <em>filters</em> bean to reference this site url associated with a list of filter  implementation. The key url must match the url used when adding a destination to the Gateway without <b>jini://</b> protocol and options (after '?'). i.e. if the added destination url is <b>jini://host:port/</b>/gateway?someOptions&#42; then the key must be <b>host:port/</b>/gateway&#42;</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">...
+    <span class="code-tag">&lt;util:map id=<span class="code-quote">"filters"</span>&gt;</span>
+        <span class="code-tag">&lt;entry key=<span class="code-quote">"localhost/*/gateway"</span> value-ref=<span class="code-quote">"your-filters"</span> /&gt;</span>
+    <span class="code-tag">&lt;/util:map&gt;</span>
+    ...</pre>
+</div></div>
+<p>The bundled default implementation are:</p>
+<ul>
+	<li>TypeFilter</li>
+	<li>FieldValuesFilter</li>
+</ul>
+
+
+<p>See below for an example on how to use these filters:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;util:map id=<span class="code-quote">"filters"</span>&gt;</span>
+        <span class="code-tag">&lt;entry key=<span class="code-quote">"localhost/*/gateway"</span> value-ref=<span class="code-quote">"specific-filters"</span> /&gt;</span>
+    <span class="code-tag">&lt;/util:map&gt;</span>
+
+    <span class="code-tag">&lt;util:list id=<span class="code-quote">"specific-filters"</span>&gt;</span>
+        <span class="code-tag">&lt;ref bean=<span class="code-quote">"type-filter"</span> /&gt;</span>
+        <span class="code-tag">&lt;ref bean=<span class="code-quote">"field-values-filter"</span> /&gt;</span>
+    <span class="code-tag">&lt;/util:list&gt;</span>
+
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"type-filter"</span> class=<span class="code-quote">"fr.fastconnect.gateway.filtering.implementation.TypeFilter"</span>&gt;</span>
+        <span class="code-tag">&lt;constructor-arg&gt;</span>
+            <span class="code-tag">&lt;util:set&gt;</span>
+                <span class="code-tag">&lt;value&gt;</span>com.company.TypeToFilter<span class="code-tag">&lt;/value&gt;</span>
+            <span class="code-tag">&lt;/util:set&gt;</span>
+        <span class="code-tag">&lt;/constructor-arg&gt;</span>
+    <span class="code-tag">&lt;/bean&gt;</span>
+
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"field-values-filter"</span> class=<span class="code-quote">"fr.fastconnect.gateway.filtering.implementation.FieldValuesFilter"</span>&gt;</span>
+        <span class="code-tag">&lt;constructor-arg value=<span class="code-quote">"com.company.TypeToFilter"</span> /&gt;</span>
+        <span class="code-tag">&lt;constructor-arg value=<span class="code-quote">"field"</span> /&gt;</span>
+        <span class="code-tag">&lt;constructor-arg&gt;</span>
+            <span class="code-tag">&lt;list&gt;</span>
+                <span class="code-tag">&lt;value&gt;</span>a<span class="code-tag">&lt;/value&gt;</span>
+                <span class="code-tag">&lt;value&gt;</span>b<span class="code-tag">&lt;/value&gt;</span>
+            <span class="code-tag">&lt;/list&gt;</span>
+        <span class="code-tag">&lt;/constructor-arg&gt;</span>
+    <span class="code-tag">&lt;/bean&gt;</span>
+    ...</pre>
+</div></div>
+
+<h4><a name="DiskBasedWANReplication-Enablingfiltering"></a>Enabling filtering</h4>
+
+<p>Filtering is disabled by default. To enable filtering edit <b>gateway/META-INF/spring/pu.properties</b> and set <b>filtering.enabled</b> to true.</p>
+
+<h4><a name="DiskBasedWANReplication-Failurestrategy"></a>Failure strategy</h4>
+
+<p>Decision to filter a change when filtering logic fails is abstracted through interface FilteringFailureStrategy. You can plug your own logic by modifying <b>META-INF/spring/fr/fastconnect/gateway/core/filters.xml</b> in the Gateway PU with:    ...</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"filter-manager"</span> class=<span class="code-quote">"fr.fastconnect.gateway.filtering.FilterManager"</span>&gt;</span>
+        <span class="code-tag">&lt;constructor-arg value=<span class="code-quote">"${filtering.enabled}"</span> /&gt;</span>
+        <span class="code-tag">&lt;constructor-arg value=<span class="code-quote">"classpath:META-INF/spring/fr/fastconnect/gateway/core/filters.xml"</span> /&gt;</span>
+        <span class="code-tag">&lt;constructor-arg&gt;</span><span class="code-tag">&lt;bean class=<span class="code-quote">"fr.fastconnect.gateway.filtering.strategy.implementation.YourOwnFilteringFailureStrategy"</span> /&gt;</span><span class="code-tag">&lt;/constructor-arg&gt;</span>
+    <span class="code-tag">&lt;/bean&gt;</span>
+    ...</pre>
+</div></div>
+<p>Bundled implementation are:</p>
+<ul>
+	<li>AlwaysAcceptFilteringFailureStrategy</li>
+</ul>
+
+
+<h4><a name="DiskBasedWANReplication-Runtimeconfigurationreload"></a>Runtime configuration reload</h4>
+
+<p>Filtering configuration can be reloaded at runtime using the <b>Gateway</b> MBean.</p>
+
+<h3><a name="DiskBasedWANReplication-EnablingtheLockManagercomponent"></a>Enabling the LockManager component</h3>
+
+<p>To enable the LockManager component simply bundle lock-manager and monitoring-lock-manager jar in the gateway processing unit.</p>
+
+<h1><a name="DiskBasedWANReplication-Deployment"></a>Deployment</h1>
+
+<p>(&#33;)Both PUs rely on H2 dependency. As GigaSpaces is bundled with an old H2 jar you will have to manually delete it (from $GIGASPACESHOME/lib/platform/jdbc) to prevent incompatibility issues.</p>
+
+<h2><a name="DiskBasedWANReplication-Quickdeployment"></a>Quick deployment</h2>
+
+<p>A simple deployment consists of deploying a master and a slave site. Following are the steps for deploying the master site:</p>
+<ul>
+	<li>Launch your GSM and GSCs (GSCs depends on the topology of your cluster. Say you have a cluster with 2 partitions and 1 backup per partition, you need at least 5 GSC, 2 for the cluster, 2 for the gateway and 1 for the  mirror)</li>
+	<li>Deploy the PUs (your cluster, the gateway "gateway-gateway-1.1.2-pu.jar" and the mirror "gateway-mirror-1.1.2-pu.jar)</li>
+	<li>Configure the topology of the site (ie. add a link between the master site and the gateway site).</li>
+</ul>
+
+
+<p>For the slave site:</p>
+<ul>
+	<li>Launch  your GSM and GSCs (GSCs depends on the topology of your cluster. Say  you have a cluster with 2 partitions and 1 backup per partition, you  need at least 4 GSC, 2 for the cluster and 2 for the gateway. As this  site is a slave site, and don't need to deploy the mirror)</li>
+	<li>Deploy the PUs (your cluster and the gateway "gateway-gateway-1.1.2-pu.jar"</li>
+</ul>
+
+
+<h2><a name="DiskBasedWANReplication-Processingunitsdeployment"></a>Processing units deployment</h2>
+
+<p>Gateway infrastructure is composed of 2 PUs per site, on top of the cluster itself.</p>
+
+<p>PUs are logically connected. Unless you launch the deployment processes in background, you have to deploy the PUs in this order:</p>
+<ul>
+	<li>the PU of the cluster</li>
+	<li>the PU of the gateway</li>
+	<li>the PU of the mirror</li>
+</ul>
+
+
+<p>Take a look at the configuration details before deploying PUs. The Mirror PU is needed only for a master site. You must not deploy it for a non master site.No  configuration files are used to specify destinations of a site. Gateway  topology (connections between Gateway) is created dynamically the first  time a site is set up.</p>
+
+<h2><a name="DiskBasedWANReplication-Addinganewdestinationsite"></a>Adding a new destination site</h2>
+
+<p>Procedure to add a new site consists of three phases:</p>
+<ul>
+	<li>topology modification</li>
+	<li>persistence layer duplication</li>
+	<li>site start-up</li>
+</ul>
+
+
+<h3><a name="DiskBasedWANReplication-Topologymodification"></a>Topology modification</h3>
+
+<p>To  integrate a new site in a topology add this new site as destination to  all master sites. Sites can be dynamically interconnected by using the topology-modifier script. It takes add/remove as first argument, source Gateway as second argument and destinations Gateway as other arguments</p>
+
+<p>../topology-modifier add jini://localhost/./gateway-paris jini://localhost/./gateway-ny jini://localhost/./gateway-tokyo</p>
+
+<p>This sample will add jini://localhost/./gateway-ny and  jini://localhost/./gateway-tokyo as destinations to  jini://localhost/./gateway-paris.</p>
+
+<p>After this step all master sites will start generating modifications for the new destination.</p>
+
+<p>Warning&#33; If  the source or the destination Gateway is secured, you have to provide  the credentials in the URL like this:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">jini:<span class="code-comment">//localhost/./gateway-paris?secured=<span class="code-keyword">true</span>&amp;username=user&amp;password=password</span></pre>
+</div></div>
+
+<h4><a name="DiskBasedWANReplication-Persistencelayerduplication"></a>Persistence layer duplication</h4>
+
+<p>Module <b>gateway-tools/gateway-duplication-db</b> provides the ability to dump a database to an xml file and restore another database from this xml file using JDBC technology.</p>
+
+<p>To dump a database:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cd bin
+duplicateDB JDBCDriver.jar JDBCDriverClassName export filename JDBCDriverURL USERNAME [password]</pre>
+</div></div>
+<p>To restore a database:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cd bin
+duplicateDB JDBCDriver.jar JDBCDriverClassName <span class="code-keyword">import</span> filename JDBCDriverURL USERNAME [password]</pre>
+</div></div>
+
+<h4><a name="DiskBasedWANReplication-Sitestartup"></a>Site start-up</h4>
+
+<p>The new site can now be started. Cluster will start containing all information from the persistence layer then modifications changes will be propagated from the local Gateway. Modifications older than duplicated persistence layer content can be applied to this cluster  (time to duplicate the persistence layer and start the site) but state  and coherency will be ensured at anytime.</p>
+
+<h3><a name="DiskBasedWANReplication-Removinganexistingdestinationsite"></a>Removing an existing destination site</h3>
+
+<p>A site can be dynamically removed from the topology, as follows:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">../topology-modifier remove jini:<span class="code-comment">//localhost/./gateway-paris jini://localhost/./gateway-ny jini://localhost/./gateway-tokyo</span></pre>
+</div></div>
+<p>This sample will remove jini://localhost/./gateway-ny and  jini://localhost/./gateway-tokyo from destinations of  jini://localhost/./gateway-paris.</p>
+
+<p>You can remove all the destinations site at once with the following command:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">./topology-modifier removeAll jini:<span class="code-comment">//localhost/./gateway-paris</span></pre>
+</div></div>
+
+<h3><a name="DiskBasedWANReplication-Listingdestinationsites"></a>Listing destination sites</h3>
+
+<p>If you want to check the configuration of a site, the topology-modifier script has the option 'list'</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">../topology-modifier list jini:<span class="code-comment">//localhost/./gateway-paris</span></pre>
+</div></div>
+<p>This sample lists all the destinations configured with the site jini://localhost/./gateway-paris.</p>
+
+<h3><a name="DiskBasedWANReplication-LockManagerpeersconfiguration"></a>LockManager peers configuration</h3>
+
+<p>When a Gateway PU is deployed the underlying LockManager peer is stopped and  un-configured. To allow Lock creation peers will have to be started.  During start-up a peer ensures that all remote peers appearing in  mappings define the same mappings. If not startup will fail.</p>
+
+<p>Mappings can be added/removed only when a peer is stopped either using JMX or LockManagerPeer methods.</p>
+
+<h3><a name="DiskBasedWANReplication-Siteshutdown"></a>Site shutdown</h3>
+
+<p>To shutdown a site you will have to go through following steps:</p>
+<ol>
+	<li>remove this site from all other site topology (by following the procedure previously described)</li>
+	<li>shutdown this site cluster to ensure no more batches have to be sent to the Mirror</li>
+	<li>shutdown this site's mirror</li>
+	<li>modify all peers' mapping</li>
+	<li>shutdown this site's gateway</li>
+</ol>
+
+
+<p>To modify peer's mapping you will have to follow a number of steps. In latter description <em>involved peers</em> refers to peer involved with mapping adding/removal.</p>
+<ol>
+	<li>stop all peers</li>
+	<li>wait for all locks on involved peers to be unlocked</li>
+	<li>wait for all modifications performed through locks to be propagated to involved peers</li>
+	<li>performs mapping changes on all peers</li>
+	<li>restart all peersStartup  sequence will not ensure that previously mapped peers are not mapped  anymore if they are not part of the topology. This has to be verified externally.</li>
+</ol>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

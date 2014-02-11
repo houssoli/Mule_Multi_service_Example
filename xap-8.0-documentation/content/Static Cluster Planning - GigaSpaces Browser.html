@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Static Cluster Planning - GigaSpaces Browser</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Static Cluster Planning - GigaSpaces Browser</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Planning a static cluster before creating it in the GigaSpaces Browser. </p>
+</div>
+
+<h1><a name="StaticClusterPlanning-GigaSpacesBrowser-GeneralConsiderations"></a>General Considerations</h1>
+
+<p>Before you begin to create and configure the cluster, consider the following:</p>
+<ul>
+	<li>How many space instances are part of the cluster? On which servers/containers do they run? How should clients and other spaces locate them (LUS/JNDI)?</li>
+	<li>Do you need to set replication links between some of the spaces? Can you identify isolated groups of spaces that require replication?</li>
+	<li>For a specific replication group:
+	<ul>
+		<li>Do you want all the entries to be replicated (full replication) or only some of the entries (partial replication)?</li>
+		<li>Do you want all spaces in the group to replicate to all spaces, or do you want to limit replication to specific paths (using a replication matrix)?</li>
+		<li>Do you want notification templates to be replicated?</li>
+		<li>Do you want replicated entries to cause matching notification templates to trigger remote events?</li>
+		<li>In case of a space failure, do you want your clients to failover automatically to another space? Which space should act as the slave space?</li>
+		<li>Do you want to distribute client operations between cluster members? Should there be any restrictions on which operations should be directed to which space?</li>
+	</ul>
+	</li>
+</ul>
+
+
+<h1><a name="StaticClusterPlanning-GigaSpacesBrowser-StaticClusterWorkflow"></a>Static Cluster Workflow</h1>
+
+<p>The figure below shows the complete workflow for creating an advanced cluster.  </p>
+
+<p><img src="download/attachments/53903398/IMG910.jpg" align="absmiddle" border="0"/></p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>For more details on the steps described above, refer to:
+<ul>
+	<li><a href="Defining Cluster Name and Spaces - GigaSpaces Browser.html" title="Defining Cluster Name and Spaces - GigaSpaces Browser">Defining cluster name and spaces</a></li>
+	<li><a href="Defining Groups in Static Cluster - GigaSpaces Browser.html" title="Defining Groups in Static Cluster - GigaSpaces Browser">Defining groups and adding spaces </a></li>
+	<li><a href="Defining Replication Policy in Static Cluster - GigaSpaces Browser.html" title="Defining Replication Policy in Static Cluster - GigaSpaces Browser">Defining replication policy</a></li>
+	<li><a href="Defining Load-Balancing Policy in Static Cluster - GigaSpaces Browser.html" title="Defining Load-Balancing Policy in Static Cluster - GigaSpaces Browser">Defining load-balancing policy</a></li>
+	<li><a href="Defining Failover Policy in Static Cluster - GigaSpaces Browser.html" title="Defining Failover Policy in Static Cluster - GigaSpaces Browser">Defining failover policy</a></li>
+</ul>
+</td></tr></table></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

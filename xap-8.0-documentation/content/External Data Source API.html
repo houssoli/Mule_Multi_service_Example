@@ -1,0 +1,660 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : External Data Source API</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>External Data Source API</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903630";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903630";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  External Data Source API. This page explains how to implement custom external data source. </p>
+</div>
+
+<h1><a name="ExternalDataSourceAPI-Overview"></a>Overview</h1>
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Built in External Data Source Implementation</b><br />GigaSpaces XAP also ships with an <a href="Hibernate External Data Source.html" title="Hibernate External Data Source">out-of-the-box implementation</a> based on Hibernate</td></tr></table></div>
+
+<p>The External Data Source API provide three major functionalities, each is defined by a specific interface:</p>
+<ul>
+	<li><a href="#ExternalDataSourceAPI-DataRetrieval">Data Retrieval</a> - Determines how data is retrieved from the data source, when it is needed by the space.</li>
+	<li><a href="#ExternalDataSourceAPI-DataPersistency">Data Persistency</a> - Determines how data is updated in the data source, when it is changed in the space.</li>
+	<li><a href="#ExternalDataSourceAPI-InitializationandShutdown">Initialization and Shutdown</a> - Determines:
+	<ul>
+		<li>How the data source is configured - database name,location.</li>
+		<li>Which data is loaded into the space at startup.</li>
+		<li>How to close the data source.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><tt>SQLDataProvider</tt> and <tt>DataProvider</tt> <tt>read</tt> and <tt>iterator</tt> methods are called when running in LRU cache policy mode and when running with <tt>read-only</tt> EDS usage mode.</td></tr></table></div>
+
+<h1><a name="ExternalDataSourceAPI-ExternalDataSourceComponents"></a>External Data Source Components</h1>
+<p>Based on your application persistency requirements - you may need to implement all EDS interfaces or only few of them.<br/>
+For example - when your application should load data from the database without writing data into back into the database (using EDS <tt>read-only</tt> usage mode), you should implement only the <tt>SQLDataProvider</tt> interface. In such a case you may write data into the database via the Mirror Service by implementing the <tt>BulkDataPersister</tt>.</p>
+
+<h2><a name="ExternalDataSourceAPI-DataRetrieval"></a>Data Retrieval</h2>
+<p>There are two options to implement Data retrieval:</p>
+<ul class="alternate" type="square">
+	<li><a href="#ExternalDataSourceAPI-SQLbasedAPI">SQL-based API</a></li>
+	<li><a href="#ExternalDataSourceAPI-ObjectbasedAPI">Object-based API</a></li>
+</ul>
+
+
+<h4><a name="ExternalDataSourceAPI-SQLbasedAPI"></a>SQL-based API</h4>
+<p>The <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/SQLDataProvider.html" target="_blank">SQLDataProvider</a> allows you to implement a full-featured EDS with databases that support SQL queries.<br/>
+When the EDS implements the <tt>SQLDataProvider</tt> interface, all space data retrieval operations are translated to SQLQuery and passed to <tt>DataIterator iterator(SQLQuery query)</tt>. The result is an iterator of the fetched data, that is iterated by the space, and the data is inserted into the space memory. See Default implementation of SQLDataProvider.iterator().</p>
+
+<h4><a name="ExternalDataSourceAPI-ObjectbasedAPI"></a>Object-based API</h4>
+<p>The <b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/DataProvider.html" target="_blank">DataProvider</a></b> should be used for databases that don't support SQL queries.</p>
+<ul class="alternate" type="square">
+	<li><tt>DataIterator iterator(userObjectTemplate)</tt>: This method is called when read is performed with a template. The original template is passed as the parameter to iterator(). The result is an iterator of the fetched data that is iterated by the space, and the data is inserted into the space memory.</li>
+	<li><tt>Object read(Object userObjectTemplate)</tt>: This method is used to optimize queries that always return a single object - reads with UID. The data is the user object template that has a non-null UID. The result should be a matching object found in the EDS with the same ID.</li>
+</ul>
+
+
+<h2><a name="ExternalDataSourceAPI-DataPersistency"></a>Data Persistency</h2>
+<p>Data Persistency can be implemented as Synchronous or Asynchronous. In Synchronous approach, DataPersister logic is running in the same space instance, in Asynchronous approach DataPersister logic runs in a Mirror Service (see <a href="Asynchronous Persistency with the Mirror.html" title="Asynchronous Persistency with the Mirror">Asynchronous Persistency with the Mirror</a>)</p>
+
+<p>In either approach, DataPersistor interface is implemented and configured appropriately. There are two options to implement Data Persistency:</p>
+<ul class="alternate" type="square">
+	<li><a href="#ExternalDataSourceAPI-PersistencyTransactionalMode">Persistency Transactional Mode</a></li>
+	<li><a href="#ExternalDataSourceAPI-PersistencyNonTransactionalMode">Persistency Non-Transactional Mode</a></li>
+</ul>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>In case you would like to avoid specific classes or space objects from being persistent (invoking the Data Persistency EDS methods), you should use the <tt>@SpaceClass (persist=false)</tt> class level decoration or the <tt>@SpacePersist</tt> method level decoration. See the <a href="POJO Metadata.html" title="POJO Metadata">POJO Metadata</a> for details.</td></tr></table></div>
+
+<h3><a name="ExternalDataSourceAPI-PersistencyTransactionalMode"></a>Persistency Transactional Mode</h3>
+<p>If the EDS implements the <b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/BulkDataPersister.html" target="_blank">BulkDataPersister</a></b> interface, data persistency operations that fall under a transaction are translated to a list of <b>BulkItem</b>(operation+data), and passed to <tt>executeBulk(List&lt;BulkItem&gt;</tt> items).<br/>
+The <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/BulkItem.html" target="_blank">BulkItem</a> is an object that has two components - the data that was changed and the operation that was executed - WRITE/UPDATE/REMOVE. See Default implementation of BulkDataPersister.executeBulk()</p>
+
+<h3><a name="ExternalDataSourceAPI-PersistencyNonTransactionalMode"></a>Persistency Non-Transactional Mode</h3>
+<p>In the EDS does not implement  <b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/BulkDataPersister.html" target="_blank">BulkDataPersister</a></b> interface, or space operations are not wrapped under a transaction, persistence operations are invoked on a per space operation basis.</p>
+
+<p>The <b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/DataPersister.html" target="_blank">DataPersister</a></b> interface has three methods for each space operation:</p>
+<ul class="alternate" type="square">
+	<li><tt>write(Object userObject)</tt> - Invoked when a new object is inserted to the space.</li>
+	<li><tt>update(Object userObject)</tt> - Invoked when an object is updated in the space.</li>
+	<li><tt>remove(Object userObject)</tt> - Invoked when an object is removed from the space.</li>
+</ul>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><tt>userObject</tt> is always the original user object unless stated otherwise. See the <tt>space-config.external-data-source.data-class</tt> at the <a href="External Data Source Advanced Topics.html#ExternalDataSourceAdvancedTopics-Properties">External Data Source Properties</a> section.</td></tr></table></div>
+
+<h2><a name="ExternalDataSourceAPI-InitializationandShutdown"></a>Initialization and Shutdown</h2>
+<p>Initialization and Shutdown done via the <b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/ManagedDataSource.html" target="_blank">ManagedDataSource</a></b> interface:</p>
+<ul class="alternate" type="square">
+	<li><tt>init(Properties customProperties)</tt> is called on space startup, so all the EDS initialization is done in this method. All the configuration is passed in the <em>customProperties</em> parameter. This is the content of a properties file that is completely implementation dependant, and can be configured in the following way: see EDS Configuration and Default implementation of ManagedDataSource.init()</li>
+	<li><tt>DataIterator initialLoad()</tt> is called just after the init(). It returns an iterator to the data that should be inserted into the space on startup. This can be all of the data, or only a subset. This depends on the implementation - see Default implementation of ManagedDataSource.initialLoad()</li>
+	<li><tt>shutdown()</tt>  is called before the space is closed. This is the place to close all the database connections, or any other resources that EDS was using - see Default implementation of ManagedDataSource.shutdown()</li>
+</ul>
+
+
+<h1><a name="ExternalDataSourceAPI-APIMatrix"></a>API Matrix</h1>
+<h2><a name="ExternalDataSourceAPI-EDSImplements%3ASQLDataProvider%2CDataPersister"></a>EDS Implements:SQLDataProvider, DataPersister</h2>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Client Call </th>
+<th class='confluenceTh'>EDS Call</th>
+<th class='confluenceTh'>Cache Policy Mode</th>
+<th class='confluenceTh'>EDS Usage Mode</th>
+</tr>
+<tr>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>iterator SQLQuery,write</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>take</td>
+<td class='confluenceTd'>remove</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readById</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readByIds</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>read</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readMultiple</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>takeMultiple</td>
+<td class='confluenceTd'>iterator SQLQuery, remove</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readMultiple SQLQuery</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>takeMultiple SQLQuery</td>
+<td class='confluenceTd'>iterator SQLQuery ,remove</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+</tbody></table>
+
+<h2><a name="ExternalDataSourceAPI-EDSImplements%3ADataProvider%2CDataPersister"></a>EDS Implements:DataProvider, DataPersister</h2>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Client Call </th>
+<th class='confluenceTh'>EDS Call</th>
+<th class='confluenceTh'>Cache Policy Mode</th>
+<th class='confluenceTh'>EDS Usage Mode</th>
+</tr>
+<tr>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>read,write</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>take</td>
+<td class='confluenceTd'>remove</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readById - <b>autoGenerate=true</b></td>
+<td class='confluenceTd'>read</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readById - <b>autoGenerate=false</b></td>
+<td class='confluenceTd'>iterator</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readByIds - <b>autoGenerate=true</b></td>
+<td class='confluenceTd'>read</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readByIds - <b>autoGenerate=false</b></td>
+<td class='confluenceTd'>iterator</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>read</td>
+<td class='confluenceTd'>iterator</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readMultiple</td>
+<td class='confluenceTd'>iterator </td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>takeMultiple</td>
+<td class='confluenceTd'>iterator , remove</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readMultiple SQLQuery</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'>takeMultiple SQLQuery</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+</tbody></table>
+
+<h2><a name="ExternalDataSourceAPI-EDSImplements%3ADataProvider%2CSQLDataProvider%2CDataPersister"></a>EDS Implements:DataProvider,SQLDataProvider,DataPersister</h2>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Client Call </th>
+<th class='confluenceTh'>EDS Call</th>
+<th class='confluenceTh'>Cache Policy Mode</th>
+<th class='confluenceTh'>EDS Usage Mode</th>
+</tr>
+<tr>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>iterator SQLQuery,write</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>take</td>
+<td class='confluenceTd'>remove</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readById</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readByIds</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>read</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readMultiple</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>takeMultiple</td>
+<td class='confluenceTd'>iterator SQLQuery, remove</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+<tr>
+<td class='confluenceTd'>readMultiple SQLQuery</td>
+<td class='confluenceTd'>iterator SQLQuery</td>
+<td class='confluenceTd'>LRU</td>
+<td class='confluenceTd'>read-write,read-only</td>
+</tr>
+<tr>
+<td class='confluenceTd'>takeMultiple SQLQuery</td>
+<td class='confluenceTd'>iterator SQLQuery ,remove</td>
+<td class='confluenceTd'>ALL_IN_CACHE, LRU</td>
+<td class='confluenceTd'>read-write</td>
+</tr>
+</tbody></table>
+
+<p>Custom EDS implementations looking for transactional behavior on persisting data should implement BulkDataPersister Interface and invoke the space operations with appropriate transaction boundaries. All update operations (write, writeMultiple, take, takeMultiple) that fall under a space transaction will be invoked as one executeBulk call. </p>
+
+<p>If a Custom EDS implements BulkDataPersister but the space operations are not invoked under transaction, above mapping still holds true.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>The <tt>space-config.external-data-source.supports-inheritance</tt> space property behavior</b>
+<ul class="alternate" type="square">
+	<li>When having the <tt>supports-inheritance=true</tt> - GigaSpaces will call the read/iterator method once (according the autoGenerate mode of the class).</li>
+	<li>When having <tt>supports-inheritance=false</tt> - GigaSpaces will call the read/iterator method for the relevant class and every class that extends this class (according the autoGenerate mode of the class).</li>
+</ul>
+</td></tr></table></div>
+
+
+<h1><a name="ExternalDataSourceAPI-AllExternalDataSourceAPIs"></a>All External Data Source APIs </h1>
+<ul>
+	<li><b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/ManagedDataSource.html" target="_blank">ManagedDataSource</a></b> &#8211; handles data source life cycle &#8211; configuration,initialization, shutdown, and initial load.</li>
+	<li><b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/SQLDataProvider.html" target="_blank">SQLDataProvider</a></b> &#8211; handles all space read operations.</li>
+	<li><b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/DataProvider.html" target="_blank">DataProvider</a></b> &#8211; handles simple data source queries &#8211; read operations.
+	<ul>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/DataIterator.html" target="_blank">DataIterator</a></li>
+	</ul>
+	</li>
+	<li><b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/BulkDataPersister.html" target="_blank">BulkDataPersister</a></b> &#8211; handles the persistency of all write/update/take operations. Supports transactional operations.
+	<ul>
+		<li><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/BulkItem.html" target="_blank">BulkItem</a></li>
+	</ul>
+	</li>
+	<li><b><a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/gigaspaces/datasource/DataPersister.html" target="_blank">DataPersister</a></b> &#8211; handles single data updates &#8211; write/update/remove operations.</li>
+</ul>
+
+
+
+<h1><a name="ExternalDataSourceAPI-Example"></a>Example</h1>
+<p>See below a simple EDS implementation example. The space with this example running in a partitioned mode (2 nodes) using LRU Caching policy mode.</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="ExternalDataSourceAPI-TheEDSimplementationclass"></a>The EDS implementation class</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>This class includes a simple main method that will allow you to test it when running within your IDE debugger:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.test.eds;
+
+<span class="code-keyword">import</span> java.util.ArrayList;
+<span class="code-keyword">import</span> java.util.List;
+<span class="code-keyword">import</span> java.util.Properties;
+<span class="code-keyword">import</span> java.util.logging.Logger;
+
+<span class="code-keyword">import</span> org.openspaces.core.GigaSpace;
+<span class="code-keyword">import</span> org.openspaces.core.GigaSpaceConfigurer;
+<span class="code-keyword">import</span> org.openspaces.core.space.UrlSpaceConfigurer;
+<span class="code-keyword">import</span> com.gigaspaces.datasource.DataIterator;
+<span class="code-keyword">import</span> com.gigaspaces.datasource.DataProvider;
+<span class="code-keyword">import</span> com.gigaspaces.datasource.DataSourceException;
+<span class="code-keyword">import</span> com.gigaspaces.datasource.ManagedDataSource;
+
+<span class="code-keyword">public</span> class MyEDS <span class="code-keyword">implements</span> DataProvider&lt;MyData&gt; {
+	<span class="code-keyword">static</span> Logger logger = Logger.getLogger(<span class="code-quote">"MyEDS"</span>);
+
+	<span class="code-keyword">public</span> <span class="code-keyword">static</span> void main(<span class="code-object">String</span>[] args) {
+		<span class="code-keyword">try</span> {
+
+			GigaSpace spaceNode1 = startClusterNode(1);
+			GigaSpace spaceNode2 = startClusterNode(2);
+			logger.info(<span class="code-quote">"Partition 1 has "</span> + spaceNode1.count(<span class="code-keyword">null</span>)
+					+ <span class="code-quote">" objects"</span>);
+			logger.info(<span class="code-quote">"Partition 2 has "</span> + spaceNode2.count(<span class="code-keyword">null</span>)
+					+ <span class="code-quote">" objects"</span>);
+
+			GigaSpace gigaspace = <span class="code-keyword">new</span> GigaSpaceConfigurer(
+					<span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>)).gigaSpace();
+</span>
+			MyData obj = <span class="code-keyword">new</span> MyData();
+			obj.setId(<span class="code-quote">"a"</span>);
+			obj.setData(<span class="code-quote">"aaaaa"</span>);
+			obj.setRouting(1);
+			logger.info(<span class="code-quote">"APP-write"</span>);
+			gigaspace.write(obj);
+
+			MyData templ1 = <span class="code-keyword">new</span> MyData();
+			templ1.setId(<span class="code-quote">"1"</span>);
+			templ1.setRouting(1);
+
+			MyData templ2 = <span class="code-keyword">new</span> MyData();
+			templ2.setId(<span class="code-quote">"a"</span>);
+			templ2.setRouting(1);
+
+			MyData templ3 = <span class="code-keyword">new</span> MyData();
+			templ3.setId(<span class="code-quote">"b"</span>);
+			templ3.setRouting(1);
+
+			logger.info(<span class="code-quote">"APP-read Loaded object from EDS"</span>);
+			MyData ret = gigaspace.read(templ1);
+			<span class="code-keyword">if</span> (ret == <span class="code-keyword">null</span>)
+				logger.info(<span class="code-quote">"Could not read loaded object"</span>);
+			<span class="code-keyword">else</span>
+				logger.info(<span class="code-quote">"read loaded object - OK!"</span>);
+
+			logger.info(<span class="code-quote">"APP-read"</span>);
+			ret = gigaspace.read(templ2);
+			<span class="code-keyword">if</span> (ret == <span class="code-keyword">null</span>)
+				logger.info(<span class="code-quote">"Could not read object"</span>);
+			<span class="code-keyword">else</span>
+				logger.info(<span class="code-quote">"read object - OK!"</span>);
+
+			logger.info(<span class="code-quote">"APP-read unloaded object"</span>);
+			ret = gigaspace.read(templ3);
+			<span class="code-keyword">if</span> (ret == <span class="code-keyword">null</span>)
+				logger.info(<span class="code-quote">"Can't find the object - OK"</span>);
+			<span class="code-keyword">else</span>
+				logger.info(<span class="code-quote">"read loaded object - OK!"</span>);
+
+			logger.info(<span class="code-quote">"APP-readMultiple"</span>);
+			MyData retArray[] = gigaspace.readMultiple(<span class="code-keyword">new</span> MyData(),
+					<span class="code-object">Integer</span>.MAX_VALUE);
+
+		} <span class="code-keyword">catch</span> (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	<span class="code-keyword">public</span> DataIterator&lt;MyData&gt; iterator(MyData query)
+			<span class="code-keyword">throws</span> DataSourceException {
+		logger.info(<span class="code-quote">"&gt;&gt; Partition ID:"</span> + partitionID + <span class="code-quote">" EDS-iterator"</span>);
+		<span class="code-keyword">return</span> <span class="code-keyword">new</span> MyDataIterator(query);
+	}
+
+	<span class="code-keyword">public</span> MyData read(MyData query) <span class="code-keyword">throws</span> DataSourceException {
+		logger.info(<span class="code-quote">"&gt;&gt; Partition ID:"</span> + partitionID + <span class="code-quote">" EDS-read ID:"</span>
+				+ query.getId());
+		<span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+	}
+
+	<span class="code-object">int</span> partitionID;
+
+	<span class="code-keyword">public</span> void init(Properties props) <span class="code-keyword">throws</span> DataSourceException {
+		logger.info(props.toString());
+		partitionID = <span class="code-object">Integer</span>
+				.valueOf(
+						props.get(ManagedDataSource.STATIC_PARTITION_NUMBER)
+								.toString()).intValue();
+		logger.info(<span class="code-quote">"&gt;&gt; Partition ID:"</span> + partitionID + <span class="code-quote">" EDS-init"</span>);
+	}
+
+	<span class="code-keyword">public</span> DataIterator&lt;MyData&gt; initialLoad() <span class="code-keyword">throws</span> DataSourceException {
+		logger.info(<span class="code-quote">"&gt;&gt; Partition ID:"</span> + partitionID + <span class="code-quote">" EDS-initialLoad"</span>);
+		List&lt;MyData&gt; initData = <span class="code-keyword">new</span> ArrayList&lt;MyData&gt;();
+
+		<span class="code-comment">// load the space with some data
+</span>		MyData obj = <span class="code-keyword">new</span> MyData();
+		obj.setId(<span class="code-quote">"1"</span>);
+		obj.setData(<span class="code-quote">"1111111"</span>);
+		obj.setRouting(1);
+
+		initData.add(obj);
+		logger.info(<span class="code-quote">"&gt;&gt; Partition ID:"</span> + partitionID + <span class="code-quote">" trying to load "</span>
+				+ initData.size() + <span class="code-quote">" objects into the space"</span>);
+		<span class="code-keyword">return</span> <span class="code-keyword">new</span> MyDataIterator(initData);
+	}
+
+	<span class="code-keyword">public</span> void shutdown() <span class="code-keyword">throws</span> DataSourceException {
+	}
+
+	<span class="code-keyword">static</span> GigaSpace startClusterNode(<span class="code-object">int</span> id) {
+		GigaSpace space = <span class="code-keyword">new</span> GigaSpaceConfigurer(<span class="code-keyword">new</span> UrlSpaceConfigurer(
+				<span class="code-quote">"/./space?cluster_schema=partitioned-sync2backup&amp;total_members=2,0&amp;id="</span>
+						+ id)
+				.addProperty(<span class="code-quote">"space-config.persistent.enabled"</span>, <span class="code-quote">"<span class="code-keyword">true</span>"</span>)
+				.addProperty(<span class="code-quote">"space-config.engine.cache_policy"</span>, <span class="code-quote">"0"</span>)
+				<span class="code-comment">// LRU
+</span>				.addProperty(<span class="code-quote">"space-config.external-data-source.usage"</span>,
+						<span class="code-quote">"read-only"</span>)
+				.addProperty(<span class="code-quote">"space-config.persistent.StorageAdapterClass"</span>,
+						<span class="code-quote">"com.j_spaces.sadapter.datasource.DataAdapter"</span>)
+				.addProperty(
+						<span class="code-quote">"space-config.external-data-source.data-source-class"</span>,
+						MyEDS.class.getName())).gigaSpace();
+		<span class="code-keyword">return</span> space;
+	}
+
+}</pre>
+</div></div>
+
+
+<h5><a name="ExternalDataSourceAPI-TheDataIterator"></a>The DataIterator</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.test.eds;
+
+<span class="code-keyword">import</span> java.util.Iterator;
+<span class="code-keyword">import</span> java.util.List;
+
+<span class="code-keyword">import</span> com.gigaspaces.datasource.DataIterator;
+<span class="code-keyword">import</span> com.j_spaces.core.client.SQLQuery;
+
+<span class="code-keyword">public</span> class MyDataIterator <span class="code-keyword">implements</span> DataIterator&lt;MyData&gt;{
+
+	List&lt;MyData&gt; data;
+	Iterator&lt;MyData&gt; dataIter;
+	<span class="code-keyword">public</span> MyDataIterator(List&lt;MyData&gt; initData)
+	{
+		data=initData;
+		dataIter = data.iterator();
+	}
+
+	<span class="code-keyword">public</span> MyDataIterator(SQLQuery&lt;MyData&gt; query)
+	{
+		
+	}
+	<span class="code-keyword">public</span> MyDataIterator(MyData query)
+	{
+		
+	}
+	<span class="code-keyword">public</span> void close() {
+		
+	}
+
+	<span class="code-keyword">public</span> <span class="code-object">boolean</span> hasNext() {
+		<span class="code-keyword">if</span> (dataIter!=<span class="code-keyword">null</span> )
+			<span class="code-keyword">return</span> dataIter.hasNext();
+		<span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+	}
+
+	<span class="code-keyword">public</span> MyData next() {
+		<span class="code-keyword">if</span> (dataIter!=<span class="code-keyword">null</span> )
+			<span class="code-keyword">return</span> dataIter.next();
+		<span class="code-keyword">else</span>
+			<span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+	}
+
+	<span class="code-keyword">public</span> void remove() {
+		<span class="code-keyword">if</span> (dataIter!=<span class="code-keyword">null</span> )
+			dataIter.remove();		
+	}
+
+}</pre>
+</div></div>
+
+
+<h5><a name="ExternalDataSourceAPI-TheSpaceClass"></a>The Space Class</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.test.eds;
+
+<span class="code-keyword">import</span> com.gigaspaces.annotation.pojo.*;
+<span class="code-keyword">import</span> com.gigaspaces.metadata.index.SpaceIndexType;
+
+@SpaceClass (persist=<span class="code-keyword">true</span>)
+<span class="code-keyword">public</span> class MyData {
+
+	<span class="code-object">String</span> id;
+	<span class="code-object">String</span> data;
+	<span class="code-object">Integer</span> routing;
+
+	@SpaceId (autoGenerate=<span class="code-keyword">true</span>)
+	<span class="code-keyword">public</span> <span class="code-object">String</span> getId() {
+		<span class="code-keyword">return</span> id;
+	}
+	
+	<span class="code-keyword">public</span> void setId(<span class="code-object">String</span> id) {
+		<span class="code-keyword">this</span>.id = id;
+	}
+
+	@SpaceIndex(type=SpaceIndexType.BASIC)
+	<span class="code-keyword">public</span> <span class="code-object">String</span> getData() {
+		<span class="code-keyword">return</span> data;
+	}
+	<span class="code-keyword">public</span> void setData(<span class="code-object">String</span> data) {
+		<span class="code-keyword">this</span>.data = data;
+	}
+	
+	@SpaceRouting
+	<span class="code-keyword">public</span> <span class="code-object">Integer</span> getRouting() {
+		<span class="code-keyword">return</span> routing;
+	}
+	<span class="code-keyword">public</span> void setRouting(<span class="code-object">Integer</span> routing) {
+		<span class="code-keyword">this</span>.routing = routing;
+	}
+}</pre>
+</div></div>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

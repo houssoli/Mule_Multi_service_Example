@@ -1,0 +1,652 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : SQLQuery</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>SQLQuery</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903394";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903394";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The SQLQuery class is used to query the space using the <tt>SQL</tt> like syntax. </p>
+</div>
+
+<h1><a name="SQLQuery-Overview"></a>Overview</h1>
+
+<p>The <tt>SQLQuery</tt> class is used to query the space using the SQL syntax. The query statement should only include the <tt>WHERE</tt> statement part.</p>
+
+<p>If the <tt>WHERE</tt> clause is null or an empty string &#8211; the template argument is used as is &#8211; i.e., it is considered as a regular call to the relevant space's method. </p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If the <tt>WHERE</tt> statement argument exists (it is not null or an empty string), and does not include a question mark ("?") &#8211; only the template class name is used and the returned result array is based on the <tt>WHERE</tt> clause statement.<br/>
+When using <tt>?</tt> as part of the <tt>WHERE</tt> statement condition, the corresponding value in the template field is used. </p>
+
+<p>When using clustered space with the load-balancing hash-based policy and the <tt>broadcast</tt> option is disabled &#8211; the <tt>WHERE</tt> statement must include the first indexed field with an appropriate value to be used to resolve the target space to be queried.</p>
+
+<p><img src="download/attachments/48235222/referto.gif" align="absmiddle" border="0"/> For the full documentation of the class's methods and constructors, see <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/j_spaces/core/client/SQLQuery.html" target="_blank">Javadoc</a>.</p>
+
+<p><img src="download/attachments/48235222/referto.gif" align="absmiddle" border="0"/> For more details on the SQL syntax, refer to:</p>
+<ul>
+	<li><a href="http://www.1keydata.com/sql/sql-syntax.html">1keydata - SQL Syntax</a></li>
+	<li><a href="http://www.devguru.com/Technologies/sqlsyntax/quickref/sql_syntax_select.html">Devguru - SELECT Statement Syntax Diagram</a></li>
+</ul>
+
+
+<p><a name="SQLQuery-2"></a> </p>
+<h1><a name="SQLQuery-SupportedSpaceOperations"></a>Supported Space Operations</h1>
+<p>The following operations support GigaSpaces SQLQuery:</p>
+<ul>
+	<li><tt>count</tt></li>
+	<li><tt>clear</tt></li>
+	<li><tt>read</tt><b><sup>1</sup></b>, <tt>readIfExists</tt><b><sup>2</sup></b>, <tt>readMultiple</tt></li>
+	<li><tt>take</tt><b><sup>1</sup></b>, <tt>takeIfExists</tt><b><sup>2</sup></b>, <tt>takeMultiple</tt>
+</li>
+	<li><tt>snapshot</tt><b><sup>3</sup></b></li>
+	<li><tt>EventSession</tt><b><sup>3</sup></b></li>
+	<li><tt>GSIterator</tt><b><sup>3</sup></b></li>
+</ul>
+
+
+<p><b>Remarks:</b></p>
+<ol>
+	<li>Starting 8.0 this operation can be used as a blocking operation using timeout.</li>
+	<li>Starting 8.0.1 this operation can be used as a blocking operation using timeout.</li>
+	<li>Only <a href="#SQLQuery-SimpleQueries">Simple Queries</a> are supported.</li>
+</ol>
+
+
+<h1><a name="SQLQuery-SupportedSQLFeatures"></a>Supported SQL Features</h1>
+<p>GigaSpaces SQLQuery supports the following:</p>
+<ul>
+	<li>AND/OR operators to join two or more conditions.</li>
+	<li>All basic logical operations to create conditions: <tt>=, &lt;&gt;, &lt;,&gt;, &gt;=, &lt;=, like, NOT like, is null, is NOT null, IN</tt>.</li>
+	<li><tt>ORDER BY (ASC | DESC)</tt> for multiple POJO properties. Supported only by readMultiple. <tt>ORDER BY</tt> supports also nested object fields.</li>
+	<li><tt>GROUP BY</tt> - performs DISTINCT on the POJO properties. Supported only by readMultiple. <tt>GROUP BY</tt> supports also nested object fields.</li>
+	<li><tt>sysdate</tt> - current system date and time.</li>
+	<li><tt>rownum</tt> - limits the number of rows to select.</li>
+	<li>Sub queries.</li>
+	<li>"." used to indicate a double data type.</li>
+</ul>
+
+
+<p>Examples:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// IN query
+</span>SQLQuery&lt;MyClass&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;MyClass&gt; (MyClass.class , <span class="code-quote">"num IN (1,2,3)"</span>); 
+MyClass result[] = gigapace.readMultiple(query, <span class="code-object">Integer</span>.MAX_VALUE);
+
+<span class="code-comment">// range query
+</span>SQLQuery&lt;MyClass&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;MyClass&gt; (MyClass.class , <span class="code-quote">"num &gt;=1 AND num &lt;=100"</span>); 
+MyClass result[] = gigapace.readMultiple(query, <span class="code-object">Integer</span>.MAX_VALUE);
+
+<span class="code-comment">// Order by query
+</span>SQLQuery&lt;MyClass&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;MyClass&gt; (MyClass.class , <span class="code-quote">"num &gt; 1 ORDER BY str"</span>);
+MyClass result[] = gigapace.readMultiple(query, <span class="code-object">Integer</span>.MAX_VALUE);</pre>
+</div></div>
+
+<h1><a name="SQLQuery-UsageExamples"></a>Usage Examples</h1>
+
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+
+<h2><a name="SQLQuery-POJOClass"></a>POJO Class</h2>
+
+<p>We will use the following POJO class as part of the code examples:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">import</span> java.sql.Date;
+
+<span class="code-keyword">public</span> class MyPojo{
+
+   <span class="code-keyword">public</span> <span class="code-object">String</span> getName(){...}   
+   <span class="code-keyword">public</span> Date getDate{...}   
+   <span class="code-keyword">public</span> <span class="code-object">Integer</span> getInteger{...}
+   ...
+}</pre>
+</div></div>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery query = <span class="code-keyword">new</span> SQLQuery(MyPojo.class, <span class="code-quote">"integer&gt;500"</span>);</pre>
+</div></div>
+
+<h2><a name="SQLQuery-UsingSQLQuerywithread"></a>Using SQLQuery with read</h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">MyPojo result = space.read(query, 0);</pre>
+</div></div> 
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>read()</tt> method returns the first matching object.</p>
+
+<h2><a name="SQLQuery-UsingSQLQuerywithtake"></a>Using SQLQuery with take</h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">MyPojo result = space.take(query, 0);</pre>
+</div></div> 
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>take()</tt> method returns the first matching object.</p>
+
+<h2><a name="SQLQuery-UsingSQLQuerywithreadMultiple"></a>Using SQLQuery with readMultiple</h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">MyPojo[] result = space.readMultiple(query, <span class="code-object">Integer</span>.MAX_VALUE);</pre>
+</div></div>
+
+<h2><a name="SQLQuery-UsingSQLQuerywithtakeMultiple"></a>Using SQLQuery with takeMultiple</h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">MyPojo[] result = space.takeMultiple(query, <span class="code-object">Integer</span>.MAX_VALUE);</pre>
+</div></div>
+
+<h2><a name="SQLQuery-UsingSQLQuerywithEventSession"></a>Using SQLQuery with EventSession                                </h2>
+
+<p><img src="download/attachments/48235222/referto.gif" align="absmiddle" border="0"/> For an example of <tt>SQLQuery</tt> with <tt>EvenSession</tt>, refer to the <a href="Session Based Messaging API.html#SessionBasedMessagingAPI-SQLQueryTemplateRegistration">Session Based Messaging API</a> section.</p>
+
+<h2><a name="SQLQuery-UsingSQLQuerywithBlockingOperations"></a>Using SQLQuery with Blocking Operations</h2>
+
+<p>Blocking operations (read and take with <tt>timeout&gt;0</tt>) are supported for <a href="#SQLQuery-SimpleQueries">Simple Queries</a>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery query = <span class="code-keyword">new</span> SQLQuery(MyPojo.class , <span class="code-quote">"integer&gt;500"</span>);
+<span class="code-object">Object</span> result = space.take(query, 100000);</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/forbidden.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If you are using a complex query you will get the following message - <b>java.sql.SQLException: Operation with timeout doesn't support complex SQL queries that can't be translated to a single template.</b> In this case you might want to consider to rewrite the query in the simple format or split it into several simple queries. for more information refer to <a href="#SQLQuery-SimpleQueries">Simple Queries</a> definition.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/forbidden.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <b>Blocking Take/Read Operations with null as the Routing Field are not Supported with Partitioned Space</b></p>
+</div> 
+
+<h1><a name="SQLQuery-RegularExpressions"></a>Regular Expressions</h1>
+
+<p>You can query the space using the SQL Like or Java Regular Expression Query syntax. </p>
+
+<p>When using the SQL <tt>like</tt> operator you may use the following:<br/>
+<tt>%</tt> - match any string of any length (including zero length)<br/>
+<tt>_</tt> - match on a single character</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery&lt;MyPojo&gt; likeQuery = <span class="code-keyword">new</span> SQLQuery&lt;MyPojo&gt;(MyPojo.class.class , <span class="code-quote">"data like 'A%'"</span>)
+<span class="code-comment">// Get all results that match the query
+</span>MyPojo[] result = space.readMultiple(likeQuery,<span class="code-object">Integer</span>.MAX_VALUE);</pre>
+</div></div>
+
+<p>Querying the space using the Java Regular Expression provides more options than SQL <tt>like</tt> operator . The Query syntax is done using the <tt>rlike</tt> operator: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// Create SQLQuery with 'rlike' that <span class="code-keyword">return</span> all the objects that have a name that starts with a or c
+</span>SQLQuery rquery = <span class="code-keyword">new</span> SQLQuery(MyPojo.class,<span class="code-quote">"name rlike '(a|c).*'"</span>);
+<span class="code-comment">// Get all results that match the query
+</span>MyPojo[] result = space.readMultiple(rquery,<span class="code-object">Integer</span>.MAX_VALUE);</pre>
+</div></div>
+
+<p>All the supported methods and options <a href="#SQLQuery-2">above</a> are relevant also for using <tt>rlike</tt> with <tt>SQLQuery</tt>.</p>
+
+<p><img src="download/attachments/48235222/referto.gif" align="absmiddle" border="0"/> For more details on Java regular expression syntax, see <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/util/regex/Pattern.html" target="_blank">Javadoc</a>. </p>
+
+<p><img src="download/attachments/48235222/referto.gif" align="absmiddle" border="0"/> For a more precise description of the behavior of regular expression constructs, refer to: Mastering Regular Expressions, 2nd Edition, Jeffrey E. F. Friedl, O'Reilly and Associates, 2002.</p>
+
+<h1><a name="SQLQuery-CaseInsensitiveQuery"></a>Case Insensitive Query</h1>
+<p>Implementing case insensitive queries can be done via:</p>
+<ul class="alternate" type="square">
+	<li><tt>like</tt> operator or <tt>rlike</tt> operator. Relatively slow. Not recommended when having large amount of objects.</li>
+	<li>Store the data in lower case and query on via lower case String value (or upper case)</li>
+</ul>
+
+
+<h1><a name="SQLQuery-NestedProperties"></a>Nested Properties</h1>
+<p>Gigaspaces <tt>SQLQuery</tt> supports matching nested entry properties within  the query criteria using the dot ('.') notation. For example, say you have a class named <tt>Person</tt>, which contains a property 'info' of type <tt>Info</tt>, which contains a property 'address' of type <tt>Address</tt>, which contains a property 'street' of type <tt>String</tt>. To get all persons which live in a certain street, you could use:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery query = <span class="code-keyword">new</span> SQLQuery(Person.class, <span class="code-quote">"info.address.street = ?"</span>)</pre>
+</div></div>
+<p>As you can see from the above example, you can navigate multiple levels in the object graph.</p>
+
+<p>Here is an example for a space class and its embedded classes, followed by relevant queries supported:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@SpaceClass
+<span class="code-keyword">public</span> class Person {
+    <span class="code-keyword">private</span> <span class="code-object">Integer</span> id;
+    <span class="code-keyword">private</span> <span class="code-object">String</span> description;
+    <span class="code-keyword">private</span> Info info;
+    <span class="code-comment">// Getter and setter methods are removed <span class="code-keyword">for</span> brevity.
+</span>}
+
+<span class="code-keyword">public</span> class Info <span class="code-keyword">implements</span> Serializable {
+    <span class="code-keyword">private</span> <span class="code-object">String</span> name;
+    <span class="code-keyword">private</span> Address address;
+    <span class="code-keyword">private</span> Date birthday;
+    <span class="code-keyword">private</span> <span class="code-object">long</span> socialSecurity;
+    <span class="code-keyword">private</span> <span class="code-object">int</span> id;
+    <span class="code-comment">// Getter and setter methods are removed <span class="code-keyword">for</span> brevity.
+</span>}
+
+<span class="code-keyword">public</span> class Address <span class="code-keyword">implements</span> Serializable {
+    <span class="code-keyword">private</span> <span class="code-object">int</span> zipCode;
+    <span class="code-keyword">private</span> <span class="code-object">String</span> street;
+    <span class="code-comment">// Getter and setter methods are removed <span class="code-keyword">for</span> brevity.
+</span>}</pre>
+</div></div>
+
+<p>Here are examples for supported queries:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery&lt;Person&gt; query;
+
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.name = 'John'"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.socialSecurity &lt; 10000050L"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.socialSecurity in (10000010L,10000004L,1L)"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.birthday = '1982-04-18'"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.address.street = 'Street0'"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.name like '%n1%'"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, 
+                             <span class="code-quote">"info.name not like '%n1%' and description not like '%a2b%'"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.id &gt; 10 and info.id &lt; 20 and info.id &lt;&gt; 15"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.name = 'John1' or info.address.street = 'Street0'"</span>);
+query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, 
+                             <span class="code-quote">"info.socialSecurity &lt; 10000050L and info.socialSecurity &gt;= 10000010L"</span>);
+
+<span class="code-comment">// ORDER BY example:
+</span>query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, 
+                             <span class="code-quote">"info.socialSecurity &lt; 10000050L and info.socialSecurity &gt;= "</span> + 
+                             <span class="code-quote">"10000010L order by info.socialSecurity"</span>);
+
+<span class="code-comment">// GROUP BY example:
+</span>query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, 
+                             <span class="code-quote">"info.socialSecurity &lt; 10000050L and info.socialSecurity &gt;= "</span> + 
+                             <span class="code-quote">"10000010L group by info.socialSecurity"</span>);
+
+<span class="code-comment">// Parameterized query example:
+</span>query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.socialSecurity &lt; ? and info.socialSecurity &gt;= ?"</span>);
+query.setParameter(1, 10000050L);
+query.setParameter(2, 10000010L);
+
+<span class="code-comment">// Sub-query example:
+</span>query = <span class="code-keyword">new</span> SQLQuery&lt;Student&gt;(Student.class, <span class="code-quote">"grade &gt;= (SELECT AVG(grade) FROM Student)"</span>);</pre>
+</div></div>
+
+<p>You may also use <tt>SQLQuery</tt> with queries on nested objects when registering for notifications using <br/>
+the <a href="Notify Container.html" title="Notify Container">Notify Container</a> or using the <a href="Session Based Messaging API.html" title="Session Based Messaging API">Session Based Messaging API</a>:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">RemoteEventListener listener = <span class="code-keyword">new</span> RemoteEventListener() {
+    <span class="code-keyword">public</span> void notify(RemoteEvent theEvent) <span class="code-keyword">throws</span> net.jini.core.event.UnknownEventException ,java.rmi.RemoteException {
+        <span class="code-object">System</span>.out.println(<span class="code-quote">"got notification "</span>);
+    };
+};
+DataEventSession des = EventSessionFactory.getFactory(gigaSpace.getSpace()).newDataEventSession();        
+des.addListener(<span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.name='John'"</span>), listener);</pre>
+</div></div>
+
+<p><a name="SQLQuery-NestedObjectQueryIndexes"></a></p>
+<h2><a name="SQLQuery-NestedObjectQueryIndexes"></a>Nested Object Query Indexes </h2>
+
+<p>An index can be defined on a nested object field to improve performance. This is highly recommended.<br/>
+It can be defined on a nested property of a space class and will be used implicitly by the queries.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> For more information see <a href="Indexing.html#Indexing-Nestedpropertiesindexing">Nested Properties Indexing</a></p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Since like/rlike queries does not use indexes these will need to scan the relevant objects to find matching objects. This means that the performance of such queries will depend on the amount of candidate result set GigaSpaces will have out of the initial query execution phase that is using indexed fields.</td></tr></table></div>
+
+<h2><a name="SQLQuery-Limitations"></a>Limitations</h2>
+
+<p>Current limitations of nested object queries with XAP 8.0:</p>
+<ul class="alternate" type="square">
+	<li>Only queries on POJO classes are supported</li>
+	<li>No .NET support</li>
+	<li>The type of the nested object must be a class - not an interface</li>
+</ul>
+
+
+<h1><a name="SQLQuery-NestedMaps"></a>Nested Maps</h1>
+
+<p>SQLQuery can query map properties in a similar fashion to nested properties: If a property is of type <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html">Map</a>, you can specify the property name followed by a dot ('.') and a key, to get the value.</p>
+
+<p>In the previous example, we could rewrite class <tt>Person</tt> in the following manner:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@SpaceClass
+<span class="code-keyword">public</span> class Person {
+	<span class="code-keyword">private</span> <span class="code-object">int</span> id;
+	<span class="code-keyword">private</span> <span class="code-object">String</span> description;
+	<span class="code-keyword">private</span> Map&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt; info;
+
+	@SpaceIndexes( {@SpaceIndex(path=<span class="code-quote">"socialSecurity"</span> , type = SpaceIndexType.BASIC),
+			@SpaceIndex(path=<span class="code-quote">"salary"</span> , type = SpaceIndexType.EXTENDED)})
+	<span class="code-keyword">public</span> HashMap&lt;<span class="code-object">String</span>, MyData&gt; getInfo() {
+		<span class="code-keyword">return</span> info;
+	}
+	<span class="code-keyword">public</span> void setInfo(HashMap&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt; info) {
+		<span class="code-keyword">this</span>.info = info;
+	}
+
+    <span class="code-comment">// Other getter and setter methods are removed <span class="code-keyword">for</span> brevity.
+</span>}</pre>
+</div></div>
+
+<p>For example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// Write an entry:
+</span>Person p = <span class="code-keyword">new</span> Person();
+p.setId(2347863);
+p.getInfo().put(<span class="code-quote">"address"</span>, <span class="code-keyword">new</span> Address(245, <span class="code-quote">"Broadway"</span>));
+p.getInfo().put(<span class="code-quote">"socialSecurity"</span>, 1232287642L);
+p.getInfo().put(<span class="code-quote">"salary"</span>, 10000);
+
+<span class="code-comment">// Read:
+</span>SQLQuery&lt;Person&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;Person&gt;(Person.class, <span class="code-quote">"info.salary &lt; 15000 and info.salary &gt;= 8000"</span>);
+Person result = space.read(query);</pre>
+</div></div>
+
+<p>Complex paths involving maps and nested queries are also supported (e.g. "info.address.street = 'Broadway'"). Indexing is supported in the same manner. This feature can be useful to create flexible schema-less space object - since the keys in the map are not part of the schema, you can use it to add/remove data from a space object without changing its structure.</p>
+
+<p><a name="SQLQuery-collectionsupport"></a></p>
+<h1><a name="SQLQuery-CollectionProperties"></a>Collection Properties</h1>
+<p>A SQLQuery allows you to query on properties of type <tt>java.util.Collection</tt>. Starting 8.0.1 arrays of objects are supported as well.<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Arrays of primitives are currently not supported.</p>
+
+<p> In the following example we will read a Company object which contains at least one Employee named "John Doe" in its <tt>employees</tt> collection.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>The Company class</b></div><div class="codeContent panelContent">
+<pre class="code-java">@SpaceClass
+<span class="code-keyword">public</span> class Company {
+  <span class="code-comment">// ...
+</span>  <span class="code-keyword">private</span> List&lt;Employee&gt; employees; 
+
+  <span class="code-keyword">public</span> void setEmployees(List&lt;Employee&gt; employees) {
+    <span class="code-keyword">this</span>.employees = employees;
+  }
+  
+  <span class="code-keyword">public</span> List&lt;Employee&gt; getEmployees() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.employees;
+  }
+  <span class="code-comment">// ...
+</span>}</pre>
+</div></div>
+
+<p>We write a Company object to space and then read it:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// Write
+</span>List&lt;Employee&gt; employees = <span class="code-keyword">new</span> ArrayList&lt;Employee&gt;();
+employees.add(<span class="code-quote">"John Doe"</span>);
+Company company = <span class="code-keyword">new</span> Company(<span class="code-quote">"GigaSpaces"</span>);
+company.setEmployees(employees);
+gigaspace.write(company);
+
+<span class="code-comment">// Read using SQLQuery
+</span>SQLQuery&lt;Company&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;Company&gt;(Company.class, <span class="code-quote">"employees[*].name = 'John Doe'"</span>);
+Company result = gigaspace.read(query);</pre>
+</div></div>
+
+<p>Matching a Collection property supports any number of nesting levels, e.g.:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery&lt;Company&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;Company&gt;(Company.class, "employees[*].children[*].name = 'Junior Doe');</pre>
+</div></div>
+<p>This will return all Company objects which has an Employee which has a child named "Junior Doe".</p>
+
+<h1><a name="SQLQuery-EnumProperties"></a>Enum Properties</h1>
+<p>You can use an Enum field when querying the space with SQLQuery by specifying the Enum's string value or by setting it as a parameter. In the following example we will query a Vehicle object with a VehicleType Enum field.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>The Vehicle class</b></div><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class Vehicle {
+  <span class="code-keyword">public</span> <span class="code-keyword">enum</span> VehicleType { CAR, BIKE, TRUCK };
+  
+  <span class="code-comment">// ...
+</span>
+  <span class="code-keyword">private</span> VehicleType type;
+
+  <span class="code-keyword">public</span> VehicleType getType() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.type;
+  }
+  <span class="code-keyword">public</span> void setType(VehicleType type) {
+    <span class="code-keyword">this</span>.type = type;
+  }
+
+  <span class="code-comment">// ...
+</span>}</pre>
+</div></div>
+
+<p>Example of a query using a parameter:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery&lt;Vehicle&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;Vehicle&gt;(Vehicle.class, <span class="code-quote">"type = ?"</span>);
+query.setParameter(1, VehicleType.CAR);
+Vehicle result = gigaspaces.read(query);</pre>
+</div></div>
+
+<p>Here's an example of a query that uses the <tt>Enum</tt> string value:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery&lt;Vehicle&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;Vehicle&gt;(Vehicle.class, <span class="code-quote">"type = 'TRUCK'"</span>);
+Vehicle result = gigaspaces.read(query);</pre>
+</div></div>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>When using an Enum string value, the value must be identical (case sensitive) to the name of the Enum value.</td></tr></table></div>
+
+<h1><a name="SQLQuery-DateProperties"></a>Date Properties</h1>
+<p>When you have Date values that you want to query it is recommended to index them with extended indexing which enables to efficiently execute greater than and less than queries. Here's an example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>The space class</b></div><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyClass {
+	java.util.Date date ;
+
+	@SpaceIndex(type=SpaceIndexType.EXTENDED)
+	<span class="code-keyword">public</span> java.util.Date getDate() {
+		<span class="code-keyword">return</span> date;
+	}
+
+	<span class="code-keyword">public</span> void setDate(java.util.Date date) {
+		<span class="code-keyword">this</span>.date=date;
+	}
+}</pre>
+</div></div>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>The application code</b></div><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace gigaspace = <span class="code-keyword">new</span> GigaSpaceConfigurer (<span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./mySpace"</span>)).gigaSpace();
+Date startDate = ...;
+Date endDate = ...;
+
+SQLQuery&lt;MyClass&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;MyClass&gt;(MyClass.class , <span class="code-quote">"date &gt; ? and date &lt; ?"</span>);
+query.setParameter(1, startDate);
+query.setParameter(2, endDate);
+MyClass ret[]= gigaspace.readMultiple(query, <span class="code-object">Integer</span>.MAX_VALUE);</pre>
+</div></div>
+
+<h2><a name="SQLQuery-Date%2CTimeandDateTimeTypeFormat"></a>Date, Time and DateTime Type Format</h2>
+<p>GigaSpaces supports different date, time and datetime formats for the JDBC API and SQLQuery API.<br/>
+The different date, time and datetime format support is implemented by defining the space date, datetime, and time format as part of deployment configuration file (pu.xml) or when using the relevant API to construct a space instance.<br/>
+The following space properties should be used:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">space-config.QueryProcessor.date_format
+space-config.QueryProcessor.datetime_format
+space-config.QueryProcessor.time_format</pre>
+</div></div>
+<p>These should have valid Java format pattern as defined in the official Java language documentation:</p>
+<ul>
+	<li><a href="http://download.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html">java.text.SimpleDateFormat</a></li>
+	<li><a href="http://java.sun.com/docs/books/tutorial/i18n/format/simpleDateFormat.html">The Java Tutorials - About Patterns</a></li>
+</ul>
+
+
+<p>These could be: <tt>yyyy-MM-dd</tt>, <tt>yyyy-MM-dd</tt>, <tt>hh:mm:ss</tt>, <tt>mm:hh:ss</tt>, etc.<br/>
+A <tt>SQLQuery</tt> with the <tt>read</tt>, <tt>readMultiple</tt>, <tt>take</tt> and <tt>takeMultiple</tt> operations supports the <tt>"WHERE"</tt> clause using the various date, time and datetime formats.</p>
+
+<p>Here is an example of a pu.xml that configures the space date format and time format:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">&lt;beans 
+	<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;</span>
+		<span class="code-tag">&lt;os-core:properties&gt;</span>
+            <span class="code-tag">&lt;props&gt;</span>
+                <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.QueryProcessor.date_format"</span>&gt;</span>yyyy-MM-dd HH:mm:ss<span class="code-tag">&lt;/prop&gt;</span>
+                <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.QueryProcessor.time_format"</span>&gt;</span>HH:mm:ss<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;/props&gt;</span>
+        <span class="code-tag">&lt;/os-core:properties&gt;</span>
+    <span class="code-tag">&lt;/os-core:space&gt;</span>
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+
+<p>The SQLQuery code would then look as follows::</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace space;
+SQLQuery&lt;TestClass&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;TestClass&gt;(TestClass.class.getName() ,<span class="code-quote">"dateField &lt; '2020-03-03 10:10:10' "</span>);
+<span class="code-object">Object</span> ret[] = space.readMultiple(query ,<span class="code-object">Integer</span>.MAX_VALUE);</pre>
+</div></div>
+
+<p>In any case, the most recommended way in such cases is to use parameterized queries (see below) which avoid the parsing of strings to dates altogether. </p>
+
+<h1><a name="SQLQuery-ParameterizedQueries"></a>Parameterized Queries </h1>
+<p>You can perform parameterized queries using query parameters or template objects.</p>
+
+<p><a name="SQLQuery-3"></a></p>
+
+<h2><a name="SQLQuery-UsingParameters%28JDBCLikeBinding%29"></a>Using Parameters (JDBC-Like Binding)</h2>
+<p>You can create one <tt>SQLQuery</tt> object with query parameters. The query should include the <tt>?</tt> sign instead of the actual value. When executing the query, the condition that includes <tt>?</tt> is replaced with corresponding parameter values taken from the value defined in the <tt>setParameter</tt> method, or in the <tt>SQLQuery</tt> constructer.</p>
+
+<p>Performing parameterized queries allows you to reuse the same SQLQuery instance multiple times with different parameter values. Note however that the parameter assignment to the <tt>SQLQuery</tt> instance is not thread safe, and therefore if multiple threads needs to perform the same query it is recommended to use different <tt>SQLQuery</tt> instances.<br/>
+Here's an example for this: </p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery&lt;MyPojo&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;MyPojo&gt;(MyPojo.class, <span class="code-quote">"col1 &gt; ? or col1 &gt; ? and col2=?"</span>);
+query.setParameters(2, 3, 5);
+
+<span class="code-comment">// you can also pass the values in the constructor: 
+</span>SQLQuery&lt;MyPojo&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;MyPojo&gt;(MyPojo.class, <span class="code-quote">"col1 &gt; ? or col1 &gt; ? and col2=?"</span>, 2, 3, 5);</pre>
+</div></div>
+
+<p>To use <tt>IN</tt> with the <tt>SQLQuery.setParameters()</tt> you should create a string with the exact number of "?" signs and pass the array to the </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SQLQuery&lt;MyPojo&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;MyPojo&gt; (MyPojo.class , <span class="code-quote">"str = 'A' AND (num IN (?,?,?))"</span>); 
+<span class="code-object">Integer</span> intArr[] = <span class="code-keyword">new</span> <span class="code-object">Integer</span> []{1,2,3};
+query.setParameters(intArr);
+MyPojo[] results = gigapace.readMultiple(query, <span class="code-object">Integer</span>.MAX_VALUE);</pre>
+</div></div>
+
+<h1><a name="SQLQuery-OptimizationTips"></a>Optimization Tips</h1>
+
+<h3><a name="SQLQuery-ReusingSQLQuery"></a>Re-using SQLQuery</h3>
+<p>Constructing an <tt>SQLQuery</tt> instance is a relatively expensive operation. When possible, prefer using <tt>SQLQuery.setParameters</tt> and <tt>SQLQuery.setParameter</tt> to modify an existing query instead of creating a new one.</p>
+
+<h3><a name="SQLQuery-MinimizeORusage"></a>Minimize OR usage</h3>
+<p>When using the <tt>OR</tt> logical operator together with <tt>AND</tt> logical operator as part of your query you can speed up the query execution by minimizing the number of <tt>OR</tt> conditions in the query. For example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">(A = 'X' OR A = 'Y') AND (B &gt; '2000-10-1' AND B &lt; '2003-11-1')</pre>
+</div></div>
+<p>would be executed much faster when changing it to be:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">(A = 'X' AND B &gt; '2000-10-1' AND B &lt; '2003-11-1') OR (A = 'Y' AND B &gt; '2000-10-1' AND B &lt; '2003-11-1')</pre>
+</div></div>
+
+<h1><a name="SQLQuery-Limitations"></a>Limitations</h1>
+
+<h3><a name="SQLQuery-UnsupportedSQLFeatures"></a>Unsupported SQL Features</h3>
+<p>GigaSpaces SQLQuery <b>does not</b> support the following:</p>
+<ul>
+	<li>Aggregate functions: COUNT, MAX, MIN, SUM, AVG. These are supported with the <a href="JDBC Driver.html" title="JDBC Driver">JDBC API</a>.</li>
+	<li>Multiple tables select - This is supported with the <a href="JDBC Driver.html" title="JDBC Driver">JDBC API</a>.</li>
+	<li><tt>DISTINCT</tt> - This is supported with the <a href="JDBC Driver.html" title="JDBC Driver">JDBC API</a>.</li>
+	<li>The SQL statements: HAVING, VIEW, TRIGGERS, EXISTS, BETWEEN, NOT, CREATE USER, GRANT, REVOKE, SET PASSWORD, CONNECT USER, ON.</li>
+	<li>Constraints: NOT NULL, IDENTITY, UNIQUE, PRIMARY KEY, Foreign Key/REFERENCES, NO ACTION, CASCADE, SET NULL, SET DEFAULT, CHECK.</li>
+	<li>Set operations: Union, Minus, Union All.</li>
+	<li>Advanced Aggregate Functions: STDEV, STDEVP, VAR, VARP, FIRST, LAST.</li>
+	<li>Mathematical expressions.</li>
+	<li><tt>LEFT OUTER JOIN</tt></li>
+	<li><tt>RIGHT OUTER JOIN</tt></li>
+	<li><tt>INNER JOIN</tt></li>
+</ul>
+
+
+<p><a name="SQLQuery-SimpleQueries"></a> </p>
+<h3><a name="SQLQuery-Simplevs.ComplexQueries"></a>Simple vs. Complex Queries</h3>
+
+<p>Most space operations and features support any SQL query, but some support only <b>simple</b> queries and not <b>complex</b> ones.</p>
+
+<p>A query is considered complex if it contains one or more of the following:</p>
+
+<ul>
+	<li><tt>GROUP BY</tt></li>
+	<li><tt>ORDER BY</tt></li>
+	<li>Sub queries</li>
+	<li><tt>OR</tt> (before 8.0.1)</li>
+</ul>
+
+
+<p>The following features support only simple SQL queries</p>
+<ul>
+	<li>Snapshot</li>
+	<li>Blocking operations</li>
+	<li><a href="Session Based Messaging API.html" title="Session Based Messaging API">Notifications</a></li>
+	<li><a href="Paging Support with Space Iterator.html" title="Paging Support with Space Iterator">GSIterator</a></li>
+	<li><a href="Local View and Local Cache.html" title="Local View and Local Cache">Local View</a></li>
+</ul>
+
+
+<h3><a name="SQLQuery-InterfaceClasses"></a>Interface Classes</h3>
+<p><tt>SQLQuery</tt> supports concrete classes, derived classes and abstract classes. Interface classes are <b>not supported</b>.</p>
+
+<h3><a name="SQLQuery-ReservedWords"></a>Reserved Words</h3>
+<p>The following are reserved keywords in the GigaSpaces SQL syntax:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">ALTER ADD AND ASC BETWEEN BY CREATE CALL DROP DEFAULT_NULL DESC  DISTINCT END FROM GROUP IN IS LIKE 
+MAX MIN NOT NULL OR ORDER SELECT SUBSTR SUM SYSDATE UPPER WHERE COUNT DELETE EXCEPTION ROWNUM INDEX 
+INSERT INTO SET TABLE TO_CHAR TO_NUMBER FOR_UPDATE UPDATE UNION VALUES COMMIT ROLLBACK PRIMARY_KEY 
+UID USING</pre>
+</div></div>
+
+<h3><a name="SQLQuery-ReservedSeparatorsandOperators%3A"></a>Reserved Separators and Operators:</h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">:= || ; . ROWTYPE ~ &lt; &lt;= &gt;  &gt;= =&gt; != &lt;&gt; \(+\) ( ) \* / + - ? \{ \}</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

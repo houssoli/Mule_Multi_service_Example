@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Auditing</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Auditing</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Auditing of authentication and operations </p>
+</div>
+
+<h1><a name="Auditing-Overview"></a>Overview</h1>
+
+<p>GigaSpaces provides the ability to audit the authentication requests and operations performed on a secured service. It facilitates the logging mechanism to declare the audit log file, and the level of auditing. The level can be dynamically modified using the <tt>java.util.logging JMX Extensions</tt>. This allows an easy extension for custom auditing.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Currently auditing of operations is limited to Space operations.</p>
+
+<h1><a name="Auditing-Configuration"></a>Configuration</h1>
+
+<p>The configurations should be placed in the logging configuration file <tt>&lt;GigaSpaces root&gt;/config/gs_logging.properties</tt>.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"># gs_logging.properties
+com.gigaspaces.security.audit.enabled = <span class="code-keyword">true</span>
+com.gigaspaces.security.audit.level = SEVERE
+com.gigaspaces.security.audit.handler = com.gigaspaces.security.audit.AuditHandler</pre>
+</div></div>
+
+<p>The defaults of these configurations are:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<td class='confluenceTd'> com.gigaspaces.security.audit.enabled </td>
+<td class='confluenceTd'> Enable/Disable security auditing; default is disabled (false) </td>
+</tr>
+<tr>
+<td class='confluenceTd'> com.gigaspaces.security.audit.level </td>
+<td class='confluenceTd'> Audit level of interest; default is OFF </td>
+</tr>
+<tr>
+<td class='confluenceTd'> com.gigaspaces.security.audit.handler </td>
+<td class='confluenceTd'> The Audit <tt>java.util.logging.Handler</tt> implementation accepting an <tt>AuditLogRecord</tt>; default is <tt>AuditHandler</tt> </td>
+</tr>
+</tbody></table>
+
+<p>The <tt>AuditHandler</tt> is a declarable extension to the default GigaSpaces logging <tt>Handler</tt> (see <a href="GigaSpaces Logging.html" title="GigaSpaces Logging">GigaSpaces Logging</a>). As such, it accepts properties that configure the handler - amongst others are the logging message <b>formatter</b> and the <b>filename-pattern</b>.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"># gs_logging.properties
+...
+com.gigaspaces.security.audit.handler = com.gigaspaces.security.audit.AuditHandler
+
+# Properties configuring the audit-handler:
+com.gigaspaces.security.audit.AuditHandler.formatter = com.gigaspaces.logger.GSSimpleFormatter
+com.gigaspaces.security.audit.AuditHandler.filename-pattern = {homedir}/logs/gigaspaces-security-audit-{service}-{host}-{pid}.log</pre>
+</div></div>
+
+<h1><a name="Auditing-AuditLevels"></a>Audit Levels</h1>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> OFF     </th>
+<td class='confluenceTd'> Nothing is audited </td>
+</tr>
+<tr>
+<th class='confluenceTh'> SEVERE  </th>
+<td class='confluenceTd'> Authentication failure or invalid session </td>
+</tr>
+<tr>
+<th class='confluenceTh'> WARNING </th>
+<td class='confluenceTd'> Access denied due to insufficient privileges </td>
+</tr>
+<tr>
+<th class='confluenceTh'> INFO    </th>
+<td class='confluenceTd'> Authentication successful </td>
+</tr>
+<tr>
+<th class='confluenceTh'> FINE    </th>
+<td class='confluenceTd'> Access granted </td>
+</tr>
+</tbody></table>
+
+<h2><a name="Auditing-SampleOutput"></a>Sample Output</h2>
+<p>A sample output snapshot with audit level set to <tt>FINE</tt>.</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>2009-09-13 17:43:04,609  INFO  - Authentication successful; for user [gs] from host [lab/127.1.1.1]; session-id [-639278424]
+2009-09-13 17:43:09,453  FINE  - Access granted; user [gs] at host [lab/127.1.1.1] has [Write] privileges for class [com.eg.Pojo]; session-id [-639278424]
+2009-09-13 17:44:24,937  WARNING  - Access denied; user [gs] at host [lab/127.1.1.1] lacks [Take] privileges for class [com.eg.Pojo]; session-id [-639278424]
+</pre>
+</div></div>
+
+<h1><a name="Auditing-CustomAuditing"></a>Custom Auditing</h1>
+
+<p>The <tt>java.util.logging.Handler</tt> accepts a <tt>java.util.logging.LogRecord</tt> for logging. An <tt>AuditLogRecord</tt> is supplied by the security layer containing the <tt>AuditDetails</tt>. Instead of logging into a file, a custom <tt>Handler</tt> can capture all the log activity for auditing. By default the <tt>java.util.logging.LogRecord.getMessage()</tt> of <tt>AuditLogRecord</tt> contains the audit message (as shown in the sample output above).</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

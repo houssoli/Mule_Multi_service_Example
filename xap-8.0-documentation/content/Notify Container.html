@@ -1,0 +1,1295 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Notify Container</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Notify Container</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903505";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903505";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The notify event container uses the space inherited support for notifications, using a GigaSpaces unified event session API. </p>
+</div>
+
+<h1><a name="NotifyContainer-Overview"></a>Overview</h1>
+
+<p>The notify event container uses the space inheritance support for notifications using a GigaSpaces unified event session API. If a notification occurs, the <a href="Data Event Listener.html" title="Data Event Listener">data event listener</a> is invoked with the event. A notify event operation is mainly used when simulating Topic semantics.</p>
+
+<p><img src="download/attachments/48235229/notify_container_basic.jpg" align="absmiddle" border="0"/></p>
+
+<p>Here is a simple example of a notify event container configuration:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag"><span class="code-comment">&lt;!-- Enable scan for OpenSpaces and Spring components --&gt;</span></span>
+<span class="code-tag">&lt;context:component-scan base-package=<span class="code-quote">"com.mycompany"</span>/&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- Enable support for @Notify annotation --&gt;</span></span>
+<span class="code-tag">&lt;os-events:annotation-support /&gt;</span>
+
+<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span></pre>
+</div></div> 
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+    
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace gigaSpace = <span class="code-comment">// either create the GigaSpace or get it by injection
+</span>
+SimpleNotifyEventListenerContainer notifyEventListenerContainer = <span class="code-keyword">new</span> SimpleNotifyContainerConfigurer(gigaSpace)
+                .template(<span class="code-keyword">new</span> Data(<span class="code-keyword">false</span>))
+                .eventListenerAnnotation(<span class="code-keyword">new</span> <span class="code-object">Object</span>() {
+                    @SpaceDataEvent
+                    <span class="code-keyword">public</span> void eventHappened() {
+                        eventCalled.set(<span class="code-keyword">true</span>);
+                    }
+                }).notifyContainer();
+                
+<span class="code-comment">// when needed dispose of the notification container
+</span>notifyEventListenerContainer.destroy();</pre>
+</div></div>
+</div></div>
+
+<p>The above example registers with the space for write notifications using the provided template (a <tt>Data</tt> object with its processed flag set to <tt>false</tt>). If a notification occurs, the <tt>SimpleListener</tt> is invoked. Registration for notifications is performed on the configured <a href="The GigaSpace Interface.html" title="The GigaSpace Interface">GigaSpace</a> bean. (In this case, if working in a clustered topology, the notification is performed directly on the cluster member.)</p>
+
+<h1><a name="NotifyContainer-Primary%2FBackup"></a>Primary/Backup</h1>
+
+<p>By default, the notify event container registers for notifications only when the relevant space it is working against is in primary mode. When the space is in backup mode, no registration occurs. If the space moves from backup mode to primary mode, the container registers for notifications, and if it moved to backup mode, the registrations are canceled.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> This mostly applies when working with an embedded space directly with a cluster member. When working with a clustered space (performing operations against the whole cluster), the mode of the space is always primary.<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Notifications for expired objects (NOTIFY_LEASE_EXPIRATION type) are sent both from the primary and the backup space. To avoid this, you should set the Notify Container <tt>replicateNotifyTemplate</tt> to <tt>false</tt> and run the notify container collocated with the space. This will start the Notify Container only with the primary and will avoid duplicated notifications.</p>
+
+<h1><a name="NotifyContainer-TemplateDefinition"></a>Template Definition</h1>
+
+<p>When performing receive operations, a template is defined, creating a virtualized subset of data in the space, matching it. GigaSpaces supports templates based on the actual domain model (with <tt>null</tt> values denoting wildcards), which are shown in the examples. GigaSpaces allows the use of <a href="SQLQuery.html" title="SQLQuery">SQLQuery</a> in order to query the space, which can be easily used with the event container as the template. Here is an example of how it can be defined:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    SQLQuery&lt;Data&gt; unprocessedData() {
+        SQLQuery&lt;Data&gt; template = <span class="code-keyword">new</span> SQLQuery&lt;Data&gt;(Data.class, <span class="code-quote">"processed = <span class="code-keyword">true</span>"</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-core:sql-query where=<span class="code-quote">"processed = true"</span> class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>/&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+    
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"com.j_spaces.core.client.SQLQuery"</span>&gt;</span>
+            <span class="code-tag">&lt;constructor index=<span class="code-quote">"0"</span> value=<span class="code-quote">"org.openspaces.example.data.common.Data"</span> /&gt;</span>
+            <span class="code-tag">&lt;constructor index=<span class="code-quote">"0"</span> value=<span class="code-quote">"processed = true"</span> /&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>A polling container or notify container could have only one template. If you need multiple event handlers you will need to create another polling container or notify container. If you use multiple polling containers make sure the different templates does not overlap each other.</td></tr></table></div>
+
+<h1><a name="NotifyContainer-TransactionSupport"></a>Transaction Support</h1>
+
+<p>The notify container can be configured with transaction support, so the event action can be performed under a transaction. Exceptions thrown by the event listener cause the operations performed within the listener to be rolled back automatically.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When using transactions, only the event listener operations are rolled back. The notifications are not sent again in case of a transaction rollback. In case this behavior is required, please consider using the <a href="Polling Container.html" title="Polling Container">Polling Event Container</a>.</p>
+
+<p>Transaction support can be configured as follows:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag"><span class="code-comment">&lt;!-- Enable scan for OpenSpaces and Spring components --&gt;</span></span>
+<span class="code-tag">&lt;context:component-scan base-package=<span class="code-quote">"com.mycompany"</span>/&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- Enable support for @Polling annotation --&gt;</span></span>
+<span class="code-tag">&lt;os-events:annotation-support /&gt;</span>
+
+<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:local-tx-manager id=<span class="code-quote">"transactionManager"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span></pre>
+</div></div> 
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify @TransactionalEvent
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:local-tx-manager id=<span class="code-quote">"transactionManager"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:tx-support tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span>
+    
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.openspaces.core.transaction.manager.LocalJiniTransactionManager"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+
+<h1><a name="NotifyContainer-MaskingNotifications"></a>Masking Notifications</h1>
+
+<p>The notify container allows you to mask which operations performed against the space, should cause notifications. By default (if none is defined), notifications are sent for write operations. The operations are: <tt>write</tt> (an entry matching the template has been written to the space), <tt>update</tt> (an entry matching the template has been updated in the Space), <tt>take</tt> (an entry matching the template has been taken from the Space), <tt>lease expiration</tt> (an entry matching the template lease has been expired), <tt>unmatched</tt> (an entry matching the template no longer matches the template), and <tt>all</tt>. Here is an example of the notify container configured to trigger notifications for both write and update operations:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify 
+@NotifyType(write = <span class="code-keyword">true</span>, update = <span class="code-keyword">true</span>)
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-events:notify write=<span class="code-quote">"true"</span> update=<span class="code-quote">"true"</span>/&gt;</span>
+    
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"notifyWrite"</span> value=<span class="code-quote">"true"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"notifyUpdate"</span> value=<span class="code-quote">"true"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<h1><a name="NotifyContainer-ScalingNotificationDelivery"></a>Scaling Notification Delivery</h1>
+<p>To increase the number of space threads that are dealing with notification delivery you should increase the <tt>space-config.engine.notify_max_threads</tt> space property. Its default is 128 threads. <br/>
+Here is an example how you can configure the minimum and the maximum of the thread pool responsible for notification delivery:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:properties&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.engine.notify_min_threads"</span>&gt;</span>128<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.engine.notify_max_threads"</span>&gt;</span>512<span class="code-tag">&lt;/prop&gt;</span>
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/os-core:properties&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+    
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div>
+
+<h1><a name="NotifyContainer-CommunicationProtocolType"></a>Communication Protocol Type</h1>
+
+<p>The notify container, through the use of the unified event session API, can control how notifications are triggered from the space to the listener, in terms of communication protocol. The following communication protocols are available:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Communication Protocol</th>
+<th class='confluenceTh'>Description</th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>UNICAST</tt> </td>
+<td class='confluenceTd'>Unicast propagation uses TCP unicast communication, which is usually best for a small amount of registered clients. This is the default communication type.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>MULTIPLEX</tt> </td>
+<td class='confluenceTd'>The same as <tt>UNICAST</tt> in terms of communication protocol, but uses a single client-side multiplexer, which handles all of the dispatching to the different notification listeners. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>MULTICAST</tt> </td>
+<td class='confluenceTd'> Multicast propagation uses UDP multicast communication, which is usually best for large amounts of registered clients. See the JavaSpaces Multicast Notifications section&#42;** for configuration options. </td>
+</tr>
+</tbody></table>
+
+<p>Here is a sample configuration of the notify container that uses the <tt>MULTIPLEX</tt> communication protocol type:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify(commType = NotifyComType.MULTIPLEX)
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span> com-type=<span class="code-quote">"MULTIPLEX"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"comTypeName"</span> value=<span class="code-quote">"MULTIPLEX"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<p>The JavaSpaces Multicast Notifications section&#42;** explains how to configure and enable multicast notifications support inside the space schema. The multicast worker itself can be easily enabled in the space configuration:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:properties&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.workers.MulticastNotifyWorker.enabled"</span>&gt;</span>true<span class="code-tag">&lt;/prop&gt;</span>
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/os-core:properties&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"properties"</span>&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.workers.MulticastNotifyWorker.enabled"</span>&gt;</span>true<span class="code-tag">&lt;/prop&gt;</span>
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<h1><a name="NotifyContainer-BatchEvents"></a>Batch Events</h1>
+
+<p>OpenSpaces, through the <a href="Session Based Messaging API.html" title="Session Based Messaging API">Session Based Messaging API</a>, allows batching of notifications. Batching causes the space to accumulate the notifications at the space side for the specified operation(s) with objects that match the template/SQL criteria. Once a certain amount of time has been elapsed or a certain amount of objects have been accumulated, the events are sent to the client. </p>
+
+<p>Batching is very useful when working with a remote space, since it reduces the network roundtrip operations.  The downside of this approach is a potential delay when events are delivered to the client.</p>
+
+<p>Below is an example how batch notification should be configured. With this example the <tt>eventListener</tt> method will be called having one event passed as an argument each time (since the <tt>pass-array-as-is</tt> is not enabled) once there were 10 matching objects accumulated within the space or every 5000 millisecond since the last time a batch was sent to the client. In this case (notification delivery based on elapsed time), there might be less than 10 objects that will be sent to the client. </p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Make sure you set a reasonable batch size to avoid overloading the listener with a large burst of events to process. A value under 100 will be acceptable for most cases.</td></tr></table></div>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify
+@NotifyBatch(size = 10, time = 5000)
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-events:batch size=<span class="code-quote">"10"</span> time=<span class="code-quote">"5000"</span>/&gt;</span>
+
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"batchSize"</span> value=<span class="code-quote">"10"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"batchTime"</span> value=<span class="code-quote">"5000"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+
+<h2><a name="NotifyContainer-PassArrayasis"></a>Pass Array as is</h2>
+
+<p>When batching is enabled an array of Entries is received from the notification. By default, the notify container serializes the execution of the array into invocation of the event listener for each element in the array. If you want the event to operate on the whole array (receive the array as a parameter), the <tt>pass-array-as-is</tt> configuration attribute should be set to <tt>true</tt>.</p>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td> Listener argument has to be defined as Object[] when using passArrayAsIs and converted to appropriate class as part of the listener code. </td></tr></table></div>
+
+<p>For the above example when using passArrayAsIs equivalent listener code will be,</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify
+@NotifyBatch(size = 10, time = 5000, passArrayAsIs = <span class="code-keyword">true</span>)
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(<span class="code-object">Object</span>[] events) {
+        <span class="code-comment">//Convert events to Data[] and process here
+</span>
+    }
+}</pre>
+</div></div>
+
+<h1><a name="NotifyContainer-FIFOEvents"></a>FIFO Events</h1>
+
+<p>The notify event container can register for events or notifications and have the events delivered in a FIFO order.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> For full FIFO support, the actual template also has to be marked as FIFO. For more details, refer to the <a href="FIFO Support.html" title="FIFO Support">Space FIFO support</a> section.</p>
+
+<p>Here is an example of how FIFO events can be configured with the notify container:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify(fifo = <span class="code-keyword">true</span>)
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span> fifo=<span class="code-quote">"true"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"fifo"</span> value=<span class="code-quote">"true"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<h1><a name="NotifyContainer-ReRegisteraftercompletespaceshutdownandrestart"></a>Re-Register after complete space shutdown and restart</h1>
+
+<p>Notify Containers under the hood use Notification Registration. When a remote client with an independent life cycle creates a Notify Container and is shutdown, the registration will remain in the space and can be a unnecessary overhead for the space if there are multiple clients registered for many templates.</p>
+
+<p>To avoid this overhead, an optimization is required where notification registration is created with a limited lease and the client periodically renews the lease to keep it active. If client is shutdown or does not need this events anymore, the lease is not renewed thereby removing the registration.</p>
+
+<p>Lease Renewal Manager provides a systematic lease renewal and management framework and is used by Notify Container for managing the notification registration leases. Leases are managed in an automatic manner without any application intervention. More information regarding Lease Renewal Manager can be found <a href="Leases.html#Leases-LeaseRenewalManager">here</a>.</p>
+
+<p>To allow a remote client using a notify container to continue and receive notifications in case the space cluster was completely shutdown and restarted, you should use the <tt>LeaseListener</tt> and re-create the notify container in case its lease renewal failed (i.e. <tt>LeaseListener.notify()</tt> been called). The notify container <b>must enable</b> the <tt>autoRenew</tt> property to instruct GigaSpaces to construct a <tt>Lease Renewal Manager</tt> and have the associated <tt>LeaseListener</tt> implementation to be invoked.</p>
+
+<p>With this approach we assume the space will be available is some point to acknowledge the registration and continue and send notifications for the matching events back to the client.</p>
+
+<p>See below Notify Container properties you may set when using the <tt>LeaseListener</tt> managed by the Lease Renewal Manager running within the Notify container:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Property</th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default </th>
+<th class='confluenceTh'> Unit </th>
+</tr>
+<tr>
+<td class='confluenceTd'>autoRenew</td>
+<td class='confluenceTd'>If set to <tt>true</tt>, automatically performs lease renewal and call the <tt>LeaseListener.notify()</tt> if fails to renew, where the lease's desired expiration time has not yet been reached.</td>
+<td class='confluenceTd'>false</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'>listenerLease</td>
+<td class='confluenceTd'>Controls the lease (time to live) associated with the registered notify listener</td>
+<td class='confluenceTd'>Lease.FOREVER</td>
+<td class='confluenceTd'>ms</td>
+</tr>
+<tr>
+<td class='confluenceTd'>renewExpiration</td>
+<td class='confluenceTd'>The period of time your notifications stopped from being renewed. Applies Only when <tt>autoRenew</tt> is <tt>true</tt></td>
+<td class='confluenceTd'> Lease.FOREVER</td>
+<td class='confluenceTd'>ms</td>
+</tr>
+<tr>
+<td class='confluenceTd'>renewDuration </td>
+<td class='confluenceTd'>The period of time that passes between client failure, and the time your notifications stop from being sent. Should be larger than renewRTT. Applies Only when <tt>autoRenew</tt> is <tt>true</tt>. </td>
+<td class='confluenceTd'>20000 </td>
+<td class='confluenceTd'> ms</td>
+</tr>
+<tr>
+<td class='confluenceTd'>renewRTT</td>
+<td class='confluenceTd'>RoundTripTime - The time that takes to reach the server and return. Applies Only when <tt>autoRenew</tt> is <tt>true</tt>.</td>
+<td class='confluenceTd'>10000</td>
+<td class='confluenceTd'> ms</td>
+</tr>
+</tbody></table>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Prior calling the <tt>LeaseListener.notify()</tt> , the <tt>LeaseRenewalManager</tt> used by the Notify container, will remove the affected lease from its managed set of leases.</td></tr></table></div>
+
+<p>See below example how to use the LeaseListener to re-register for notifications:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-NotifyContainerCreation"></a>Notify Container Creation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class NotifyHAMain {
+	<span class="code-keyword">static</span> GigaSpace space;
+	<span class="code-keyword">static</span> DateFormat formatter = <span class="code-keyword">new</span> SimpleDateFormat(
+			<span class="code-quote">"MM/dd/yyyy hh:mm:ss.SSS"</span>);
+	<span class="code-keyword">static</span> Calendar calendar = Calendar.getInstance();
+
+	<span class="code-keyword">public</span> <span class="code-keyword">static</span> void main(<span class="code-object">String</span>[] args) <span class="code-keyword">throws</span> Exception{
+
+
+		<span class="code-keyword">while</span> (space == <span class="code-keyword">null</span>) {
+                   getSpace();
+		}
+
+		MyLeaseListener leaseListener = <span class="code-keyword">new</span> MyLeaseListener(space);
+		register(leaseListener);
+		<span class="code-object">System</span>.out.println(<span class="code-quote">"Notification Registration Done!"</span>);
+        <span class="code-keyword">while</span> (<span class="code-keyword">true</span>)
+        {
+        	<span class="code-object">Thread</span>.sleep(10000);
+        }
+	}
+
+        <span class="code-keyword">static</span> void getSpace() {
+
+	    <span class="code-keyword">try</span> {
+		space = <span class="code-keyword">new</span> GigaSpaceConfigurer(<span class="code-keyword">new</span> UrlSpaceConfigurer(
+			<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>)).gigaSpace();
+</span>	    } <span class="code-keyword">catch</span> (Exception e) {
+		<span class="code-object">System</span>.out.println(formatter.format(calendar.getTime())
+			+ <span class="code-quote">" Cannot find space. Got an exception "</span>
+			+ e.getMessage());
+	    }
+        }
+
+	<span class="code-keyword">static</span> void register(MyLeaseListener leaseListener)
+	{
+	 SimpleNotifyEventListenerContainer notifyEventListenerContainer = 
+             <span class="code-keyword">new</span> SimpleNotifyContainerConfigurer(space)
+        .template(<span class="code-keyword">new</span> MyData())
+        .leaseListener(leaseListener)
+        .autoRenew(<span class="code-keyword">true</span>)
+        .listenerLease(30000)
+        .renewDuration(20000)
+        .eventListenerAnnotation(<span class="code-keyword">new</span> <span class="code-object">Object</span>() {
+            @SpaceDataEvent
+            <span class="code-keyword">public</span> void eventHappened(MyData data) {
+                <span class="code-object">System</span>.out.println(<span class="code-keyword">new</span> Date(<span class="code-object">System</span>.currentTimeMillis()).getSeconds() + 
+                      <span class="code-quote">" -- &gt; Got notification "</span> + data.getData());
+            }
+        }).notifyContainer();
+	}
+}</pre>
+</div></div>
+
+
+
+<h5><a name="NotifyContainer-TheLeaseListenerImplementation"></a>The LeaseListener Implementation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyLeaseListener <span class="code-keyword">implements</span> LeaseListener{
+
+	<span class="code-keyword">public</span> MyLeaseListener (GigaSpace space)
+	{
+		<span class="code-keyword">this</span>.space=space;
+	}
+	GigaSpace space ;
+
+	<span class="code-comment">//Called by the LeaseRenewalManager when it cannot renew a lease that it is managing, 
+</span>	<span class="code-comment">//and the lease's desired expiration time has not yet been reached.	
+</span>	<span class="code-keyword">public</span> void notify(LeaseRenewalEvent event) {
+		<span class="code-object">System</span>.out.println(<span class="code-quote">"Can't renew - <span class="code-keyword">try</span> to re-register"</span>);	
+		SimpleNotifyEventListenerContainer notifyEventListenerContainer = <span class="code-keyword">null</span>;
+		<span class="code-keyword">while</span> (notifyEventListenerContainer == <span class="code-keyword">null</span>) {
+                        NotifyHAMain.getSpace();
+			notifyEventListenerContainer = NotifyHAMain.register(<span class="code-keyword">this</span>);
+		}
+		<span class="code-object">System</span>.out.println(<span class="code-quote">"Notfy ReRegistration Done!"</span>);
+	}
+}</pre>
+</div></div>
+</div></div> 
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>To make sure the client application will manage to reconnect automatically to the space cluster once it was restarted make sure you increase the <tt>space-config.proxy-settings.connection-retries</tt> parameter to have a high value. See the <a href="Proxy Connectivity.html" title="Proxy Connectivity">Proxy Connectivity</a> for details.</td></tr></table></div>
+
+<h1><a name="NotifyContainer-ResendingNotificationsafteraSpaceClientDisconnection"></a>Resending Notifications after a Space-Client Disconnection</h1>
+<p>When a network failure occurs and the space can't communicate with the client, the space attempts to trigger the remote client listener several times. The <tt>space-config.notifier-retries</tt> property controls the re-try attempts. The default is 3 attempts.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;
+    &lt;os-core:properties&gt;
+        &lt;props&gt;
+            &lt;prop key=<span class="code-quote">"space-config.notifier-retries"</span>&gt;10&lt;/prop&gt;
+        &lt;/props&gt;
+    &lt;/os-core:properties&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+<h1><a name="NotifyContainer-GuaranteedNotifications"></a>Guaranteed Notifications</h1>
+
+<p>Guaranteed notifications provides allows to configure the notify container to guarantee that a notification will be sent at least once in case of failover. </p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify(guaranteed = <span class="code-keyword">true</span>)
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span> guaranteed=<span class="code-quote">"true"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"guaranteed"</span> value=<span class="code-quote">"true"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+
+<h1><a name="NotifyContainer-TakeonNotify"></a>Take on Notify</h1>
+
+<p>The notify event container can be configured to automatically perform a take on the notification data event. It can also be further configured to filter out events if the take operation returned <tt>null</tt>. (This usually happens when several clients receive this event, and only one succeeds with the take.)</p>
+
+<p>Here is how the notify container can be configured:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="NotifyContainer-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Notify(performTakeOnNotify = <span class="code-keyword">true</span>, ignoreEventOnNullTake = <span class="code-keyword">true</span>)
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="NotifyContainer-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">&lt;os-events:notify-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span> 
+                            perform-take-on-notify=<span class="code-quote">"true"</span> ignore-event-on-null-take=<span class="code-quote">"true"</span>&gt;
+
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:notify-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="NotifyContainer-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.notify.SimpleNotifyEventListenerContainer"</span>&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"performTakeOnNotify"</span> value=<span class="code-quote">"true"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"ignoreEventOnNullTake"</span> value=<span class="code-quote">"true"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.common.Data"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"processed"</span> value=<span class="code-quote">"false"</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<div class='panelMacro'><table class='warningMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Be aware that when using this option the take operation might use non-indexed fields as part of the template object. If you would like to avoid this make sure all your Space class fields are indexed. Special care should be given to non-primitive fields (such as collections and user defined classes) to have their <tt>hashcode</tt> and <tt>equales</tt> methods implemented. This will make sure the matching of the template with the relevant object within the space will work correctly. </td></tr></table></div>
+
+<h1><a name="NotifyContainer-RemoteEventandEntryArrivedRemoteEvent"></a>RemoteEvent and EntryArrivedRemoteEvent</h1>
+
+<p>When registering for notifications, using the unified event session API (or using plain notify registration), the following interface needs to be implemented:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> RemoteEventListener <span class="code-keyword">extends</span> java.rmi.Remote, java.util.EventListener {
+    
+    void notify(net.jini.core.event.RemoteEvent event) 
+                <span class="code-keyword">throws</span> net.jini.core.event.UnknownEventException, java.rmi.RemoteException;
+}</pre>
+</div></div>
+
+<p>GigaSpaces extends this interface by providing the <tt>EntryArrivedRemoteEvent</tt>, which holds additional information regarding the event that occurred. The notify container, by default, uses the <tt>EntryArrivedRemoteEvent</tt> in order to extract the actual data event represented by the event, and passes it as the first parameter. If access to the <tt>EntryArrivedRemoteEvent</tt> is still needed, it is passed as the last parameter to the space data event listener. Here is an example of how it can be used:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleListener <span class="code-keyword">implements</span> SpaceDataEventListener {
+  
+    <span class="code-keyword">public</span> void onEvent(<span class="code-object">Object</span> data, GigaSpace gigaSpace, TransactionStatus txStatus, <span class="code-object">Object</span> source) {
+        EntryArrivedRemoteEvent entryArrivedRemoteEvent = (EntryArrivedRemoteEvent) source;
+        <span class="code-comment">// ...
+</span>    }
+}</pre>
+</div></div>
+
+<p>When using the different listener adapters, such as the annotation adapter, it can be accessed in the following manner (since adapters use reflection, there is no need to cast to <tt>EntryArrivedRemoteEvent</tt>):</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleListener {
+  
+    @SpaceDataEvent  
+    <span class="code-keyword">public</span> void myEventHandler(Trade data, GigaSpace gigaSpace, TransactionStatus txStatus, 
+                               EntryArrivedRemoteEvent entryArrivedRemoteEvent) {
+        <span class="code-comment">// process event
+</span>    }
+}</pre>
+</div></div>
+
+<h1><a name="NotifyContainer-DefaultValuesofNotifyContainerConfigurationParameters"></a>Default Values of Notify Container Configuration Parameters </h1>
+
+<p>The default values for all of the notify container configuration parameters, such as <tt>perform-take-on-notify, ignore-event-on-null-take</tt> and others can be found in the JavaDoc (and sources) of the class <tt><a href="http://www.gigaspaces.com/docs/JavaDocOS/org/openspaces/events/notify/SimpleNotifyEventListenerContainer.html">org.openspaces.events.notify.SimpleNotifyEventListenerContainer</a></tt> and its super class, namely <tt><a href="http://www.gigaspaces.com/docs/JavaDocOS/org/openspaces/events/notify/AbstractNotifyEventListenerContainer.html">org.openspaces.events.notify.AbstractNotifyEventListenerContainer</a></tt>. <br/>
+For example, <tt>perform-take-on-notify</tt> default value is documented in the method <tt>SimpleNotifyEventListenerContainer.setPerformTakeOnNotify(boolean)</tt></p>
+
+<h1><a name="NotifyContainer-Schema"></a>Schema</h1>
+<p>The Notify Container schema and complete configuration options are described below:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><a href='http://www.gigaspaces.com/wiki/download/attachments/48235229/notify_container_schema.jpg' target='notify_container_schema.jpg' onClick='window.open("http://www.gigaspaces.com/wiki/download/attachments/48235229/notify_container_schema.jpg", "notify_container_schema.jpg", "height=984,width=1313,menubar=no,status=no,toolbar=no"); return false;'><img src="download/thumbnails/48235229/notify_container_schema.jpg" align="absmiddle" border="0"/></a></p></div>
+
+<p>***Link required</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

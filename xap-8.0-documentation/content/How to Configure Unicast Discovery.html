@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : How to Configure Unicast Discovery</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>How to Configure Unicast Discovery</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The section explains How to Configure and use Unicast Discovery. </p>
+</div>
+
+<h1><a name="HowtoConfigureUnicastDiscovery-Overview"></a>Overview</h1>
+<p>There are many cases when you need to use a unicast-based services discovery. For example if you want to to use unicast with multicast (using Jini Groups), which is the default, or when <b>you do not have multicast enabled, or you prefer not to use multicast</b>.</p>
+
+<p>In such cases, the Jini lookup discovery enables the user to discover services (spaces, GSC, GSM, processing units etc.) using unicast protocol.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Please refer to the <a href="Lookup Service Configuration.html" title="Lookup Service Configuration">Lookup Service Configuration</a> or the <a href="Networking How Tos.html" title="Networking How Tos">Networking How Tos</a> section for more details.</p>
+
+<h1><a name="HowtoConfigureUnicastDiscovery-Configuringthelookuplocatorsproperty"></a>Configuring the lookup locators property</h1>
+
+<p>Services will use the locators property to locate the Jini Lookup Service to lookup other services registered on it. The locators property is configured using the <tt>LOOKUPLOCATORS</tt> environment variable or the <tt>-Dcom.gs.jini_lus.locators</tt> system property. By default it is left blank. It accepts a comma separated list of <tt>host:port</tt>. This list should include the hosts (and ports) where the Jini Lookup Service (or GSM) is running. The default port is 4166.</p>
+
+<p>For example, considering the GSM(+LUS) is running on linux-lab1:4166 and linux-lab2:4166 machines:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.jini_lus.locators=linux-lab1:4166,linux-lab2:4166</pre>
+</div></div>
+
+<p>This will influence the <tt>LOOKUPLOCATORS</tt> environment variable in <tt>setenv</tt> script, which you may also modify directly.</p>
+
+<h1><a name="HowtoConfigureUnicastDiscovery-Locatingservicesusinglocators"></a>Locating services using locators</h1>
+
+<p>Once the services are started with the locators settings, then any client should be able to find a service, using unicast discovery.</p>
+
+<p>To lookup a Space service using the unicast protocol, add the locators SpaceURL attribute to the space URL string. </p>
+
+<p>For both <b>unicast AND multicast discovery</b>, use:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">jini:<span class="code-comment">//*/./mySpace?locators=linux-lab1:4166,linux-lab2:4166&amp;groups=gigaspaces-7.0.0-XAPPremium-ga</span></pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When the locators attribute is used in conjunction with the jini://* prefix and groups attribute, the discovery will be unicast AND multicast.<br/>
+If you want unicast only, you should disable multicast altogether.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>For <b>unicast discovery only</b>, you should disable multicast using <b><tt>-Dcom.gs.multicast.enabled=false</tt></b> system property, and use:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">jini:<span class="code-comment">//linux-lab1:4166,linux-lab2:4166/./mySpace?locators=linux-lab1:4166,linux-lab2:4166</span></pre>
+</div></div></td></tr></table></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> For troubleshooting purposes you should verify that the services (spaces, GSC, GSM, processing units etc.) print correct settings for the locators while they initialize. You can turn on the relevant loggings if required.</p>
+
+<h1><a name="HowtoConfigureUnicastDiscovery-ConfiguringJiniLookupServiceUnicastPort"></a>Configuring Jini Lookup Service Unicast Port</h1>
+
+<p>To change the lookup service port when using the Service Grid, you can use the <b><tt>com.sun.jini.reggie.initialUnicastDiscoveryPort</tt></b> system property. The default value is the one assigned to the <tt>com.gs.multicast.discoveryPort</tt> system property, that is 4166 with XAP 7.x. </p>
+<ul class="alternate" type="square">
+	<li>Set the <tt>LOOKUPLOCATORS</tt> system property in <tt>&lt;GigaSpaces Root&gt;\bin\setenv.bat/sh</tt> to match the port number you defined (in this case, <tt>host:1234</tt>). That is required if you specify an explicit unicast/locators port, otherwise the service will use the default port if not set explicitly (see <a href="Lookup Service Configuration.html#LookupServiceConfiguration-MulticastSettings"><b>com.gs.multicast.discoveryPort system property</b></a>).</li>
+</ul>
+
+
+<h1><a name="HowtoConfigureUnicastDiscovery-Configuringlookupdiscoveryintervals"></a>Configuring lookup discovery intervals</h1>
+
+<p>When a lookup service fails and is brought back online, a client (such as a GSC, space or a client with a space proxy) needs to re-discover and federate again. In order to make that happen, Jini unicast discovery must retry connections to the remote lookup service. The default unicast retry protocol provides a graduating approach, increasing the amount of time to wait before the next discovery attempts are made - upon each invocation, eventually reaching a maximum time interval over which discovery is re-tried. In this way, the network is not flooded with unicast discovery requests referencing a lookup service that may not be available for quite some time (if ever). The default time to wait between unicast retry attempts are:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-object">long</span>[] sleepTime = {5 * 1000, 10 * 1000, 20 * 1000,
+                                    30 * 1000, 60 * 1000,
+                                    2 * 60 * 1000, 4 * 60 * 1000,
+                                    8 * 60 * 1000, 15 * 60 * 1000};</pre>
+</div></div>
+
+<p>You'll max out at 15 minutes between retries. Thats a big window.<br/>
+The retry logic only begins once the discovered lookup service is discarded.</p>
+
+<p>To tune the unicast retry intervals, the <tt>com.gigaspaces.unicast.interval</tt> system property is used to control the behavior of this LookupLocatorDiscovery utility. A comma separated list of values defining the intervals to wait between subsequent retries. Values are declared in milliseconds.</p>
+
+<p>Example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gigaspaces.unicast.interval=5000</pre>
+</div></div>
+<p>Will cause the LookupLocatorDiscovery utility to wait 5 seconds between retries</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gigaspaces.unicast.interval=5000,10000</pre>
+</div></div>
+<p>Will cause the LookupLocatorDiscovery utility to first wait 5 seconds, then 10 seconds between retries. This declaration provides a graduating approach (similar in approach to the default settings).</p>
+
+<p>You will need to set this property to take affect for GSM and GSC startup. You should see a similar log message to "Set unicast interval to 5000".</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

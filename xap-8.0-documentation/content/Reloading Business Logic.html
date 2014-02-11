@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Reloading Business Logic</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Reloading Business Logic</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903594";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903594";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Service reloading allows you to reload business logic without bringing down the Processing Unit. </p>
+</div>
+
+<h1><a name="ReloadingBusinessLogic-Overview"></a>Overview</h1>
+
+<p>The service reloading feature allows you to reload business logic (Spring beans) without shutting down the application or undeploying a Processing Unit. In order to do this, any reloadable business logic needs to be defined in a special Spring XML file. The Spring XML file is then referenced very similar to the <a href="Space Mode Context Loader.html" title="Space Mode Context Loader">Space Mode Context Loader</a> from inside the pu.xml.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Service Reloading only works when downloading the processing unit to the GSC is disabled (pu.download deploy property should be set to false). For more information on how to do it, see <a href="Deploying onto the Service Grid.html#DeployingontotheServiceGrid-distributionToGSCs">this page</a>. <br clear="all" /> For service reloading to work, common classes have to be copied to the &lt;GigaSpacesRoot&gt;/lib/platform/ext folder</p>
+
+<p>An example that demonstrates this is provided in the Solutions and Best Practices <a href="http://www.gigaspaces.com/wiki/display/SBP/Refreshable+Business+Logic+Example" title="Refreshable Business Logic Example">Refreshable Business Logic Example page</a>.</p>
+
+<h1><a name="ReloadingBusinessLogic-ConfiguringReloadableBusinessLogic"></a>Configuring Reloadable Business Logic</h1>
+
+<p>Lets assume we have business logic that we would like to reload at some point in time after our Processing Unit has been deployed. Here is an example of such business logic:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class RefreshableBean <span class="code-keyword">implements</span> InitializingBean, DisposableBean {
+
+    @GigaSpaceContext(name = <span class="code-quote">"gigaSpace"</span>)
+    <span class="code-keyword">private</span> GigaSpace gigaSpace;
+
+    <span class="code-keyword">public</span> void afterPropertiesSet() <span class="code-keyword">throws</span> Exception {
+        <span class="code-object">System</span>.out.println(<span class="code-quote">"BEAN LOADED, SPACE ["</span> + gigaSpace + <span class="code-quote">"]"</span>);
+    }
+
+    <span class="code-keyword">public</span> void destroy() <span class="code-keyword">throws</span> Exception {
+        <span class="code-object">System</span>.out.println(<span class="code-quote">"BEAN DESTROYED, SPACE ["</span> + gigaSpace + <span class="code-quote">"]"</span>);
+    }
+}</pre>
+</div></div>
+
+<p>We then need to define it in a specific Spring XML file (lets assume it is named <tt>refreshable-beans.xml</tt>):</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;beans ... &gt;</span>
+
+    <span class="code-tag">&lt;os-core:giga-space-context /&gt;</span>
+
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"refreshableBean"</span> class=<span class="code-quote">"org.openspaces.example.data.processor.RefreshableBean"</span>/&gt;</span>
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> This Spring XML file is a fully functional Spring definition and can hold several bean definitions, as well as other OpenSpaces components.</p>
+
+<p>To enable service reloading, in our processing unit <tt>pu.xml</tt> file, we reference the <tt>refreshable-beans.xml</tt> file in the following manner:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;beans ...&gt;</span>
+	...
+	
+	<span class="code-tag">&lt;os-core:refreshable-context-loader id=<span class="code-quote">"refreshableExample"</span> location=<span class="code-quote">"classpath:/META-INF/spring/refreshable-beans.xml"</span>/&gt;</span>
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <tt>refreshable-beans.xml</tt> has its parent application context set to the <tt>pu.xml</tt>, allowing it to access any bean defined in its parent <tt>pu.xml</tt>. Also, the <tt>refreshable-context-loader</tt> only starts if the space is in primary mode (when working with a remote space, it is always in primary mode).</p>
+
+<p>Above configuration will let you refresh the code defined in the refreshable context. Actual execution of this reloading of context can be done using OpenSpaces sync remoting, which allows you to broadcast the reload operation to all active cluster members. Here is how this is configured:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;beans ...&gt;</span>
+
+	<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;</span>
+            <span class="code-tag">&lt;os-core:filter-provider ref=<span class="code-quote">"remotingServiceExporter"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-core:space&gt;</span>
+
+	<span class="code-tag">&lt;os-remoting:service-exporter id=<span class="code-quote">"remotingServiceExporter"</span>&gt;</span>
+	    <span class="code-tag">&lt;os-remoting:service ref=<span class="code-quote">"refreshableExample"</span>/&gt;</span>
+	<span class="code-tag">&lt;/os-remoting:service-exporter&gt;</span>
+
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+
+<h1><a name="ReloadingBusinessLogic-ReloadingBusinessLogic"></a>Reloading Business Logic</h1>
+
+<p>When there is a change in business logic for any beans defined in the refreshable context and these changes are ready to be applied to the cluster, copy the new classes into the GigaSpaces deploy folder of GSM machine(s) and work folder of each cluster node (default location, &lt;GigaSpacesRoot&gt;/work/processing-units/&lt;puInstance&gt;) and execute the reload command as below:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">java -cp [list of jar files, including JSpace, openspaces and spring] RefreshContextLoaderExecutor jini:<span class="code-comment">//*/*/space</span></pre>
+</div></div>
+
+<p>As a result of the above command, all the beans defined in the refreshable context are destroyed and fresh copies of these beans are re-created using the new class definitions in the work folder. Your new version of business logic is now ready without brining down the cluster.</p>
+
+<h1><a name="ReloadingBusinessLogic-OtherConsiderations"></a>Other Considerations</h1>
+
+<ul>
+	<li>Refreshable context works only for business logic changes. You cannot modify the data model using this approach.</li>
+	<li>Any beans defined in the refreshable context should be designed to properly exit without leaving any threads in unreachable state. Implementing Spring InitializingBean and DisposableBean interface (or equivalent annotation) is a good design practice and any initializing code and clean up should be invoked from the afterPropertiesSet and destroy methods.</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Running Services - GSC and GSM</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Running Services - GSC and GSM</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  How to start a Grid Service Monitor and Grid Service Container, using the CLI or Admin UI. </p>
+</div>
+
+<h1><a name="RunningServices-GSCandGSM-Overview"></a>Overview</h1>
+
+<p>The Grid Service Container (GSC) is a container that provides remote access to services running on a specific machine. The Grid Service Manager (GSM) is a service that monitors a specific set of GSCs and automates the provisioning and deployment of services on these GSCs. The GSC and GSM are called the Service Grid's <em>infrastructure services</em>. In the GigaSpaces Management Center Deployments tab, these appear under the <b>Service Grid Infrastructure</b> node.</p>
+
+<p><img src="download/attachments/53903626/GMC_Deployments_ServiceGridNetwork_area_6.5.jpg" align="absmiddle" border="0"/></p>
+
+<p>For the Service Grid to operate, at least one GSC and one GSM must be deployed. You can deploy one or more GSC and GSM by executing a script in the Service Grid <tt>bin</tt> folder, or via the Admin UI. Deploying through the Admin UI offers more startup options.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If you deploy more than one GSM using the same Jini Lookup Service, the GSMs will function as one logical unit: if one GSM fails, another GSM takes its place and takes responsibility for its GSCs. However, if you deploy two GSMs using two different lookup services, they function as two separate units.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The GSC and GSM configuration is located under <tt>&lt;GigaSpaces Root&gt;\config\services\services.config</tt>.</p>
+
+<p>For details about the GSC and GSM configuration parameters, see the following packages:</p>
+<ul>
+	<li><a href="http://www.gigaspaces.com/docs/JavaDocSG6/index.html?com/gigaspaces/start/package-summary.html" target="_blank">com.gigaspaces.start</a><br clear="all" /></li>
+	<li><a href="http://www.gigaspaces.com/docs/JavaDocSG6/index.html?com/gigaspaces/grid/gsc/package-summary.html" target="_blank">com.gigaspaces.grid.gsc</a></li>
+</ul>
+
+
+<h1><a name="RunningServices-GSCandGSM-RunningGSMandGSC"></a>Running GSM and GSC</h1>
+
+<p>There are two ways to run the GSM and GSC:</p>
+<ul>
+	<li><a href="#RunningServices-GSCandGSM-UsingDeploymentsTab">Using the GigaSpaces Management Center Deployments tab</a> (best for development and testing - <b>not for production</b>).</li>
+	<li><a href="#RunningServices-GSCandGSM-ExecutingScript">Executing script files</a>.</li>
+</ul>
+
+
+<h2><a name="RunningServices-GSCandGSM-UsingDeploymentsTab"></a>Using Deployments Tab</h2>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Running the GSM/GSC using the GigaSpaces Management Center is meant for development and testing purposes only. This option <b>shouldn't be used for production, mainly since it starts</b> <b><ins>local</ins></b> <b>processes of the GSC/GSM</b>.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Launching the GSM/GSC using the GigaSpaces Management Center is new in <b>GigaSpaces version 6.5</b> and onwards.</p>
+
+<p>The Deployments tab <b>Launch</b> menu allows you to run GSMs and GSCs services as <b>local processes on the machine which runs the GigaSpaces Management Center.</b> There are two options:</p>
+<ul>
+	<li><a href="#RunningServices-GSCandGSM-LaunchingDirectly">Launching the GSM/GSC directly</a> using default JVM properties (without configuration). <img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Start everything you need for tests and development in one click!</li>
+	<li><a href="#RunningServices-GSCandGSM-LaunchingwithServiceGridLaunchUtility">Launching the GSM/GSC using the Service Grid Launch Utility</a>, which allows you to edit the GSC/GSM's JVM properties.</li>
+</ul>
+
+
+<h3><a name="RunningServices-GSCandGSM-LaunchingDirectly"></a>Launching Directly</h3>
+
+<p>In the GigaSpaces Management Center (either in the Space Browser tab or the Deployments tab) top menu, click <b>Launch</b> &gt; <b>Grid Service Container</b> or <b>Grid Service Manager</b>:</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_Deployments_LaunchMenuOption_GSC_6.5.jpg" align="absmiddle" border="0"/></p></div>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_Deployments_LaunchMenuOption_GSM_6.5.jpg" align="absmiddle" border="0"/></p></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In the bottom <b>Details</b> area, you can view the GSM/GSC, which is represented by a tab showing the service output.<br/>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_Deployments_Details_area_afterlaunched_Service_6.5.jpg" align="absmiddle" border="0"/></p></div><br clear="all" /></p>
+
+<h3><a name="RunningServices-GSCandGSM-LaunchingwithServiceGridLaunchUtility"></a>Launching with Service Grid Launch Utility</h3>
+
+<ol>
+	<li>In the GigaSpaces Management Center (either in the Space Browser tab or the Deployments tab) top menu, click <b>Launch</b> &gt; <b>Service Launcher</b>. The Service Grid Launch Utility window opens.</li>
+	<li>In the <b>Select Service to Launch</b> area, select either <b>Grid Service Container</b> or <b>Grid Service Manager</b>.
+<br clear="all" />
+<br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_Deployments_ServiceLauncher_window_6.5.jpg" align="absmiddle" border="0"/></p></div><br clear="all" />
+<br clear="all" /></li>
+	<li>Type a label in the <b>Label</b> text box. This is the name of the service displayed in the <b>Details</b> area (see step 11 below).</li>
+	<li>Uncheck the <b>Launch and Leave</b> checkbox if you would like to launch additional GSCs and GSMs before you close the window.</li>
+	<li>If you would like to configure your GSM/GSC, click the <b>Properties</b> tab. Otherwise, continue to step 9 below.</li>
+	<li>Edit the <b>Properties</b> tab fields - use the browse button ( <img src="download/attachments/53903626/GMC_Deployments_ServiceLauncher_window_Properties_tab_browseButton_6.5.jpg" align="absmiddle" border="0"/> ) to browse to your JVM location, or for the rest of the fields, use the set buttons ( <img src="download/attachments/53903626/GMC_Deployments_ServiceLauncher_window_Properties_tab_setButton_6.5.jpg" align="absmiddle" border="0"/> ), which open an editor that allows you to conveniently view and edit each field:
+<br clear="all" />
+<br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_Deployments_ServiceLauncher_window_Properties_tab_6.5.jpg" align="absmiddle" border="0"/></p></div><br clear="all" />
+<br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_Deployments_ServiceLauncher_window_Properties_tab_editWindow_6.5.jpg" align="absmiddle" border="0"/></p></div><br clear="all" />
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <b>Properties</b> tab fields allow you to configure the JVM running your GSM/GSC.
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If you choose to launch additional GSMs or GSCs before you close this window (see step 9 below), any edited fields are automatically defined for any additional GSC or GSM. If you want to return the default values in all fields, press <b>Defaults</b>.
+<br clear="all" />
+<br clear="all" /></li>
+	<li>Press <b>Save</b>.</li>
+	<li>Press <b>Launch GSC</b> or <b>Launch GSM</b>.</li>
+	<li>If you left the <b>Launch and Leave</b> checkbox checked, the window closes. If you unchecked it, the window stays open. In this case, continue launching additional GSMs and/or GSCs as desired, and when finished, press <b>Close</b>.
+<br clear="all" />
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In the <b>Details</b> area, each GSM/GSC is represented by a tab, which includes the service output. The tab's name is defined in the <b>Label</b> text box (see step 2 above).
+<br clear="all" />
+<br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_Deployments_Details_area_afterlaunched_Service_6.5.jpg" align="absmiddle" border="0"/></p></div><br clear="all" />
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> GSMs/GSCs launched by executing script (see the following section), are not shown in the <b>Details</b> area.
+<br clear="all" />
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <b>Terminating</b> <b>GSM</b>/<b>GSC</b>
+	<ul>
+		<li>The x button in each GSC/GSM tab ( <img src="download/attachments/53903626/GMC_Deployments_Details_area_xButton_6.5.jpg" align="absmiddle" border="0"/> ) terminates the GSM/GSC.</li>
+		<li>Closing the GigaSpaces Management Center <b>terminates all running GSMs/GSCs.</b></li>
+	</ul>
+	</li>
+</ol>
+
+
+<h2><a name="RunningServices-GSCandGSM-ExecutingScript"></a>Executing Script</h2>
+
+<p>You can deploy both infrastructure services at the same time, or only one of them. Repeat the procedures below to deploy multiple GSMs or GSCs on the local machine.</p>
+
+<p><b>To deploy one GSC instance on the local machine:</b></p>
+<ul>
+	<li>Execute <tt>&lt;GigaSpaces Root&gt;\bin\gsc.bat</tt> or <tt>.sh</tt><br/>
+A console window opens, showing the startup sequence for the GSC. When the startup sequence ends, one GSC has been launched on the local machine.</li>
+</ul>
+
+
+<p><b>To deploy one GSM instance on the local machine:</b></p>
+<ul>
+	<li>Execute <tt>&lt;GigaSpaces Root&gt;\bin\gsm.bat</tt> or <tt>.sh</tt><br/>
+A console window opens, showing the startup sequence for the GSM. When the startup sequence ends, one GSM has been launched on the local machine.</li>
+</ul>
+
+
+<p>After deploying the GSM and GSC, you can see them running in the GigaSpaces Management Center Deployments tab.</p>
+
+<h1><a name="RunningServices-GSCandGSM-SettingInitializationPropertiesonStartup"></a>Setting Initialization Properties on Startup</h1>
+
+<p>You can set the Service Grid to load a service bean on on startup, with a mechanism to set initialization properties for your applications. Your initializing service must be written as a <tt>ServiceBean</tt> using the Rio component model. This will allow you to obtain the <tt>ServiceBeanContext</tt> to do the things you require on startup.</p>
+
+<p><b>To load an initialization service bean on startup:</b></p>
+<ol>
+	<li>Add a <tt>PlatformCapability</tt> to the GSC.</li>
+	<li>Declare the <tt>PlatformCapability</tt> in the deployment descriptor of the services which require your platform to be initialized.</li>
+</ol>
+
+
+<h2><a name="RunningServices-GSCandGSM-Example"></a>Example</h2>
+
+<p>For an example of setting initialization properties on startup, see the <a href="download/attachments/53903435/initialization_service.zip">attached ZIP file</a>. It contains the following:</p>
+<ul>
+	<li>A sample deployment descriptor declaration</li>
+	<li>Two sample services - an initialization service and a dependent service</li>
+	<li>A <tt>build.xml</tt> file</li>
+	<li>A properties file (showing how to load it from the service bean)</li>
+</ul>
+
+
+<p><b>To run the example:</b></p>
+<ol>
+	<li>Extract the <a href="download/attachments/53903435/initialization_service.zip">attached ZIP file</a> under the <tt>&lt;GigaSpaces Root&gt;\examples\Advanced\ServiceGrid</tt> directory.</li>
+	<li>Go to <tt>&lt;GigaSpaces Root&gt;/examples/Advanced/ServiceGrid/sample</tt> and run ant.</li>
+	<li>Copy <tt>sample.jar</tt>, <tt>sample-dl.jar</tt> and <tt>sample.properties</tt> to <tt>&lt;GigaSpaces Root&gt;/lib</tt>.</li>
+	<li>Run <tt>gsc</tt>, <tt>gsm</tt> and <tt>gs-ui</tt>.</li>
+	<li>Deploy <tt>&lt;GigaSpaces Root&gt;\examples\Advanced\ServiceGrid\sample\config\sample.xml</tt>, verify the codebase, then click <b>Deploy</b>.</li>
+</ol>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Supported Platforms</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Supported Platforms</h1>
+</div>
+<br>
+
+
+<h2><a name="SupportedPlatforms-SupportedPlatformsforGigaSpaces8.0"></a>Supported Platforms for GigaSpaces 8.0 </h2>
+
+<p><b>Navigate to the required category</b>: <div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+
+<h1><a name="SupportedPlatforms-Overview"></a>Overview</h1>
+<p>GigaSpaces <a href="Product Architecture.html#ProductArchitecture-ProductArchitectureCoreMiddleware">Data Grid and Messaging Grid core middleware</a>, <a href="Persistency.html" title="Persistency">Database Cache and Persistency</a>, <a href="Product Architecture.html#ProductArchitecture-OpenSpacesAPIandComponents">Service Grid and OpenSpaces</a> are 100% <a href="http://java.sun.com">Java technology</a> based.</p>
+
+<p><b>You can run GigaSpaces on every operating system that supports the Java Platform Standard Edition technology</b> &#8211; i.e., Windows , Linux x86, Linux AMD64 (Opteron), Sun Solaris, Hewlett Packard HP-UX, IBM AIX, Apple Mac OS/X, etc.</p>
+
+<p>The list below represents only the platforms that have been tested by GigaSpaces.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> GigaSpaces components (space, cluster of spaces, Processing Unit, GSM, GSC, LUS, Mahalo, GUI, CLI) can run only with the same GigaSpaces JARs (i.e., the same version and build number).</p>
+
+<h1><a name="SupportedPlatforms-MixingGigaSpacesVersions"></a>Mixing GigaSpaces Versions</h1>
+<p>The following is supported:</p>
+<ul>
+	<li>Runtime backward compatibility: <b>Starting from GigaSpaces 7.1, GigaSpaces Space instances are backward compatible with Space clients across major versions.</b> That means that clients running on version 7.1 are compatible with Space instances running on version 8.0.</li>
+	<li>Binary compatibility: applications built using 7.1.x run without any code changes on a clean 8.0.x installation.</li>
+	<li>Servers (GSMs, GSCs and Space instances) running on any future service pack of version 8.0 (e.g. 8.0.1) are guaranteed to work with older service packs of that version (e.g. 8.0.0).</li>
+</ul>
+
+
+
+<h1><a name="SupportedPlatforms-Tested%26CertifiedPlatforms"></a>Tested &amp; Certified Platforms</h1>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Recommended and Certified Environment</b><br /><br/>
+GigaSpaces recommends that customers upgrade to a fully-supported environment, such as the latest GigaSpaces XAP 8.0.x and the latest <b>Java 1.6 update 23</b> SDK.</td></tr></table></div>
+
+<p>GigaSpaces is being tested with (32bit and 64bit JVMs):</p>
+<ul class="alternate" type="square">
+	<li>Windows 2008 Server SP2</li>
+	<li>Linux RHEL 5.x</li>
+	<li>Solaris 10</li>
+</ul>
+
+
+<div class='panelMacro'><table class='warningMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>
+<p>SUSE-10 sp3 has bugs which make OS network layer unreliable. This OS should be avoided with GigaSpaces.</p></td></tr></table></div> 
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Supported Java Versions &amp; SDK End-of-Life</b><br /><ul>
+	<li>Java SE 1.5 EOL - based on information made publicly available by The Oracle Corporation (formerly Sun Microsystems), as of October 30th 2009, Java SE 1.5 SDK has reached its End of Service Life (EOSL).</li>
+	<li>Oracle has already ceased to support the 1.5 JVM. In addition, the other major JVM vendor, namely IBM, announced its limited ability to support these JVMs in light of Oracle's announcement. This in turn will limit GigaSpaces' ability to provide support for applications running on this JVM.</li>
+	<li>However, we will continue to support GigaSpaces XAP editions up to 7.0 (for Java 1.4) and up to version 7.1 (for java 1.5) in these environments on a best-effort basis (i.e. as long as the issue is not a JVM bug). Customers concerned about this EOL announcement are encouraged to contact their JDK vendor to explore the extended support entitlements beyond the stated EOL period.</li>
+	<li><b>From version 8.0 onwards</b>, GigaSpaces XAP will no longer support the <b>Java 1.5 SDK</b>, and will require the use of Java 1.6 SDK or higher.</li>
+</ul>
+</td></tr></table></div>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><ul>
+	<li>Please refer to the public website page for the latest updates about the <a href="http://www.gigaspaces.com/content/product-lifecycle-and-eol#jvm">JVM &amp; Third-Party End-Of-Life Policy</a>.</li>
+</ul>
+</td></tr></table></div>
+
+<p>See below tested JVMs:</p>
+<ul>
+	<li>Sun 1.6 - XAP was tested using Sun JVM version 1.6.0_23-b04</li>
+	<li>JRockit/BEA 1.6.x - XAP was tested using BEA JRockit(R) build 1.6.0_02-b05</li>
+	<li>IBM 1.6.0 - XAP was tested using IBM JVM version 1.6.0 IBM J9 VM (build 2.4, J2RE 1.6.0 IBM J9 2.4 amd64-64 jvmxa6460-20080816_22093 (JIT enabled, AOT enabled)</li>
+</ul>
+
+
+<h1><a name="SupportedPlatforms-.NETInterface"></a>.NET Interface</h1>
+
+<h1><a name="SupportedPlatforms-SystemRequirements"></a>System Requirements</h1>
+<p><b>Required Software:</b> <a href="http://msdn.microsoft.com/en-us/netframework/aa731542.aspx">Microsoft .NET Framework 2.0</a> or later (including  <a href="http://msdn.microsoft.com/en-us/netframework/aa569263.aspx">Microsoft .NET Framework 4.0</a>).<br/>
+<img class="emoticon" src="images/icons/emoticons/add.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Recommended: <a href="http://www.microsoft.com/downloads/details.aspx?familyid=5B2C0358-915B-4EB5-9B1D-10E506DA9D0F&amp;displaylang=en">Microsoft .NET Framework 2.0 Service Pack 2</a> or later.</p>
+
+<p><b>Supported Operating Systems:</b> Any operating system supported by .NET Framework 2.0.</p>
+
+<p><b>64 bit support:</b> XAP.NET is released in two separate packages for x86 and x64. Itanium (ia64) is currently not supported. The XAP.NET x86 package can be installed on a x64 machine and run in WoW64 mode.</p>
+
+<h1><a name="SupportedPlatforms-Installation"></a>Installation</h1>
+<p>GigaSpaces XAP.NET is packaged as a standard Windows Installer package (.msi file). To start the installation simply double-click the msi file, and the installation wizard will pop up and guide you through the installation process.</p>
+
+<p>Once you accept the licence agreement, you will be asked to choose a setup type. Select 'Complete' to install all the features in the default path (C:\GigaSpaces\XAP.NET 7.1.0). Selecting 'Custom' will allow you to customize the installation path, which features will be installed, and more. </p>
+
+<h2><a name="SupportedPlatforms-OtherInstallationOptions"></a>Other Installation Options</h2>
+
+<p>GigaSpaces XAP.NET offers more installation scenarios and customizations. For example:</p>
+<ul>
+	<li>Command-line installation.</li>
+	<li>Packaging XAP.NET in another installation package.</li>
+	<li>Side-by-side installations.</li>
+	<li>Using a different jvm.</li>
+</ul>
+
+
+<p>For more information see <a href="http://www.gigaspaces.com/wiki/display/XAP8NET/Advanced+Installation+Scenarios" title="Advanced Installation Scenarios">Advanced Installation Scenarios</a>.</p>
+
+
+<h1><a name="SupportedPlatforms-CInterface"></a>C++ Interface</h1>
+<p>GigaSpaces C+&#43; source code can be built on Linux and Windows 32bit or 64bit machines.<br clear="all" />
+The current supported platforms and compilers are:</p>
+<ul>
+	<li>Linux
+	<ul>
+		<li>64bit &#8211; gcc.3.4.5</li>
+		<li>32bit &#8211; gcc.3.4.6</li>
+	</ul>
+	</li>
+	<li>Windows
+	<ul>
+		<li>32/64bit C++ for VisualStudio 2005 (vs8.0)</li>
+		<li>32 C++ for VisualStudio 2003 (vs7.1)</li>
+	</ul>
+	</li>
+</ul>
+
+
+<h1><a name="SupportedPlatforms-Integrationswith3rdPartyProducts"></a>Integrations with 3rd Party Products</h1>
+<p>The following products/projects were tested and certified using GigaSpaces 7.0:</p>
+<ul>
+	<li>Spring 3.0.5</li>
+	<li>Hibernate version 3.2.6</li>
+	<li>Mule 2.2.1</li>
+	<li>Jetty 7.1.6</li>
+	<li>Groovy 1.7.5</li>
+	<li>Maven 3.0</li>
+	<li>Hyperic SIGAR 1.6.5</li>
+</ul>
+
+</div></p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

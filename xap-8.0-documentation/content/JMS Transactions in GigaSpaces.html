@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : JMS Transactions in GigaSpaces</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>JMS Transactions in GigaSpaces</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Using local and distributed transactions with the JMS implementation. </p>
+</div>
+
+<h1><a name="JMSTransactionsinGigaSpaces-Overview"></a>Overview</h1>
+
+<p>GigaSpaces JMS implementation uses transactions to implement the <tt>Session.CLIENT_ACKNOWLEDGE</tt> mode and transacted sessions.</p>
+
+<p>When using <tt>CLIENT_ACKNOWLEDGE</tt> mode, messages are consumed in a transaction, and sent without a transaction.</p>
+
+<p>The transaction is committed only when the client calls <tt>Message.acknowledge()</tt>, acknowledging the consumed messages.</p>
+
+<p>Transacted sessions use transactions to consume and to send messages. When the client calls <tt>Session.commit()</tt>, unacknowledged messages are acknowledged and produced messages are written to the space.</p>
+
+<h1><a name="JMSTransactionsinGigaSpaces-Localvs.DistributedTransactions"></a>Local vs. Distributed Transactions</h1>
+
+<p>In GigaSpaces JMS, it is possible to use local transactions and distributed transactions (Mahalo).</p>
+
+<p>In general, using local transactions is more efficient than using distributed transactions. </p>
+
+<p>The only limitation when using local transactions relates to the fact that a transaction is valid only for a single space. This is problematic, because GigaSpaces routs JMS messages to the spaces according to the destination name. A message to a Queue named <tt>myQueue1</tt> might arrive at <tt>space1</tt>, while another message to a Queue named <tt>myQueue2</tt> might arrive at <tt>space2</tt>. If a client uses a local transaction to send the two messages, it might get a <tt>TransactionException</tt>.</p>
+
+<p>To overcome this problem, the client can use distributed transactions, that can span over more than one space.</p>
+
+<h2><a name="JMSTransactionsinGigaSpaces-WhentoUseDistributedTransactions"></a>When to Use Distributed Transactions</h2>
+
+<p>The JMS client uses a cluster that contains more than one space. The session is transacted, and transactions involve more than one destination (for message consumption and/or production):</p>
+<ul>
+	<li>Consuming a message from a queue, and sending a message to another destination.</li>
+	<li>Sending more than one message, to more than one destination.</li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> You do not need to use distributed transactions when consuming from a Topic, and sending a single message to another destination.</p>
+
+<h3><a name="JMSTransactionsinGigaSpaces-PreparingJMStoWorkwithDistributedTransactions"></a>Preparing JMS to Work with Distributed Transactions</h3>
+
+<p>To use Mahalo, you must first enable the Mahalo service in GigaSpaces.</p>
+
+<p>To enable Mahalo, set the following XPath property in the <tt>&lt;GigaSpaces Root&gt;\config\gs.properties</tt> file:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.j_spaces.core.container.embedded-services.mahalo.start-embedded-mahalo=<span class="code-keyword">true</span></pre>
+</div></div>
+
+<p>To use Mahalo transactions in JMS transacted sessions, add the following system property:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gs.jms.use_mahalo=<span class="code-keyword">true</span></pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> You can avoid using distributed transactions by:</p>
+<ul>
+	<li>Not involving more than one destination in a transaction.</li>
+	<li>Using only a single space (not a cluster).</li>
+	<li>Consuming messages from Topic, and sending messages to a <b>single</b> destination.</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,607 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Step Two - Creating the Hello World Application</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Step Two - Creating the Hello World Application</h1>
+</div>
+<br>
+
+
+<script language="JavaScript">
+<!--
+// Get all div elemnts inside an array
+var elements = document.getElementsByTagName('div');
+i = 0 ;
+var singleDiv = elements[i];
+// Loop through the array and unhide every div element with name equals...
+while( singleDiv != null )
+{ 
+	if (singleDiv.getAttribute('name') == "showForVariantjava")
+	{
+		singleDiv.style.display = 'block';
+	}
+	singleDiv = elements[i++];
+}
+-->
+</script>
+
+<script language="JavaScript">
+<!--
+// Get all div elemnts inside an array
+var elements = document.getElementsByTagName('div');
+i = 0 ;
+var singleDiv = elements[i];
+// Loop through the array and unhide every div element with name equals...
+while( singleDiv != null )
+{ 
+	if (singleDiv.getAttribute('name') == "showForVariantjdk15")
+	{
+		singleDiv.style.display = 'block';
+	}
+	singleDiv = elements[i++];
+}
+-->
+</script>
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903500";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903500";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<p><b>Tutorial summary</b>: Learn how to create and run a Processing Unit - a scalable unit of deployment, inside your development environment. Learn how to use the GigaSpaces basic API, by implementing a simple processor and feeder application. <sub>Approx 10 min</sub> </p>
+
+
+<h1><a name="StepTwo-CreatingtheHelloWorldApplication-Overview"></a>Overview</h1>
+
+
+
+<p><img src="download/attachments/17301573/folder_icon.gif" align="absmiddle" border="0"/> Example Folder - Sample application is located in &lt;GigaSpaces Root&gt;\examples\helloworld</p>
+
+
+
+<p><img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Features Introduced - Space, GigaSpaces API, Processing Unit, Polling Container, Running inside the IDE.
+<br clear="all" /></p>
+<hr 
+ size="1" 
+ color="C9C9C9" 
+ >
+
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-Beforeyoubegin"></a>Before you begin</h4>
+
+<p>We recommend that you go through the following steps before you begin this tutorial:</p>
+
+
+<ol>
+	<li><a href="Setting Up your IDE to work with GigaSpaces.html" title="Setting Up your IDE to work with GigaSpaces">Download GigaSpaces and set up your development environment</a><br/>
+to work with GigaSpaces - this is needed to run the sample application described in this tutorial.</li>
+	<li><a href="Step One - Using Processing Units for Scaling.html" title="Step One - Using Processing Units for Scaling">Step One - Using Processing Units For Scaling</a><br/>
+&#45; a short, one page introduction to scaling your application, using Processing Units - <b>Recommended</b>.
+</li>
+</ol>
+
+
+<hr 
+ size="1" 
+ color="C9C9C9" 
+ >
+
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-Goals"></a>Goals</h4>
+
+<p>Create a scalable processor application (a Processing Unit) that processes objects as they are written to the space (data grid). Create a feeder application that feeds objects to the space (data grid) for the processor to read and process.</p>
+
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-Contents"></a>Contents</h4>
+
+
+
+<ol>
+	<li><a href="#StepTwo-CreatingtheHelloWorldApplication-JObject">The Message class to be fed and processed</a>.</li>
+	<li><a href="#StepTwo-CreatingtheHelloWorldApplication-ProcessorProcessingUnit">The simple scalable processor application</a>.</li>
+	<li><a href="#StepTwo-CreatingtheHelloWorldApplication-JFeeder">The feeder application</a>.</li>
+	<li><a href="#StepTwo-CreatingtheHelloWorldApplication-JRunProcessorinIDE">Running the processor inside your IDE</a>.</li>
+	<li><a href="#StepTwo-CreatingtheHelloWorldApplication-JRunFeederinIDE">Running the feeder inside your IDE</a>.</li>
+	<li><a href="#StepTwo-CreatingtheHelloWorldApplication-JViewOutput">Expected output</a></li>
+</ol>
+
+
+<p><br clear="all" />
+<br clear="all" /></p>
+
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-Components"></a>Components</h4>
+
+<p>There are two components in our scenario:</p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="30%">
+<ol>
+	<li><a href="#StepTwo-CreatingtheHelloWorldApplication-ProcessorProcessingUnit">Processor Processing Unit</a> &#45;<br/>
+Processes Message objects as they are written to the data grid (Space)
+<br clear="all" />
+<br clear="all" />
+
+<p>It contains 3 components:<br/>
+a <em>Polling Container</em> component that listens to new Message objects written to the <em>Space</em>, and a <em>Processor Bean</em> that is delegated the actual processing work by the <em>Polling Container</em>.
+<br clear="all" />
+<br clear="all" />
+The Processing Unit itself runs within a dedicated processing unit container in a host environment. (This can be your IDE, any Java process, or the GigaSpaces Grid Service Container - more on this in the next tutorial.)</p>
+</li>
+</ol>
+</td>
+<td class="confluenceTd"  valign="top" width="10%">
+<p><img src="download/attachments/48235229/helloworld_processor_processing_unit.gif" align="absmiddle" border="0"/></p></td>
+<td class="confluenceTd"  valign="top" width="25%">
+
+<p>2. <a href="#StepTwo-CreatingtheHelloWorldApplication-Feeder">Feeder</a> &#45; an application that feeds unprocessed Message objects to the Space, and after a certain period of time, counts and reads one of them at random.</p>
+
+<p><font color="#ffffff">blank-line</font></p>
+<p>3. <a href="#StepTwo-CreatingtheHelloWorldApplication-Object">Message Object</a> &#45; a simple POJO with an id and info attributes.</p>
+</td>
+<td class="confluenceTd"  valign="top" width="25%">
+<p><img src="download/attachments/17301573/helloworld_feeder.gif" align="absmiddle" border="0"/></p>
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><img src="download/attachments/17301573/Message.gif" align="absmiddle" border="0"/></p></td></tr></tbody></table>
+
+<p><font color="#ffffff">blank-line</font></p>
+
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='left'>
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-TheWorkflow"></a>The Workflow</h4>
+
+
+<ol>
+	<li>The <em>helloFeeder</em> application writes 1000 Message objects (POJOs) to the <em>space</em> and waits.
+
+<p><font color="#ffffff">blank-line</font></p></li>
+	<li>Inside the Processing Unit, the <em>Polling Container</em> continuously removes unprocessed objects from the data grid (one at a time) and hands them to its <em>Processor Bean</em> for processing.
+
+<p><font color="#ffffff">blank-line</font></p></li>
+	<li>After each Message object has been processed, the <em>Polling Container</em> writes it back to the <em>Space</em>.<br/>
+(Steps 2 &amp; 3 repeat, until there are no more unprocessed Message objects left to process in the Space.)
+
+<p><font color="#ffffff">blank-line</font></p></li>
+	<li>After waiting 100 milliseconds (to allow for all the objects to be processed), the feeder counts all the processed Message objects inside the <em>Processor Processing Unit</em>'s <em>Space</em>, and reads one of them at random.
+<br clear="all" />
+<br clear="all" />
+</li>
+</ol>
+</div>
+</td>
+<td class="confluenceTd"  valign="top" width="50%">
+
+<div class="" align='center'>
+<p><img src="download/attachments/48235229/Helloworld_workflow.jpg" align="absmiddle" border="0"/></p></div>
+
+<div class="" align='center'><b><sup>Diagram 1. The application connects to the space, writes, reads and takes a Message Object.</sup></b></div>
+</td></tr></tbody></table>
+<p><br clear="all" /></p>
+
+
+<p><a href="#StepTwo-CreatingtheHelloWorldApplication-RunAllInIDE"><img src="download/attachments/17301573/Jump arrow green.bmp" align="absmiddle" border="0"/></a> <a href="#StepTwo-CreatingtheHelloWorldApplication-RunAllInIDE"><font color="#66cc33"><b><span style="font-size:{120%}px">Jump</span></b></font></a> ahead and <a href="#StepTwo-CreatingtheHelloWorldApplication-RunAllInIDE">run the sample application</a>, in case you want to see the final outcome of this tutorial now
+<br clear="all" />
+<br clear="all" />
+<a name="StepTwo-CreatingtheHelloWorldApplication-Jwalkthrough"></a></p>
+
+
+<h1><a name="StepTwo-CreatingtheHelloWorldApplication-CodeWalkthrough"></a>Code Walkthrough</h1>
+
+
+
+<p>First let's take a look at the Message object that is being written to the space by the feeder application:</p>
+
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-JObject"></a></p>
+
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-TheMessageObject%28Message.java%29"></a>The Message Object (Message.java)</h4>
+
+<p>This is a simple POJO containing two attributes: <em>id</em>, which represents the object id, and <em>info</em>, which represents the information that this object holds. Both have setter and getter methods.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The getter for the id attribute is annotated with the @SpaceRouting annotation that is used to route Message objects when they are written to the space. This is necessary for scaling the application, and will be explained in the next tutorial. For now, just remember that this annotation should decorate one of the object's properties.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">private</span> <span class="code-object">Integer</span> id;    <span class="code-comment">// object id
+</span>
+<span class="code-keyword">public</span> void setId(<span class="code-object">Integer</span> id) {
+    <span class="code-keyword">this</span>.id = id;
+}
+
+@SpaceRouting
+<span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {
+    <span class="code-keyword">return</span> id;
+}</pre>
+</div></div>
+
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">private</span> <span class="code-object">String</span> info;    <span class="code-comment">// info represents the info the object holds
+</span>
+<span class="code-keyword">public</span> <span class="code-object">String</span> getInfo() {
+    <span class="code-keyword">return</span> info;
+}
+
+<span class="code-keyword">public</span> void setInfo(<span class="code-object">String</span> info) {
+    <span class="code-keyword">this</span>.info = info;
+}</pre>
+</div></div>
+<p>A necessary default empty constructor and another constructor to construct<br/>
+a new Message object with a given id and info:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> Message() {   <span class="code-comment">// Mandatory empty constructor
+</span>
+}
+
+<span class="code-keyword">public</span> Message(<span class="code-object">Integer</span> id, <span class="code-object">String</span> info) {
+    <span class="code-keyword">this</span>.id = id;
+
+    <span class="code-keyword">this</span>.info = info;
+}</pre>
+</div></div>
+
+<p>Next, let's take a look at the Processor Processing Unit.
+<br clear="all" />
+<br clear="all" /></p>
+
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-ProcessorProcessingUnit"></a></p>
+
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-TheProcessorProcessingUnit%28pu.xml%2CProcessor.java%29"></a>The Processor Processing Unit (pu.xml, Processor.java)</h4>
+
+<p>The Processor Processing Unit contains two components: a space (cache), which holds objects in memory, and a processor bean that takes, modifies and writes objects back to this space.</p>
+
+<p><b>Processor Processing Unit Configuration</b> (META-INF/spring/pu.xml)</p>
+
+<p>A Processing Unit always has an XML file called pu.xml, that resides under the <em>META-INF\spring</em> directory.<br/>
+In fact, this is a standard <a href="http://www.springframework.org">Spring framework</a> XML configuration file, with a number of custom GigaSpaces specific tags. Let's take a look at this file. In our example there are 3 main components contained within the Processing Unit:</p>
+<ol>
+	<li>The first component is a <em>space</em> (cache) instance embedded inside the Processing Unit, named <b>processorSpace</b>. It has a URL property.<br/>
+On the second line, we define a transaction manager, which is referencing this space, and manages its transactions.<br/>
+Finally a bean called <em>gigaSpace</em> wraps the <em>space</em>, and provides a simple client API to interact with it, as we will see later in this tutorial.
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./processorSpace"</span> /&gt;</span>
+<span class="code-tag">&lt;os-core:local-tx-manager id=<span class="code-quote">"transactionManager"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span></pre>
+</div></div></li>
+	<li>The second component is a <b>helloProcessor Bean</b>, which contains the method that does the actual processing. This bean is defined in the Processor.java source file, which is shown in the <a href="#StepTwo-CreatingtheHelloWorldApplication-ProcessorBean">next section</a>.
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"helloProcessor"</span> class=<span class="code-quote">"org.openspaces.example.helloworld.processor.Processor"</span>/&gt;</span></pre>
+</div></div></li>
+</ol>
+
+
+
+
+<p>The third, key component in this workflow is the <b>Polling Container</b>,  which continuously removes (takes) objects matching certain criteria from the space. The criteria are expressed in the form of a template object (also known as example object). In our case, the polling container is instructed to take objects of type Message. However, it does not take all instances of the Message class, only those whose "info" property equals the string "Hello ". When a match is found, the object is taken and passed to a listener bean - here the listener is the previously defined <em>Processor bean</em>. This bean has a method annotated with the @SpaceDataEvent annotation, which is invoked with the taken object as a parameter. It returns a processed Message object, which is written back to the space by the <em>Polling Container</em>.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-events:polling-container id=<span class="code-quote">"helloProcessorPollingEventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+    <span class="code-tag">&lt;os-events:tx-support tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span>
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.helloworld.common.Message"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"info"</span> value=<span class="code-quote">"Hello "</span>/&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"helloProcessor"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:polling-container&gt;</span></pre>
+</div></div>
+
+<p>Next we'll see the source code for the <em>Processor</em> bean.</p>
+
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-ProcessorBean"></a><br/>
+<b>Processor Bean</b> (Processor.java)</p>
+
+<p>We saw that the pu.xml file defines a bean called Processor. Now let's look at this bean's source code.<br/>
+It has one method. The primary method, processMessage(), is annotated with the @SpaceDataEvent annotation. Previously we saw that the <em>Processor bean</em> is referenced by the <em>Polling Container</em> and acts as its listener. When a Message object is taken from the space by the <em>Polling Container</em>, this method is invoked with the object as an argument. It returns a processed object. In this example it simply adds the "World &#33;&#33;" string to the object's <em>info</em> property:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class Processor {
+
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Message processMessage(Message msg) {
+        <span class="code-object">System</span>.out.println(<span class="code-quote">"Processor PROCESSING : "</span> + msg);
+        msg.setInfo(msg.getInfo()+<span class="code-quote">"World !!"</span>);
+        <span class="code-keyword">return</span> msg;
+    }
+
+    <span class="code-keyword">public</span> Processor(){
+      <span class="code-object">System</span>.out.println(<span class="code-quote">"Processor instantiated..."</span>);
+    }
+}</pre>
+</div></div>
+
+<p>Now we are ready to view feeder application that feeds Message objects to the space.</p>
+
+<p><font color="#ffffff">blank-line</font></p>
+
+
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-JFeeder"></a></p>
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-TheFeederApplication%28Feeder.java%29"></a>The Feeder Application (Feeder.java)</h4>
+
+<p>The feeder <tt>main</tt> method constructs a new Feeder instance, and passes the space URL to it, to connect to the space.<br/>
+Each space is identified uniquely by its name. In the processor processing unit, we defined the space with the URL "/./processorSpace", which means an <b>embedded</b> space named "processorSpace". Therefore the URL the feeder uses to connect to the space, is "jini:/<b>/</b>/processorSpace". Without getting into the details, it means that the Jini protocol is used to discover a space named "processorSpace" in the network. It is passed to the feeder as a program argument.<br/>
+We then start writing the Message object to the space and then read the results from it.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">static</span> void main(<span class="code-object">String</span> [] args) {
+    <span class="code-keyword">if</span>(args.length==0){
+	<span class="code-object">System</span>.out.println(<span class="code-quote">"Usage: java Feeder &lt;space URL&gt;"</span>);
+	<span class="code-object">System</span>.exit(1);
+    }
+
+    Feeder feeder = <span class="code-keyword">new</span> Feeder (args[0]);   <span class="code-comment">// create the feeder and connect it to the space
+</span>
+    feeder.feed(1000);   <span class="code-comment">// run the feeder (start feeding)
+</span>
+    feeder.readResults();   <span class="code-comment">// read back results
+</span>}</pre>
+</div></div>
+
+<p>Here's the constructor of the Feeder connects to the Processor Processing unit <em>Space</em> by using the input URL:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> Feeder(<span class="code-object">String</span> url){
+     <span class="code-comment">// Connect to a space using the url
+</span>     IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(url).space();
+
+     <span class="code-comment">// Wrap the space with the gigaSpace API
+</span>     <span class="code-keyword">this</span>.gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).gigaSpace();
+}</pre>
+</div></div>
+<p>The <tt>feed()</tt> method loops and writes Message objects to the space by using the <tt>gigaSpace.write()</tt> method:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> void feed(<span class="code-object">int</span> numberOfMessages){
+    <span class="code-keyword">for</span>(<span class="code-object">int</span> counter=0;counter&lt;numberOfMessages;counter++){
+	   Message msg = <span class="code-keyword">new</span> Message(counter, <span class="code-quote">"Hello "</span>);
+	   gigaSpace.write(msg);
+    }
+<span class="code-object">System</span>.out.println(<span class="code-quote">"FEEDER WROTE "</span> + numberOfMessages + <span class="code-quote">" messages"</span>);
+}</pre>
+</div></div>
+
+<p>Here's how all processed objects are read from the space, using template matching. The number of processed objects in the space (all of them should have their <em>info</em> property set to "Hello World &#33;&#33;") is then printed out:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> void readResults(){
+
+    Message template = <span class="code-keyword">new</span> Message();          <span class="code-comment">// Create a template to read a Message with info
+</span>    template.setInfo(<span class="code-quote">"Hello World !!"</span>);        <span class="code-comment">// attribute that equals <span class="code-quote">"Hello World !!"</span>
+</span>
+    <span class="code-comment">// Read an object matching the template
+</span>    <span class="code-object">System</span>.out.println(<span class="code-quote">"Here is one of them printed out: "</span>+gigaSpace.read(template));
+
+    <span class="code-comment">//wait 100 millis <span class="code-keyword">for</span> all to be processed:
+</span>    <span class="code-keyword">try</span>{
+         <span class="code-object">Thread</span>.sleep(100);
+    }<span class="code-keyword">catch</span>(InterruptedException ie){ /*<span class="code-keyword">do</span> nothing*/}
+
+    <span class="code-comment">// Count number of objects in the space matching the template
+</span>    <span class="code-object">int</span> numInSpace=gigaSpace.count(template);
+
+    <span class="code-object">System</span>.out.println(<span class="code-quote">"There are "</span>+numInSpace+<span class="code-quote">" processed Message objects in the space now."</span>);
+}</pre>
+</div></div>
+
+<p>Next, we compile and run the sample application</p>
+
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-JRunAllInIDE"></a></p>
+
+<h1><a name="StepTwo-CreatingtheHelloWorldApplication-CompilingandRunningtheApplicationwithinyourIDE"></a>Compiling and Running the Application within your IDE</h1>
+
+
+<p><img src="download/attachments/17301573/Play arrow green.bmp" align="absmiddle" border="0"/> <b>Steps to run the application inside Eclipse IDE:</b></p>
+
+<p>If you haven't already done so,<br/>
+<a href="Setting Up your IDE to work with GigaSpaces.html" title="Setting Up your IDE to work with GigaSpaces">download GigaSpaces and set up your development environment</a><br/>
+&#45; This is needed for running the tutorial sample application.<br/>
+<a name="StepTwo-CreatingtheHelloWorldApplication-JImportingProjecttotheIDE"></a> <b>Importing the project into Eclipse</b></p>
+<ol>
+	<li>Import the <b>hello-common</b>, <b>hello-processor</b> and <b>hello-feeder</b> projects located under the <tt>&lt;GigaSpaces Root&gt;/examples/helloworld</tt> folder.<br/>
+(After importing, you'll see some errors since the GS_HOME path variable is not set yet)<br/>
+<span id='tgl_content_IMPORT' class='cloakToggle'></span> How do I do that...
+
+
+<div class="panel" style="background-color: white;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<p><font color="#ffffff">blank-line</font></p>
+<p><b>Importing the sample projects into the IDE</b></p>
+
+<p><font color="#ffffff">blank-line</font></p>
+<ol>
+	<li>Start Eclipse. A <b>Workspace Launcher Dialog</b> appears.</li>
+	<li>Write a new workspace name or select one of your existing workspaces, and click the <b>OK</b> button.</li>
+	<li>To import the project, select <b>File &gt; Import ...</b> to open the import dialog</li>
+	<li>Select <b>Existing projects into workspace</b> and click <b>Next</b> to open the import project dialog</li>
+	<li>In the <b>Select root directory</b> field click the <b>Browse</b> button to open the browse dialog</li>
+	<li>Select the folder <tt>/examples/helloworld</tt> and click <b>OK</b></li>
+	<li>Make sure all 3 projects are selected: <b>hello-common</b>, <b>hello-processor</b> and <b>hello-feeder</b></li>
+	<li>Click <b>Finish</b>
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><span id='tgl_content_IMPORT' class='cloakToggle'></span> <ins>Hide details</ins></p>
+
+<p><font color="#ffffff">blank-line</font></p></li>
+</ol>
+</div></div>
+
+</li>
+	<li>Create a new Eclipse environment variable called <b>GS_HOME</b>, and point it to your GigaSpaces installation Root folder<br/>
+<span id='tgl_content_GSHOME' class='cloakToggle'></span> How do I do that...
+
+
+<div class="panel" style="background-color: white;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<p><font color="#ffffff">blank-line</font></p>
+<p><b>Setting an environment variable pointing to the GigaSpaces root folder</b></p>
+
+
+<p><font color="#ffffff">blank-line</font></p>
+<ol>
+	<li>Right Click on the <b>hello-common</b> project in the <b>Package Explorer tab</b> to open the <em>context menu</em></li>
+	<li>Select <b>Build Path &gt; Configure Build Path...</b> to open the <em>Java Build Path dialog</em></li>
+	<li>Select the <b>Libraries tab</b> and click the <b>Add Variable...</b> button to open the <em>New Variable Classpath Entry dialog</em></li>
+	<li>Click the <b>Configure Variables...</b> button to open the <em>Classpath Variables dialog</em></li>
+	<li>Click the <b>New...</b> button to open the <em>New Variable Entry</em> dialog</li>
+	<li>In the <b>Name</b> field write <tt>GS_HOME</tt> to name the variable</li>
+	<li>Click the <b>Folder...</b> button and browse to <b>your GigaSpaces installation root folder</b></li>
+	<li>Select your <b>GigaSpaces installation root folder</b> and click <b>OK</b></li>
+	<li>Click <b>OK</b> and <b>OK</b> again</li>
+	<li>Click <b>Yes</b> to do full rebuild</li>
+	<li>Close remaining dialogs
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><span id='tgl_content_GSHOME' class='cloakToggle'></span> <ins>Hide details</ins></p>
+
+<p><font color="#ffffff">blank-line</font></p></li>
+</ol>
+</div></div>
+
+</li>
+</ol>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Make sure your project includes the latest Spring libraries located at <tt>&lt;GigaSpaces Root&gt;\lib\required</tt> folder.</td></tr></table></div>
+
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-RunProcessorinIDE"></a> <b>Running the Processor</b></p>
+
+<p>3. From the toolbar at the top of the screen, select <b>Run &gt; Run Dialog...</b> to open the <b>Run</b> dialog<br/>
+4. Click the <b>+</b> to the left of <b>Java Application</b>, to unfold it<br/>
+5. Select the <b>Hello Processor</b> launch configuration, and click the <b>Run</b> button</p>
+
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-JRunFeederinIDE"></a><br/>
+<b>Waiting for the Processor to instantiate</b></p>
+
+<p>6. Before running the feeder, you should wait for the following output to appear in the <b>Console tab</b> at the bottom of the screen:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>Processor instantiated, waiting for messages feed...
+
+</pre>
+</div></div>
+<p>This indicates the Processor is up and running</p>
+
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-JRunFeederinIDE2"></a><br/>
+<b>Running the Feeder</b></p>
+
+<p>7. From the toolbar at the top of the screen, select <b>Run &gt; Run Dialog...</b> to open the <b>Run</b> dialog again<br/>
+8. Click the <b>+</b> left to <b>Java Application</b>, to unfold it<br/>
+9. Select the <b>Hello Feeder</b> launch configuration</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style></div>
+<p>10. Click the <b>Run</b> button</p>
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><a name="StepTwo-CreatingtheHelloWorldApplication-JViewOutput"></a></p>
+
+<h4><a name="StepTwo-CreatingtheHelloWorldApplication-Expectedoutput"></a>Expected output</h4>
+
+<p>Running the processor and the feeder results in the following output, which can be viewed in the <b>Console tab</b> at the bottom of the screen.<br/>
+Use the <em>Display Selected Console</em> button <img src="download/attachments/17301573/display_selected_console_button_with_location_small.jpg" align="top" border="0"/> to switch between the feeder and processor output consoles</p>
+
+<p><b>Feeder expected output</b></p>
+
+<p>The feeder starts, writes 100 message objects to the space, reads and prints one of them at random, and finally prints the number of processed messages in the space:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>Starting the Feeder (Will wait for the space to initialize first...)
+FEEDER WROTE 1000 objects
+Here is one of them printed out: id[47] info[Hello World !!]
+There are 841 processed Message objects in the space now.
+Press any key to continue . . .
+</pre>
+</div></div>
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><b>Processor expected output</b></p>
+
+<p>The processor prints the <em>id</em> and <em>info</em> attributes for each messages it takes for processing:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>Processor PROCESSING : id[445] info[Hello ]
+Processor PROCESSING : id[904] info[Hello ]
+Processor PROCESSING : id[896] info[Hello ]
+Processor PROCESSING : id[446] info[Hello ]
+Processor PROCESSING : id[889] info[Hello ]
+   .
+   .
+   .
+Processor PROCESSING : id[893] info[Hello ]
+Processor PROCESSING : id[905] info[Hello ]
+Processor PROCESSING : id[897] info[Hello ]
+Processor PROCESSING : id[875] info[Hello ]
+Processor PROCESSING : id[900] info[Hello ]
+</pre>
+</div></div>
+
+<p><font color="#ffffff">blank-line</font></p>
+
+
+<h2><a name="StepTwo-CreatingtheHelloWorldApplication-What%27sNext%3F"></a>What's Next?</h2>
+
+<p><img src="download/attachments/17301573/Jump arrow green.bmp" align="absmiddle" border="0"/> <font color="green"><b>Step three</b></font> &#45; <a href="Step Three - Deploying onto the Service Grid.html" title="Step Three - Deploying onto the Service Grid">Deploying the Hello World Application onto the Service Grid</a> &#45; shows how to deploy our application onto the grid, to gain fail-over, recovery and self healing capabilities.</p>
+
+<p>Or return to the <a href="Quick Start Guide.html" title="Quick Start Guide">Quick Start Guide</a>.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

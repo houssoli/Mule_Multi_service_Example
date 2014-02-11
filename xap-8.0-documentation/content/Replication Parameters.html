@@ -1,0 +1,311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Replication Parameters</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Replication Parameters</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  This page contains all the parameters that can be configured as part of the replication configuration </p>
+</div>
+
+<h2><a name="ReplicationParameters-AsynchronousReplicationParameters"></a>Asynchronous Replication Parameters</h2>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.async-replication.repl-chunk-size</tt> </td>
+<td class='confluenceTd'> Number of packets transmitted together on the network when the replication event is triggered. The maximum value you can assign for this property is <tt>repl-interval-opers</tt>. </td>
+<td class='confluenceTd'> 500 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.async-replication.repl-interval-millis</tt> </td>
+<td class='confluenceTd'> Time (in milliseconds) to wait between replication operations. </td>
+<td class='confluenceTd'> 3000 [ms] </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.async-replication.repl-interval-opers</tt> </td>
+<td class='confluenceTd'> Number of destructive operations to wait before replicating. </td>
+<td class='confluenceTd'> 500 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.async-replication.async-channel-shutdown-timeout</tt> </td>
+<td class='confluenceTd'> Determines how long (in milliseconds) the primary space will wait for pending replication to be replicated to its targets before shutting down.</td>
+<td class='confluenceTd'> 300000 [ms]  </td>
+</tr>
+</tbody></table>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more info refer to <a href="Asynchronous Replication.html" title="Asynchronous Replication">Asynchronous Replication</a></p>
+
+<h2><a name="ReplicationParameters-SynchronousReplicationParameters"></a>Synchronous Replication Parameters</h2>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.sync-replication.throttle-when-inactive</tt> </td>
+<td class='confluenceTd'> Boolean value. Set to <tt>true</tt> if you want to throttle replicated operations when the channel is in-active (disconnection) </td>
+<td class='confluenceTd'> <tt>true</tt> in primary backup <tt>false</tt> in full sync replicated </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.sync-replication.max-throttle-tp-when-inactive</tt> </td>
+<td class='confluenceTd'> Integer value. If the above is true, this will specify the maximum operations per second the throttle will maintain when the channel is in-active (disconnection), if the last measured throughput when the channel was active was higher than that, the measured throughput will be used instead. </td>
+<td class='confluenceTd'> 50,000 operations/second </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.sync-replication.min-throttle-tp-when-active</tt> </td>
+<td class='confluenceTd'> Integer value. this specifies the minimum operations per second the throttle can reduce to when the channel is active (during asynchronous state), the throttling when the channel is active is always adapted to the current throughput and size of redolog in order to keep the redolog size decreasing. </td>
+<td class='confluenceTd'> 1,000 operations/second </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.sync-replication.target-consume-timeout</tt> </td>
+<td class='confluenceTd'> The timeout time in milliseconds that the target space waits for consuming replication packets. When the timeout expires, replication channel moves to asynchronous state. </td>
+<td class='confluenceTd'> 10000 [ms] </td>
+</tr>
+</tbody></table>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more info refer to <a href="Synchronous Replication.html" title="Synchronous Replication">Synchronous Replication</a></p>
+
+<h2><a name="ReplicationParameters-RecoveryParameters"></a>Recovery Parameters</h2>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.recovery-chunk-size</tt> </td>
+<td class='confluenceTd'> Integer value. Defines how many operations are recovered is a single batch </td>
+<td class='confluenceTd'> 200 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.recovery-thread-pool-size</tt> </td>
+<td class='confluenceTd'> Integer value. Defines how many threads are recovering the data during the snapshot process. </td>
+<td class='confluenceTd'> 4 </td>
+</tr>
+</tbody></table>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more info refer to <a href="Space Instance Recovery.html" title="Space Instance Recovery">Space Instance Recovery</a></p>
+
+<h2><a name="ReplicationParameters-RedologParameters"></a>Redo-log Parameters</h2>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.redo-log-capacity</tt> </td>
+<td class='confluenceTd'> Specifies the total capacity of replication packets the redo log can hold for a standard replication target.</td>
+<td class='confluenceTd'>150000</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.redo-log-memory-capacity</tt> </td>
+<td class='confluenceTd'> Specifies the maximum number of replication packets the redo log keeps in memory.</td>
+<td class='confluenceTd'>150000</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.redo-log-recovery-capacity</tt> </td>
+<td class='confluenceTd'> Specifies the total capacity of replication packets the redo log can hold for a standard replication target while it is undergoing a recovery process.</td>
+<td class='confluenceTd'>5000000</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.on-redo-log-capacity-exceeded</tt> </td>
+<td class='confluenceTd'> See the <a href="Controlling the Replication Redo Log.html#ControllingtheReplicationRedoLog-HandlinganIncreasingRedoLog">Handling an Increasing Redo Log</a> for details. </td>
+<td class='confluenceTd'> drop-oldest </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.on-missing-packets</tt> </td>
+<td class='confluenceTd'> Options: ignore , recover. See the <a href="Controlling the Replication Redo Log.html#ControllingtheReplicationRedoLog-HandlingDroppedReplicationPackets">Handling Dropped Replication Packets</a> for details. </td>
+<td class='confluenceTd'> recover</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.mirror-service.redo-log-capacity</tt> </td>
+<td class='confluenceTd'> Specifies the total capacity of replication packets the redo log can hold for a mirror service replication target.</td>
+<td class='confluenceTd'>1000000</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.mirror-service.on-redo-log-capacity-exceeded</tt> </td>
+<td class='confluenceTd'> See the <a href="Controlling the Replication Redo Log.html#ControllingtheReplicationRedoLog-HandlinganIncreasingRedoLog">Handling an Increasing Redo Log</a> for details. </td>
+<td class='confluenceTd'> block-operations</td>
+</tr>
+</tbody></table>
+
+<p>The following parameters are low level configuration that relates to the swap redo log mechanism:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Space Cluster Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value</th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.swap-redo-log.flush-buffer-packet-count</tt> </td>
+<td class='confluenceTd'> Specifies the number of packets buffer size that the swap redo log is using when flushing packets to the disk. </td>
+<td class='confluenceTd'> 500 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.swap-redo-log.segment-size</tt> </td>
+<td class='confluenceTd'> Specifies the size in bytes of each swap redo log segment file. </td>
+<td class='confluenceTd'> 10MB </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.swap-redo-log.fetch-buffer-packet-count</tt> </td>
+<td class='confluenceTd'> Specifies the number of packets buffer size that the swap redo log is using when retrieving packets from the disk to the memory. </td>
+<td class='confluenceTd'> 500 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.swap-redo-log.max-scan-length</tt> </td>
+<td class='confluenceTd'> Specifies the maximum allowed scan length in bytes in swap redo log file in order to locate a packet. </td>
+<td class='confluenceTd'> 50KB </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.swap-redo-log.max-open-cursors</tt> </td>
+<td class='confluenceTd'> Specifies the maximum number of open file descriptor that the swap redo log will use. </td>
+<td class='confluenceTd'> 10 </td>
+</tr>
+</tbody></table>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more info refer to <a href="Controlling the Replication Redo Log.html" title="Controlling the Replication Redo Log">Controlling the Replication Redo Log</a></p>
+
+<h2><a name="ReplicationParameters-GeneralParameters"></a>General Parameters</h2>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.replication-mode</tt> </td>
+<td class='confluenceTd'> Optional values: <tt>sync</tt>, <tt>async</tt>.
+<ul>
+	<li>The <tt>async</tt> mode replicates space operations to target space after the client receives the acknowledgment from the source space for the operation.</li>
+	<li>The <tt>sync</tt> mode replicates space operations to target space before the client receives the acknowledgment from the source space for the operation. The client getting the acknowledgment for the operation only after all target spaces confirms the arrival of the replicated data.</li>
+</ul>
+</td>
+<td class='confluenceTd'> <tt>async</tt> used with the async-replicated schema. <br clear="all" /> <tt>sync</tt> used with the sync-replicated, primary-backup and partitioned-sync2backup cluster schema</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.policy-type</tt> </td>
+<td class='confluenceTd'> Optional values:<br clear="all" />full-replication - all objects are replicated. <br clear="all" />partial-replication - Object are only replicated if their class has the @SpaceClass (replicate = true) annotation specified. See the <a href="POJO Metadata.html" title="POJO Metadata">POJO Metadata</a> page for details. This allows you to control replication at a class base level. </td>
+<td class='confluenceTd'> full-replication </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.repl-find-timeout</tt> </td>
+<td class='confluenceTd'> Timeout (in milliseconds) to wait for the lookup of a peer space. This parameter applies only when the space is searched in a Jini Lookup Service. </td>
+<td class='confluenceTd'> 5000 [ms] </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.repl-full-take</tt> </td>
+<td class='confluenceTd'> If set to <tt>true</tt> the entire object is replicated when take operations is called. If set to <tt>false</tt> only the ID, class information and primitive fields are replicated. This option is valid only when replicating data into a Mirror Service or a backup in non-central DB topology. </td>
+<td class='confluenceTd'> false </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.replicate-notify-templates</tt> </td>
+<td class='confluenceTd'> Boolean value. If set to true, the notify templates are replicated to the target space. </td>
+<td class='confluenceTd'> true </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.trigger-notify-templates</tt> </td>
+<td class='confluenceTd'> Boolean value. If set to true, the replicated operations will trigger the notify templates and send events to the registered listeners. </td>
+<td class='confluenceTd'> false </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.on-conflicting-packets</tt> </td>
+<td class='confluenceTd'> Enum value. If set to ignore, the conflicting operations are ignored. If set to override the newest operation will override the data in the target. </td>
+<td class='confluenceTd'> ignore </td>
+</tr>
+</tbody></table>
+
+
+<h2><a name="ReplicationParameters-MirrorServiceParameters"></a>Mirror Service Parameters</h2>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.mirror-service.url</tt> </td>
+<td class='confluenceTd'> used to locate the Mirror Service. In case you change the name of the Mirror Service specified as part of the Mirror PU, you should modify this parameter value to facilitate the correct Mirror service URL. </td>
+<td class='confluenceTd'> jini://*/mirror-service_container/mirror-service </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.mirror-service.bulk-size</tt> </td>
+<td class='confluenceTd'> The amount of operations to be transmitted in one bulk (in quantity and not actual memory size) from an active IMDG primary to the Mirror Service. </td>
+<td class='confluenceTd'> 100 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.mirror-service.interval-millis</tt> </td>
+<td class='confluenceTd'> The replication frequency - Replication will happen every <tt>interval-millis</tt> mulliseconds </td>
+<td class='confluenceTd'> 2000 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.mirror-service.interval-opers</tt> </td>
+<td class='confluenceTd'> The replication buffer size - Replication will happen every <tt>interval-opers</tt> operations. </td>
+<td class='confluenceTd'> 100 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.mirror-service.on-redo-log-capacity-exceeded</tt> </td>
+<td class='confluenceTd'> Available options: <br clear="all" />block-operations - all cluster operations that need to be replicated (write/update/take) are blocked until the redo log size decreases below the capacity. (Users get RedoLogCapacityExceededException exceptions while trying to execute these operations.)
+<br clear="all" />drop-oldest - the oldest packet in the redo log is dropped. <br clear="all" />See the <a href="Controlling the Replication Redo Log.html" title="Controlling the Replication Redo Log">Controlling the Replication Redo Log</a> for details. </td>
+<td class='confluenceTd'> block-operations </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.mirror-service.redo-log-capacity</tt> </td>
+<td class='confluenceTd'> Specifies the total capacity of replication packets the redo log can hold for a mirror service replication target.<br clear="all" />See the <a href="Controlling the Replication Redo Log.html" title="Controlling the Replication Redo Log">Controlling the Replication Redo Log</a> for details. </td>
+<td class='confluenceTd'> 1000000 </td>
+</tr>
+</tbody></table>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

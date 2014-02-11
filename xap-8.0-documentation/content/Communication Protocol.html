@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Communication Protocol</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Communication Protocol</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Setting communication protocol using exporters; <tt>GenericExporter</tt> configuration - ports, connections, and threads. </p>
+</div>
+
+<h1><a name="CommunicationProtocol-Overview"></a>Overview</h1>
+
+<p>GigaSpaces provides a pluggable communication adaptor, LRMI (<b>Light Remote Method Invocation</b>), built on top of <a href="http://en.wikipedia.org/wiki/New_I/O">NIO communication protocol</a>.</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/lrmi.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>The LRMI uses a <tt>GenericExporter</tt> that implements the <a href="http://java.sun.com/products/jini/2.0/doc/api/net/jini/export/Exporter.html">net.jini.export.Exporter</a> interface. </p>
+
+<p>All GigaSpaces components that represent remote objects/services (for example:Distributed Transaction Manager, Lookup Service, GSA, GSM, GSC, Space) use the LRMI protocol.</p>
+
+<p>The GigaSpaces LRMI protocol has been designed to allow multiple services running within the same JVM to share their communication resources and to allow non-blocking IO communication with minimal serialization overhead. For example, it allows different space instances hosted within the same GSC to share the same LRMI resources without exhausting the JVM and machine resources.  The LRMI comes with default settings that may not be optimized for every scenario. You may need to change the defaults for the client or server side to have the maximum throughput and lowest latency your network and hardware may provide.</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/lrmi_archi.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>The GigaSpaces LRMI using two independent resource pools working collaboratively allowing a client to communicate with a server in a scalable manner: A client connection pool configured via the <tt>com.gs.transport_protocol.lrmi.max-conn-pool</tt> at the server side and a server Connection thread pool configured via the <tt>com.gs.transport_protocol.lrmi.max-threads</tt> also at the server side. You may configure these two pools' sizes and their resource timeouts to provide maximum throughput and low latency when a client communicates with a server. The default LRMI behavior will open a different connection at the client side and start a connection thread at the server side, once a multithreaded client accesses a server component. All client connections may be shared between all the client threads when communicating with the server. All server side connection threads may be shared between all client connections.</p>
+
+<h2><a name="CommunicationProtocol-ClientLRMIConnectionPool"></a>Client LRMI Connection Pool</h2>
+<p>The client LRMI connection pool maintained per server component - i.e. by each space partition. For each space partition a client maintains a dedicated connection pool shared between all client threads accessing a specific partition. When having multiple partitions (N) hosted within the same GSC, a client may open maximum of <tt>N * com.gs.transport_protocol.lrmi.max-conn-pool</tt> connections against the GSC JVM process.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>You may need to change the <tt>com.gs.transport_protocol.lrmi.max-conn-pool</tt> value (1024) to have a smaller number. The default might be high for application with multiple partitions. 
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Client total # of open connections = com.gs.transport_protocol.lrmi.max-conn-pool * # of partitions</pre>
+</div></div>
+<p>This may result very large amount of connections started at the client side resulting "Too many open files" error. You should increase the OS' max file descriptors amount by calling the following before running the client application (on UNIX):</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">ulimit -n 32000</pre>
+</div></div>
+<p>or by lowering the <tt>com.gs.transport_protocol.lrmi.max-conn-pool</tt> value.</p></td></tr></table></div>
+
+<h2><a name="CommunicationProtocol-ServerLRMIConnectionThreadPool"></a>Server LRMI Connection Thread Pool</h2>
+<p>The LRMI connection thread pool is a server side component. It is in charge of executing the incoming LRMI invocations. It is a single thread pool within the JVM that executes all the invocations, from all the clients and all the replication targets. </p>
+
+<h2><a name="CommunicationProtocol-SelectorThreads"></a>Selector Threads</h2>
+<p>To increase the concurrency and scalability of the LRMI behavior, multiple NIO channel selectors are used for write and read network traffic activities configured via the <tt>com.gs.transport_protocol.lrmi.selector.threads</tt> property. The same property used to configure both the write and read selector thread pool size.</p>
+
+<p>Machines with Multi-Core CPUs can leverage this functionality in an optimal manner. A dedicated thread pool exists for socket write operations and another thread pool for socket read operations. The read selector threads (4 by default) listening for incoming client invocations. They receive the incoming traffic from the network, read the raw data bytes and transfer these to be processed by the LRMI connection thread pool. The write selector threads used when there is a need to send data back into the client side with asynchronous operations (blocking read/ blocking write/notifications).</p>
+
+<h2><a name="CommunicationProtocol-MinLatencyandMaxThroughput"></a>Min Latency and Max Throughput</h2>
+<p>Both of the resource pools elements might have different lifespan. Usually, once a connection is established between a client and a server, it will be open as long as the client is still running. The connection will be terminated once a client will be terminated or when the client will not perform any network activity for some time and the connection will be identified as idle. See the watchdog description below how this behavior should be configured. The same goes for LRMI connection thread, it will be available as long as there are clients accessing the server. A connection thread will return into the pool and the pool will shrink itself once there would not be any remote activity for some time. This timeout is configured via the  <tt>com.gs.transport_protocol.lrmi.threadpool.idle_timeout</tt>. LRMI threads and connection are used also for server to server communication such as data replication. </p>
+
+<p>The size of the LRMI connection pool and LRMI thread pool will impact the latency response time for a remote request. Once any of these pools is fully exhausted a client request will be suspended until a free connection or thread will be available. </p>
+
+<p>The number of connections a client should open also depends on the size of the objects being sent across the wire. For a multi-threaded client writing or reading large objects, you may have the same amount of connections established for each client thread. This will ensure minimal latency request duration with maximum throughput.</p>
+
+<p><a name="CommunicationProtocol-watchdog"></a></p>
+<h2><a name="CommunicationProtocol-Watchdog"></a>Watchdog</h2>
+<p>When reading from a <a href="http://download.oracle.com/javase/6/docs/api/java/nio/channels/SocketChannel.html">NIO SocketChannel</a> and the connection between the client and server fails abnormally, no notification is generated. The most common example for such failure is disconnecting the network cable while performing the read operation. In this case the read operation is blocked for a long time, without ever knowing that the connection is closed. This can cause several problems such as exceeding the number of open sockets on the server or causing client read requests to hang.</p>
+
+<p>Known solutions and problems they may have:</p>
+<ol>
+	<li>TCP keep alive mechanism &#8211; TCP has an option sending keep alive packets in order to detect such failures, but the keep alive interval can not be set for less than 2 hours, which is not very useful.</li>
+	<li>Read timeout &#8211; the old Java IO package allowed to execute read operations with user defined timeout. This does not work with NIO. You can still set the timeout on <tt>channel.socket()</tt>, but this only applies to reading from socket <tt>InputStream</tt> and not channel reads.</li>
+</ol>
+
+
+<p>The watchdog network failure detection mechanism applies to the space proxy (client side) when interacting with a remote space and with space-space interaction (replication). The watchdog is efficient both in terms of memory and CPU consumption with minimal overhead.</p>
+
+<p>The network failure detection mechanism is timeout-based &#8211; each read operation has a predefined timeout. There are two timeout modes: <b>Idle connection timeout</b> and <b>request timeout</b>:</p>
+<ul>
+	<li>Idle connection timeout &#8211; occurs when a thread listens on a server socket for longer than the defined timeout. This happens when a space listens for client requests, or a client waits for server notifications. Configured via the <tt>com.gs.transport_protocol.lrmi.idle_connection_timeout</tt> system property.
+	<ul>
+		<li>Listening timeout handling &#8211; timeout is perceived as a broken link and the server closes existing connection to the client. When the link between the server and the client is restored &#8211; connection is reestablished.</li>
+		<li>Heartbeat mechanism &#8211; used to avoid closing valid connections.</li>
+	</ul>
+	</li>
+	<li>Request timeout &#8211; occurs when the client sends a request to the space and doesn't get a reply for the defined timeout. Configured via the <tt>com.gs.transport_protocol.lrmi.request_timeout</tt> system property.
+	<ul>
+		<li>Request timeout handling &#8211; when timeout expires, the connection is first tested by establishing a new dummy connection to the server using the same port. If the connection is established successfully, timeout is ignored and connection timeout is reset. Otherwise, the connection is closed. The dummy request timeout controlled via the <tt>com.gs.transport_protocol.lrmi.inspect_timeout</tt> system property.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>Failure detection uses a watchdog design pattern to monitor timeouts of NIO operations. Watchdog is a singleton thread that runs every predefined period of time, according to timeout resolution, checks all the threads that are currently registered and fires timeout event on the threads that exceeded their allowed timeout. </p>
+
+
+
+<p>A value for the <tt>com.gs.transport_protocol.lrmi.idle_connection_timeout</tt> and the <tt>com.gs.transport_protocol.lrmi.request_timeout</tt> properties should be determined based on the amount of total clients a system may have and the number of the concurrent activities these clients may have. Small values (100 and 30, respectively) are recommended for systems with very large amounts of clients with high concurrency. High values (900 and 300, respectively) are recommended for system with very small amount of clients with high concurrency.</p>
+
+<h2><a name="CommunicationProtocol-bindport"></a>bind-port</h2>
+<p>Once a client communicates with a server component it initially uses a bootstrap port specified as part of the server proxy stored with the lookup service. Once a client opens a connection with a server component a random port is opened at the server side and used to serve the client (private port). You may specify range of ports to be used by the server component to restrict the server from using arbitrary random ports that are not available due to a firewall or some other network restriction. The <tt>com.gs.transport_protocol.lrmi.bind-port</tt> allows you to configure the available ports to use.</p>
+
+<h2><a name="CommunicationProtocol-maxBufferSize"></a>maxBufferSize</h2>
+<p>An LRMI connection maintains a buffer that is used when sending TCP packets. This buffer size determines the amount of TCP packets that will be sent to deliver a request. When having requests with large amount of data, you may need to increase the <tt>com.gs.transport_protocol.lrmi.maxBufferSize</tt> to reduce the amount of packets sent. </p>
+
+<h2><a name="CommunicationProtocol-ClientasaServer"></a>Client as a Server</h2>
+<p>A server component may open a connection back to the client in the following cases:</p>
+<ul class="alternate" type="square">
+	<li>When a request includes a class that cannot be found on the server classpath, the GigaSpaces dynamic class loading component requests the missing class to be sent to the server</li>
+	<li>When a client registers for notifications</li>
+	<li>When a client performs blocking read/take operation (timeout &gt; 0)</li>
+	<li>When a change has been done with the service topology (service terminated or added), the lookup service notifies the client (client lookup cache)</li>
+</ul>
+
+
+<p>To allow the above , the client must set the <tt>java.rmi.server.hostname</tt> property with the relevant IP. For a Multi-Homed machines this is critical setting, since without having this set, the server side might use the wrong IP Address to communicate back with the client. </p>
+
+<h1><a name="CommunicationProtocol-LRMIConfiguration"></a>LRMI Configuration</h1>
+<p>The <tt>LRMI</tt> configuration options set as system proprties. They are listed below:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> System Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default value </th>
+<th class='confluenceTh'> Server/Client Setting </th>
+<th class='confluenceTh'> Unit </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.max-conn-pool</tt> </td>
+<td class='confluenceTd'> The maximum amount of connections to the space server remote services that can work simultaneously in a client connection pool. Starts with 1 connection. Defined per each remote service (by default, each remote service has <tt>1024</tt> maximum connections). </td>
+<td class='confluenceTd'> <tt>1024</tt> </td>
+<td class='confluenceTd'> Server </td>
+<td class='confluenceTd'> Connection</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.min-threads</tt> </td>
+<td class='confluenceTd'> GigaSpaces maintains a thread pool in the client and server side, that manages incoming remote requests. The thread pool size is increased each time with one additional thread and shrinks when existing threads are not used for 5 minutes. This parameter specifies the minimum size of this thread pool. </td>
+<td class='confluenceTd'> <tt>1</tt> </td>
+<td class='confluenceTd'> Server </td>
+<td class='confluenceTd'> Threads </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.max-threads</tt> </td>
+<td class='confluenceTd'> This parameter specifies the maximum size of the thread pool. <br clear="all" />
+ <img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Make sure the maximum size of the thread pool accommodates the maximum number of concurrent requests to the space. The client uses this pool for server requests into the client side - i.e. notify callbacks. When the pool is exhausted and all threads are consumed to process incoming requests, additional requests are blocked until existing requested processing are complete. </td>
+<td class='confluenceTd'> <tt>128</tt> </td>
+<td class='confluenceTd'> Server </td>
+<td class='confluenceTd'> Threads </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.bind-port</tt> </td>
+<td class='confluenceTd'> Server port used for incoming client requests, or notifications from server to client. The server port is set by default to <tt>0</tt>, which means next free port. This means that whenever GigaSpaces is launched, it allocates one of the available ports. Define a specific port value to enforce a specific port on the space server or client side. You can define a range of ports, see <a href="#CommunicationProtocol-portrange">below</a>. </td>
+<td class='confluenceTd'> <tt>0</tt> </td>
+<td class='confluenceTd'> Server</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>java.rmi.server.hostname</tt> </td>
+<td class='confluenceTd'> Binds the GigaSpaces Server on a specified network interface. See details  <a href="#CommunicationProtocol-server">below</a>). If <tt>java.rmi.server.hostname</tt> is <tt>null</tt> the system sets the localhost IP address. </td>
+<td class='confluenceTd'> <tt>hostname</tt> </td>
+<td class='confluenceTd'> Client &amp; Server </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.idle_connection_timeout</tt> </td>
+<td class='confluenceTd'> Watchdog idle connection timeout. </td>
+<td class='confluenceTd'> <tt>900</tt> sec</td>
+<td class='confluenceTd'> Client</td>
+<td class='confluenceTd'> Seconds </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.request_timeout</tt> </td>
+<td class='confluenceTd'> Watchdog request timeout. </td>
+<td class='confluenceTd'> <tt>30</tt> sec</td>
+<td class='confluenceTd'> Client </td>
+<td class='confluenceTd'> Seconds </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.inspect_timeout</tt></td>
+<td class='confluenceTd'> Watchdog dummy packet connection timeout used when the watchdog suspects a request connection is blocked (com.gs.transport_protocol.lrmi.request_timeout elapsed). </td>
+<td class='confluenceTd'> <tt>1000</tt> millisec</td>
+<td class='confluenceTd'> Client </td>
+<td class='confluenceTd'> millisec</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.threadpool.idle_timeout</tt> </td>
+<td class='confluenceTd'> LRMI thread pool idle timeout. Usually should be tuned for server side</td>
+<td class='confluenceTd'> <tt>300000</tt> milisec</td>
+<td class='confluenceTd'> Server </td>
+<td class='confluenceTd'> millisec</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.connect_timeout</tt> </td>
+<td class='confluenceTd'> LRMI timeout to establish a socket connection </td>
+<td class='confluenceTd'> 5000</td>
+<td class='confluenceTd'> Server </td>
+<td class='confluenceTd'> millisec</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.maxBufferSize</tt> </td>
+<td class='confluenceTd'> The NIO internal cache (a DirectByteBuffer) might cause an <tt>OutOfMemoryError</tt> due-to direct memory exhaustion. To avoid such a scenario, the LRMI layer breaks the outgoing buffer into a several chunks. By doing so, the NIO internal cache is kept small, and may not cause any error.<br/>
+The size of these chunks can be determined by this property</td>
+<td class='confluenceTd'> <tt>65536</tt> (64k)</td>
+<td class='confluenceTd'> Client &amp; Server </td>
+<td class='confluenceTd'> Bytes </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.selector.threads</tt> </td>
+<td class='confluenceTd'> LRMI selector threads. This should be configured with multi core machines. Usualy should be tuned for server side</td>
+<td class='confluenceTd'> <tt>4</tt> </td>
+<td class='confluenceTd'> Client &amp; Server </td>
+<td class='confluenceTd'> Threads</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.classloading</tt> </td>
+<td class='confluenceTd'> Enables LRMI dynamic class loading.</td>
+<td class='confluenceTd'> <tt>true</tt> </td>
+<td class='confluenceTd'> Server </td>
+<td class='confluenceTd'> boolean value</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.classloading.import</tt> </td>
+<td class='confluenceTd'> Enables importing of classes using LRMI dynamic class loading.</td>
+<td class='confluenceTd'> <tt>true</tt> </td>
+<td class='confluenceTd'> Server </td>
+<td class='confluenceTd'> boolean value</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.classloading.export</tt> </td>
+<td class='confluenceTd'> Enables exporting of classes using lrmi dynamic class loading.</td>
+<td class='confluenceTd'> <tt>true</tt> </td>
+<td class='confluenceTd'> Server </td>
+<td class='confluenceTd'> boolean value</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.tcp-send-buffer-size</tt> </td>
+<td class='confluenceTd'> Set the TCP Send Buffer size (SO_SNDBUF).</td>
+<td class='confluenceTd'> <tt>OS default</tt> </td>
+<td class='confluenceTd'> Client &amp; Server</td>
+<td class='confluenceTd'> bytes </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.tcp-receive-buffer-size</tt> </td>
+<td class='confluenceTd'> Set the TCP receive Buffer size (SO_RCVBUF).</td>
+<td class='confluenceTd'> <tt>OS default</tt> </td>
+<td class='confluenceTd'> Client &amp; Server</td>
+<td class='confluenceTd'> bytes </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.tcp-keep-alive</tt> </td>
+<td class='confluenceTd'> Set the TCP keep alive mode (SO_KEEPALIVE).</td>
+<td class='confluenceTd'> <tt>true</tt> </td>
+<td class='confluenceTd'> Client &amp; Server</td>
+<td class='confluenceTd'> Seconds</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>com.gs.transport_protocol.lrmi.timeout_resolution</tt> </td>
+<td class='confluenceTd'> Resolution in percents. Timeout resolution indicates the accuracy of the request timeout. </td>
+<td class='confluenceTd'> <tt>10</tt> </td>
+<td class='confluenceTd'> Client </td>
+<td class='confluenceTd'> Percent</td>
+</tr>
+</tbody></table>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If you are using the <b>notification slow consumer</b> mechanism see the <a href="Slow Consumer.html#SlowConsumer-ConfigurationServerSide">Slow Consumer</a> for additional LRMI parameters to configure.</p>
+
+<p><a name="CommunicationProtocol-portrange"></a></p>
+<h2><a name="CommunicationProtocol-DefiningSocketPortRangeperJVM"></a>Defining Socket Port Range per JVM</h2>
+<p>You can define port range using the <tt>com.gigaspaces.transport.bind-port</tt> property, meaning that every JVM acquires a bind port from a defined port range. This functionality is useful when having multiple JVMs on the same machine (clients or servers), and simplifies firewall setup.</p>
+
+<p>Here is how you can set a listening port rage for GSA/GSC/GSM:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">export EXT_JAVA_OPTIONS=-Dcom.gs.transport_protocol.lrmi.bind-port=7000-7100</pre>
+</div></div>
+
+<p><a name="CommunicationProtocol-server"></a></p>
+<h2><a name="CommunicationProtocol-ConfigurationwithMultiHomedMachines"></a>Configuration with Multi-Homed Machines</h2>
+
+<p>When working with a multi-homed machine (a computer with multiple network cards), use the following system property to bind the GigaSpaces Server on a specified network interface:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>-Djava.rmi.server.hostname=&lt;hostname or IP address&gt;
+</pre>
+</div></div>
+
+<p>The value of this property represents the host name string that must be associated with the network interface. The default value of this property is the IP address of the local host, in "dotted-quad" format.</p>
+
+<h1><a name="CommunicationProtocol-Troubleshooting"></a>Troubleshooting</h1>
+
+<p>You can troubleshoot the space activity using LRMI logging. You can turn on LRMI logging in the following ways:</p>
+
+<h2><a name="CommunicationProtocol-Offlinemodeviagslogging.properties"></a>Offline mode &#8211; via gs_logging.properties</h2>
+
+<ol>
+	<li>Open <tt>&lt;GigaSpaces Root&gt;/config/gs_logging.properties</tt></li>
+	<li>Locate the following line:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gigaspaces.lrmi.level = INFO</pre>
+</div></div></li>
+	<li>Set debug logger granularity level:
+	<ul>
+		<li><tt>ALL</tt> &#8211; all debug messages available for LRMI.</li>
+		<li><tt>FINE</tt> &#8211; configuration, watchdog, client connections (connect/disconnect).</li>
+		<li><tt>FINER</tt> &#8211; content and execution state of remote method invocation on remote object.</li>
+		<li><tt>SEVER</tt> &#8211; caught exceptions by LRMI on server and client side.</li>
+	</ul>
+	</li>
+	<li>Save and close the <tt>gs_logging.properties</tt> file.</li>
+	<li>Start a space by deploying a data-grid PU or a custom PU with a space. You may also start a space via <tt>&lt;GigaSpaces Root&gt;/bin/gsInstance</tt>.</li>
+</ol>
+
+
+<p>LRMI communication transport protocol debug messages are displayed.</p>
+
+<h2><a name="CommunicationProtocol-DuringRuntimeusingJMX"></a>During Runtime &#8211; using JMX</h2>
+
+<ol>
+	<li>Start <tt>gsInstance</tt> using the following Java system properties:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.sun.management.jmxremote.port=5001
+-Dcom.sun.management.jmxremote.ssl=<span class="code-keyword">false</span>
+-Dcom.sun.management.jmxremote.authenticate=<span class="code-keyword">false</span></pre>
+</div></div></li>
+	<li>Start <a href="http://java.sun.com/developer/technicalArticles/J2SE/jconsole.html">jconsole</a> &#8211; copy the JMX URL to the JConsole.</li>
+	<li>Click <b>Connect</b>.
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235236/lrmi_log_jmx_console1.jpg" align="absmiddle" border="0"/></p></div></li>
+	<li>Set <tt>com.gigaspaces.lrmi</tt> with a desired log level.</li>
+	<li>Click <b>setLoggerLevel</b>.</li>
+	<li>A new log level is defined.</li>
+</ol>
+
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235236/lrmi_log_jmx_console2.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>When LRMI logging is turned on, the space displays the following when started:</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235236/lrmi_log1.JPG" align="absmiddle" border="0"/></p></div>
+
+<p>To test LRMI logging, you can run the space <tt>ping</tt> utility using the following command:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">/bin/gs.bat/space ping mySpace_container mySpace -r -i 1</pre>
+</div></div>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235236/lrmi_ping.JPG" align="absmiddle" border="0"/></p></div>
+
+<p>The space displays the following:</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235236/lrmi_log2.JPG" align="absmiddle" border="0"/></p></div>
+<p>The client displays the following:</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235236/lrmi_log3.JPG" align="absmiddle" border="0"/></p></div>
+
+<h2><a name="CommunicationProtocol-JVMKnownIssue"></a>JVM Known Issue</h2>
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In some cases you may encounter the following exception:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">CONFIG [com.gigaspaces.grid.gsc]: initialServiceLoadDelay=5000
+Exception in thread <span class="code-quote">"LRMI Connection--pool-1-thread-1"</span> java.lang.NullPointerException
+at sun.nio.ch.PollSelectorImpl.wakeup(PollSelectorImpl.java:84)
+at com.gigaspaces.lrmi.nio.SelectorThread.registerKey(SelectorThread.java:250)
+at com.gigaspaces.lrmi.nio.ChannelEntry.workerFinishedReading(ChannelEntry.java:131)
+at com.gigaspaces.lrmi.nio.Pivot$Worker.dispatch(Pivot.java:111)
+at com.j_spaces.kernel.WorkingGroup$TaskWrapper.run(WorkingGroup.java:62)
+at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:650)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:675)
+at java.lang.<span class="code-object">Thread</span>.run(<span class="code-object">Thread</span>.java:595)</pre>
+</div></div>
+
+<p>This is a JVM bug resolved with JDJ 1.6u18. For more details, see <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6524172">http://bugs.sun.com</a>.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If your client application loses its connection to the server, you can follow a simple procedure to check if the server erased any of your notify templates in the interim. For each notify template, write an Entry to the space that matches the template and see if you receive a notification. If you do not receive a notification, this means that while you were disconnected, new Entries matching the notify template entered the space (you can try to find them &#8211; depending on their lease time, they may still exist). As a result, your notify template was erased.</p>
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> </div>
+
+<h1><a name="CommunicationProtocol-TheGenericExporter"></a>The GenericExporter</h1>
+<p>GigaSpaces provides the <tt>GenericExporter</tt> as its default exporter, which works with LRMI. However, it is possible to use GigaSpaces with other exporters instead:</p>
+<ul>
+	<li><a href="http://java.sun.com/products/jini/2.1/doc/specs/api/net/jini/jrmp/JrmpExporter.html">net.jini.jrmp.JrmpExporter</a> &#45; based on RMI protocol</li>
+	<li><a href="http://java.sun.com/products/jini/2.0/doc/api/net/jini/jeri/BasicJeriExporter.html">net.jini.jeri.BasicJeriExporter</a> &#45; based on Jini protocol</li>
+	<li>Your own implementation, as long as it is part of the application classpath</li>
+</ul>
+
+
+<p>Changing the default exporter is done by editing the <tt>&lt;GigaSpaces Root&gt;\config\services\services.config</tt> file.</p>
+
+<p>For example, to change the default exporter from <tt>GenericExporter</tt> to <tt>JrmpExporter</tt>:</p>
+
+<p>Change:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">{
+...
+    <span class="code-comment">// uncomment the following next line to use Jrmp exporter instead of GenericExporter
+</span>    <span class="code-comment">// defaultExporter = <span class="code-keyword">new</span> net.jini.jrmp.JrmpExporter();
+</span>    defaultExporter = <span class="code-keyword">new</span> com.gigaspaces.lrmi.GenericExporter( nioConfig );
+}</pre>
+</div></div>
+
+<p>to:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">{
+...
+    <span class="code-comment">// uncomment the following next line to use Jrmp exporter instead of GenericExporter
+</span>    defaultExporter = <span class="code-keyword">new</span> net.jini.jrmp.JrmpExporter();
+}</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Space Configuration XPath Overrides</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Space Configuration XPath Overrides</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Full list of XPath-like keys required to override space configuration using a properties file or the <tt>Properties</tt> Java object. </p>
+</div>
+
+<h1><a name="SpaceConfigurationXPathOverrides-Overview"></a>Overview</h1>
+
+<p>XPath-like keys required to override space configuration:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">space-config.isPrivate
+space-config.schema
+space-config.dist-cache
+space-config.dist-cache.config-name
+space-config.cluster.enabled
+space-config.cluster.config-url
+space-config.cluster.multicast.discovery-interface
+space-config.persistent.enabled
+space-config.persistent.StorageAdapterClass
+space-config.persistent.AdapterType
+space-config.persistent.DataBaseName
+space-config.persistent.userName
+space-config.persistent.password
+space-config.persistent.StorageAdapterURL
+space-config.persistent.force-cold-init
+space-config.external-data-source.data-source-class
+space-config.external-data-source.data-class
+space-config.external-data-source.supports-inheritance
+space-config.external-data-source.supports-version
+space-config.external-data-source.usage
+space-config.external-data-source.init-properties-file
+space-config.QueryProcessor.space_read_lease_time
+space-config.QueryProcessor.space_write_lease
+space-config.QueryProcessor.transaction_timeout
+space-config.QueryProcessor.init_jmx
+space-config.QueryProcessor.trace_exec_time
+space-config.QueryProcessor.debug_mode
+space-config.QueryProcessor.parser_case_sensetivity
+space-config.QueryProcessor.auto_commit
+space-config.QueryProcessor.date_format
+space-config.QueryProcessor.datetime_format
+space-config.QueryProcessor.time_format
+space-config.serialization-type
+space-config.number-implicit-indexes
+space-config.stub-handler
+space-config.engine.extended-match.enabled-classes
+space-config.engine.extended-match.min_ext_index_activation_size
+space-config.engine.extended-match.regular-expressions-cache-size
+space-config.engine.min_threads
+space-config.engine.max_threads
+space-config.engine.notify_min_threads
+space-config.engine.notify_max_threads
+space-config.engine.threads_higher_priority
+space-config.engine.cache_size
+space-config.engine.cache_policy
+space-config.engine.dirty_read
+space-config.engine.initial_load
+space-config.engine.memory_usage.enabled
+space-config.engine.memory_usage.high_watermark_percentage
+space-config.engine.memory_usage.write_only_block_percentage
+space-config.engine.memory_usage.write_only_check_percentage
+space-config.engine.memory_usage.low_watermark_percentage
+space-config.engine.memory_usage.eviction_batch_size
+space-config.engine.memory_usage.retry_count
+space-config.engine.memory_usage.explicit-gc
+space-config.engine.memory_usage.retry_yield_time
+space-config.lease_manager.expiration_time_interval
+space-config.init_sa_connections
+space-config.max_sa_connections
+space-config.sa_reset_on_failure
+space-config.rollback_on_tm_failed
+space-config.filters.filter-names
+space-config.filters.userAccountDriver
+space-config.filters.DefaultSecurityFilter.enabled
+space-config.filters.DefaultSecurityFilter.security
+space-config.filters.DefaultSecurityFilter.class
+space-config.filters.DefaultSecurityFilter.active-when-backup
+space-config.filters.DefaultSecurityFilter.shutdown-space-on-init-failure
+space-config.filters.DefaultSecurityFilter.operation-code
+space-config.filters.DefaultSecurityFilter.url
+space-config.filters.DefaultSecurityFilter.priority
+space-config.filters.Statistics.enabled
+space-config.filters.Statistics.security
+space-config.filters.Statistics.class
+space-config.filters.Statistics.active-when-backup
+space-config.filters.Statistics.shutdown-space-on-init-failure
+space-config.filters.Statistics.url
+space-config.filters.Statistics.priority
+space-config.filters.Statistics.operation-code
+space-config.jms.connections.rmi-port
+space-config.jms.administrated-destinations.topics.topic-names
+space-config.jms.administrated-destinations.queues.queue-names
+space-config.workers.worker-names
+space-config.workers.interrupt
+space-config.workers.MulticastNotifyWorker.enabled
+space-config.workers.MulticastNotifyWorker.class-name
+space-config.workers.MulticastNotifyWorker.interval-dispatch-time
+space-config.workers.MulticastNotifyWorker.chunk-event-size
+space-config.workers.MulticastNotifyWorker.multicast-group
+space-config.workers.MulticastNotifyWorker.multicast-port
+space-config.workers.MulticastNotifyWorker.ttl
+space-config.workers.MulticastNotifyWorker.discovery-interface
+space-config.workers.MulticastNotifyWorker.description
+space-config.workers.MulticastNotifyWorker.active-when-backup
+space-config.workers.MulticastNotifyWorker.shutdown-space-on-init-failure
+space-config.workers.MulticastNotifyWorker.instances</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

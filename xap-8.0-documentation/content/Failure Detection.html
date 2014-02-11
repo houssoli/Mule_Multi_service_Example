@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Failure Detection</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Failure Detection</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  About failure detection, reducing failure detection time, and relevant parameters. </p>
+</div>
+
+<h1><a name="FailureDetection-Overview"></a>Overview</h1>
+
+<p>Failure detection is the time it takes for the space and the client to detect that failure has occurred. Failure detection consists of two main phases:</p>
+
+<ol>
+	<li>The backup space detects that the primary space is down, and takes over as primary.</li>
+	<li>The client detects that the machine running the primary space is down. In case it is running against a clustered space, it routs its requests to the new primary space (the backup space that has just taken over as primary).<br/>
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If the client is running against a single primary space, a disconnection exception is thrown, and the client cannot proceed. </li>
+</ol>
+
+
+<p>One of two main failure scenarios might occur:</p>
+
+<ul>
+	<li>Process failure or machine crash</li>
+	<li>Network cable disconnection</li>
+</ul>
+
+
+<p>It takes GigaSpaces a few seconds to recover from process failure or a machine crash. In case of network cable disconnection, the client first has to detect that it has been disconnected from the machine running the space. Therefore, recovery time in this case is longer. For details on how network failure is detected and handled, see the <a href="Communication Protocol.html#CommunicationProtocol-watchdog">Communication Protocol</a> section.</p>
+
+<h1><a name="FailureDetection-ReducingFailureDetectionTime"></a>Reducing Failure Detection Time</h1>
+
+<p>Configuring failure detection time can help you handle extreme failure scenarios more effectively. For example, in extreme cases of network disconnection, you might want the failover process to take 2-3 seconds.</p>
+
+<p>Here is a good combination for the space settings you may use to reduce the failover time - these should be used with a fast network:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cluster-config.groups.group.fail-over-policy.active-election.yield-time=300 
+cluster-config.groups.group.fail-over-policy.active-election.fault-detector.invocation-delay=300
+cluster-config.groups.group.fail-over-policy.active-election.fault-detector.retry-count=2</pre>
+</div></div>
+
+<p>The following should be specified as system properties:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.transport_protocol.lrmi.connect_timeout=3
+-Dcom.gs.transport_protocol.lrmi.request_timeout=3</pre>
+</div></div>
+
+<p>By default, the maximum time it takes for a backup space to switch into a primary mode takes ~6-8 seconds. <br/>
+If you would like to reduce the failover time , you should use the following formula:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">100 [ms] + (yield-time * 7) + invocation-delay + (retry-count * retry-timeout) = failover time</pre>
+</div></div>
+
+<ul>
+	<li>The 100 ms above refers a constant that is related to the network latency. You should reduce this number for a fast network.</li>
+</ul>
+
+
+<p>Change the default settings <b>only if you have a special need</b> to reduce the failover duration. (~1 second). In this case:</p>
+<ul>
+	<li>the <tt>yield-time</tt> minimum value should be 200 ms.</li>
+	<li>Reducing the <tt>invocation-delay</tt> and <tt>retry-timeout</tt> values, and increasing the <tt>retry-count</tt> values might increase the chatting overhead between the spaces and the lookup service.</li>
+</ul>
+
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>For additional tuning options please contact the <a href="http://www.gigaspaces.com/supportcenter">GigaSpaces Support Team</a>.</td></tr></table></div>
+
+<h1><a name="FailureDetection-FailureDetectionParameters"></a>Failure Detection Parameters</h1>
+
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+
+<h2><a name="FailureDetection-SpaceSideParameters"></a>Space Side Parameters</h2>
+
+<h3><a name="FailureDetection-ActiveElectionParameters"></a>Active Election Parameters</h3>
+
+<p>The following parameters in the cluster schema <a href="#FailureDetection-ActiveElectionandAvoidingSplitBrainScenarios">active election</a> block regard failure detection and recovery: </p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Parameter</th>
+<th class='confluenceTh'>Parameter Description</th>
+<th class='confluenceTh'>Default Value</th>
+<th class='confluenceTh'> Unit </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.fail-over-policy.active-election.yield-time</tt> </td>
+<td class='confluenceTd'>This parameter allows you to configure the time it takes to yield to other participants between every election phase. </td>
+<td class='confluenceTd'> <tt>1000</tt> </td>
+<td class='confluenceTd'> millisec </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.fail-over-policy.active-election.fault-detector.invocation-delay</tt> </td>
+<td class='confluenceTd'>This parameter limits the amount of time the backup space waits between each ping to the primary space. </td>
+<td class='confluenceTd'> <tt>1000</tt></td>
+<td class='confluenceTd'> millisec </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.fail-over-policy.active-election.fault-detector.retry-count</tt> </td>
+<td class='confluenceTd'>Related to the <tt>cluster-config.groups.group.fail-over-policy.active-election.fault-detector.invocation-delay</tt> parameter, defines the number of times the backup checks if the primary space has failed </td>
+<td class='confluenceTd'> <tt>3</tt></td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.fail-over-policy.active-election.fault-detector.retry-timeout</tt> </td>
+<td class='confluenceTd'>Related to the <tt>retry-count</tt> parameter, defines the time between retries the backup checks if the primary space has failed </td>
+<td class='confluenceTd'> <tt>100</tt></td>
+<td class='confluenceTd'> millisec </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.fail-over-policy.active-election.connection-retries</tt> </td>
+<td class='confluenceTd'> Defines the number of times the space instance will try to establish connection with the lookup service. The wait time in between retries is defined by the <tt>yield-time</tt> parameter </td>
+<td class='confluenceTd'> <tt>60</tt> </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+</tbody></table>
+
+<h2><a name="FailureDetection-ClientSideParameters"></a>Client Side Parameters</h2>
+
+<h3><a name="FailureDetection-ProxyConnectivity"></a>Proxy Connectivity</h3>
+
+<p>The <a href="Proxy Connectivity.html" title="Proxy Connectivity">Proxy Connectivity</a> defines the settings in which the system checks the liveness of space members.</p>
+
+<h3><a name="FailureDetection-WatchdogParameters"></a>Watchdog Parameters</h3>
+
+<p>See the <tt>com.gs.transport_protocol.lrmi.idle_connection_timeout</tt> and the <tt>com.gs.transport_protocol.lrmi.request_timeout</tt> watchdog properties at the <a href="Communication Protocol.html#CommunicationProtocol-watchdog">Communication Protocol</a> section.</p>
+
+<h2><a name="FailureDetection-ServiceGridParameters"></a>Service Grid Parameters</h2>
+
+<p>The Service Grid uses two complementary mechanisms for service detections &#8211; the Lookup Service and fault-detection handlers.</p>
+
+<ul>
+	<li><tt>GSMFaultDetectionHandler</tt> &#8211; used by GSMs to monitor each other.</li>
+	<li><tt>GSCFaultDetectionHandler</tt> &#8211; used by the GigaSpaces Management Center to monitor GSCs.</li>
+	<li><tt>PUFaultDetectionHandler</tt> &#8211; Used by GSMs to monitor Processing Units deployed on GSCs.</li>
+</ul>
+
+
+<p>The fault-detection handlers check periodically if a service is alive, and in case of failure, how many times to retry and how often.</p>
+
+<p>The GSM and GSC fault-detection handler settings are located in the <a href="Configuring the Service Grid Using the services.config File.html" title="Configuring the Service Grid Using the services.config File">services.config</a> file. The <tt>PUFaultDetectionHandler</tt> is configurable using the <a href="Configuring the Processing Unit SLA.html#ConfiguringtheProcessingUnitSLA-livenessDetection">SLA - member alive indicator</a>.</p>
+
+<p>For logging information, it is advised to monitor service failure by setting the logging level to <tt>Level.FINE</tt>.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"># ServiceGrid FaultDetectionHandler logging
+com.gigaspaces.grid.gsc.GSCFaultDetectionHandler.level = INFO
+com.gigaspaces.grid.gsm.GSMFaultDetectionHandler.level = INFO
+org.openspaces.pu.container.servicegrid.PUFaultDetectionHandler.level = INFO</pre>
+</div></div>
+
+<h2><a name="FailureDetection-JiniLookupServiceParameters"></a>Jini Lookup Service Parameters</h2>
+
+<p>The <tt>LeaseRenewalManager</tt> in the <tt>advanced-space.config</tt> file is also related to failure detection and recovery:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Parameter</th>
+<th class='confluenceTh'>Parameter Description</th>
+<th class='confluenceTh'>Default Value</th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>maxLeaseDuration</tt> </td>
+<td class='confluenceTd'> The time the system waits between every lease renewal, for example: if the parameter value is <tt>8000</tt>, the system renews the space lease every 8000 <tt>[ms]</tt>. <br/>
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> As this value is reduced, renewal requests are performed more frequently while the service is up, and lease expiration occurs sooner when the service goes down. </td>
+<td class='confluenceTd'> <tt>8000</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>roundTripTime</tt> </td>
+<td class='confluenceTd'> This parameter instructs the renewal process to begin a certain amount of time (by default, 100 <tt>[ms]</tt>) before the actual renewal time, thus making sure that the renewal process is successful. <br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Significantly low values might result in failure to renew a lease. Durations of managed leases should exceed the <tt>roundTripTime</tt>. </td>
+<td class='confluenceTd'> <tt>4000</tt> </td>
+</tr>
+</tbody></table>
+</div>
+
+<h2><a name="FailureDetection-LookupServiceUnicastdiscoveryparameters"></a>Lookup Service Unicast discovery parameters</h2>
+
+<p>When a Jini Lookup Service fails and is brought back online, a client (such as a GSC, space or a client with a space proxy) needs to re-discover it. It uses Jini unicast discovery retrying to connect to the failed remote lookup service. The default unicast retry protocol provides a graduating approach, increasing the amount of time to wait before the next discovery attempts are made - upon each invocation, eventually reaching a maximum time interval over which discovery is re-tried. In this way, the network is not flooded with unicast discovery requests referencing a lookup service that may not be available for quite some time (if ever).</p>
+
+<p>The downside is that it may delay the discovery of services if these are not brought up quickly. A discovery can be delayed us much as 15 minutes. If you have two GSMs and one fails, but it will be brought back up only in the next hour, then it's discovery will take ~15 minutes after it has loaded. </p>
+
+<p>These settings can be configured - see <a href="How to Configure Unicast Discovery.html" title="How to Configure Unicast Discovery">How to Configure Unicast Discovery</a>.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

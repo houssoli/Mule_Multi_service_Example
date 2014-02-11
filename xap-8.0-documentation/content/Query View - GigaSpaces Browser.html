@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Query View - GigaSpaces Browser</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Query View - GigaSpaces Browser</h1>
+</div>
+<br>
+
+<script type="text/javascript" src="http://www.gigaspaces.com/wiki/download/attachments/4751448/overlib.js"><!-- overLIB (c) Erik Bosrup --></script>
+<script type="text/javascript" src="http://www.gigaspaces.com/wiki/download/attachments/4751448/overlib_centerpopup.js"></script>
+<script type="text/javascript" src="http://www.gigaspaces.com/wiki/download/attachments/4751448/overlib_anchor.js"></script>
+<script type="text/javascript" src="http://www.gigaspaces.com/wiki/download/attachments/4751448/overlib_draggable.js"></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Used to query the space using SQL statements and view the resulting data set in tabular format. </p>
+</div>
+
+<h1><a name="QueryView-GigaSpacesBrowser-Overview"></a>Overview</h1>
+
+<p>The Query view allows you to query the space using SQL statements and to get the full resulting data set in tabular format.</p>
+
+<p><div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/query_view.gif" align="absmiddle" border="0"/></p></div><br clear="all" /></p>
+
+<p>The Query view includes the following options:</p>
+<ul>
+	<li>Result set table &#8211; the query results are displayed in a table at the lower part of the <b>Service View</b>, where each row represents Entry data, and each column represents class attribute data. Non-native types' attribute data is displayed using the <tt>toString</tt> returned value.
+<br clear="all" />
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Make sure that the space includes the non-native attribute classes as part of its classpath, and that the relevant application has the correct codebase, so that the the query result set table can display non-native type attribute data correctly.
+<br clear="all" /></li>
+	<li>Exporting result set data into HTML, XML or CSV &#8211; to export the restored result set data, click the export button (<img src="download/attachments/53903446/query_export.gif" align="absmiddle" border="0"/>). This displays the export dialog, which requires you to follow 2 simple steps, and then save the file to disk.</li>
+	<li>Entry UID is displayed for each object data &#8211; when the SQL query includes the UID as part of the select statement (<tt>select uid,&#42; from person</tt>), the first column in the result set table displays the Entry UID.</li>
+	<li>Space classes list query &#8211; to query the space for the classes it stores run the following query:
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>SELECT * FROM SYSTABLES
+</pre>
+</div></div></li>
+	<li>Class meta data information &#8211; to get the class meta data information, click the meta data button (<img src="download/attachments/53903446/query_metadata.gif" align="absmiddle" border="0"/>). This displays a table in which each row includes information about the table column's meta data. This displays a translation of the relevant class attribute type into its SQL equivalent:
+<br clear="all" /> <br clear="all" />
+<img src="download/attachments/53903626/query_metadata_test.jpg" align="absmiddle" border="0"/> <br clear="all" />
+<br clear="all" />
+Scroll right to see more attributes:
+<br clear="all" /> <br clear="all" />
+<img src="download/attachments/53903626/query_metadata_2.jpg" align="absmiddle" border="0"/> <br clear="all" />
+<br clear="all" />
+<img src="download/attachments/53903626/query_metadata_3.jpg" align="absmiddle" border="0"/> <br clear="all" />
+<br clear="all" /></li>
+	<li>SQL queries can be saved to a file. Right-click the top of the <b>Service View</b> panel and click <b>Save to file</b>:
+<br clear="all" /> <br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/query_options.gif" align="absmiddle" border="0"/></p></div><br clear="all" /> 
+<a name="QueryView-GigaSpacesBrowser-1"></a></li>
+	<li>Inspecting objects using the <a href="Object Inspector.html" title="Object Inspector">Object Inspector</a> or the <a href="Object Inspector.html" title="Object Inspector">Object Snapshot Inspector</a>.</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

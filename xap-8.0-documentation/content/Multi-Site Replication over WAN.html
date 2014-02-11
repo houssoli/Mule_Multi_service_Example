@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Multi-Site Replication over WAN</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Multi-Site Replication over WAN</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Data synchronization over the WAN. </p>
+</div>
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:54821851";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:54821851";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+<h1><a name="Multi-SiteReplicationoverWAN-Overview"></a>Overview</h1>
+
+<p>The GigaSpaces WAN Gateway is a GigaSpaces Mirror Service that replicates all changes from one GigaSpaces cluster to one or more other clusters, over the WAN.</p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Licensing</b><br />The Wan Gateway requires a separate license in addition to the GigaSpaces commercial license. Please contact <a href="http://www.gigaspaces.com/content/customer-support-services">GigaSpaces Customer Support</a> for more details.</td></tr></table></div>
+<p><img src="download/attachments/48235229/WAN_Architecture.png" align="absmiddle" border="0"/></p>
+
+<p>It uses the GigaSpaces Mirror service to asynchronously send bulks of updates that were performed in one cluster to one or more other remote clusters. This way, each site sends its data updates in an asynchronous manner to the other sites.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-MainFeatures"></a>Main Features</h2>
+<p>The GigaSpaces WAN Gateway features the following:</p>
+<ul class="alternate" type="square">
+	<li>A single TCP/IP socket between each Gateway pair. Another socket is used for the lookup service activities.</li>
+	<li>Each site may have different amount of partitions.</li>
+	<li>Automatic lookup service startup. No need to start a lookup service for the gateway cluster.</li>
+	<li>Federated cluster topologies support (line , Hub and spoke, Tree).</li>
+	<li>Time to live (Leasing) support.</li>
+	<li>Conflict resolution support.</li>
+	<li>Secured connections support.</li>
+	<li>Transaction delegation support.</li>
+</ul>
+
+
+<h2><a name="Multi-SiteReplicationoverWAN-UseCases"></a>Use Cases</h2>
+
+<p>The WAN features targets several common use cases described below. Please contact <a href="http://www.gigaspaces.com/supportcenter">GigaSpaces Support</a> if you have any questions about your specific scenario.</p>
+
+<h3><a name="Multi-SiteReplicationoverWAN-DisasterRecoverySite"></a>Disaster Recovery Site</h3>
+
+<p>The most common scenario is maintaining a disaster recovery site, so that in the event of a complete shutdown of the primary data center, the secondary will be immediately available to handle client requests using a GigaSpaces cluster that is updated with all but the most recent of the updates from the primary site.</p>
+
+<h3><a name="Multi-SiteReplicationoverWAN-MultipleActiveSites"></a>Multiple Active Sites</h3>
+
+<p>Multiple active data centers process user requests and actively modify the information stored in the GigaSpaces cluster. The information is 'partitioned' across the different data centers so that each site modifies a separate subset of the data and these updates are propagated asynchronously to the other sites. It is the responsibility of the application to handle 'collisions', where two sites update the same object.</p>
+
+<h1><a name="Multi-SiteReplicationoverWAN-Design"></a>Design</h1>
+
+<p>This section describes the design of the WAN Mirror/Gateway as well as the main considerations that led to choosing this design.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-Overview"></a>Overview</h2>
+
+<p>The core of the design revolves around a replicated space available inside each Wan Gateway running in every site. Updates from a GigaSpaces cluster are sent to the mirror which writes the updates to the replicated space. Each write to the 'Wan' space is a log entry with an index comprised of the source site ID, the source partition ID (In a partitioned topology, primary nodes are responsible for sending modifications to the mirror for this partition) and a sequence number(counter). Each Gateway queries its replicated space and executes the updates in order against the local space cluster.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-MaintainingOrderamongUpdates"></a>Maintaining Order among Updates</h2>
+
+<p>The order in which updates are executed is crucial for maintaining consistent state across the sites - the updates must be executed in the same order that they were performed on the original site. In a partitioned topology this order need only be maintained for each particular partition. (Note that this only holds if all updates in a transaction are executed on the same partition. See the <a href="#Multi-SiteReplicationoverWAN-transactions">Transactions</a> section below for more details.)</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-ResonanceDetection"></a>Resonance Detection</h2>
+
+<p>Resonance (also known as the echo affect) in the context of the GigaSpaces WAN module refers to the possibility that an update will propagate from a source site to a destination site, but the change in the destination site will cause a new update to be sent out, sending the update back to the original source site again in an endless loop.</p>
+
+<p>GigaSpaces detects 'resonant' updates by checking which client sent the update and drops updates that originated from the Wan Gateway itself.</p>
+
+<p><a name="Multi-SiteReplicationoverWAN-transactions"></a></p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-SpaceTransactions"></a>Space Transactions</h2>
+
+<p>The Mirror Gateway can maintain the transaction semantics used in the client application that originally modified the space state. For instance, if a transaction wrote two new objects to the local space, the two objects will be part of the same bulk update that will be sent to the other remote sites. The Mirror Gateway in the other sites will also write the items in a single transaction to their local space cluster.</p>
+
+<p>Even though a transaction was executed at the original source site using a single partition with a local transaction manager, the remote sites will use a distributed transaction as the remote sites may have a different number of partitions, changing the distribution of transaction objects across the partitions.</p>
+
+<p>To configure the Wan Gateway to preserve transaction boundaries, set the <tt>space-config.mirror-service.operation-grouping</tt> property of the Mirror Gateway to <tt>group-by-space-transaction</tt> (see the <a href="#Multi-SiteReplicationoverWAN-configuration">Configuration</a> section below).</p>
+
+<p><a name="Multi-SiteReplicationoverWAN-optimistic"></a></p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-OptimisticLocking"></a>Optimistic Locking</h2>
+
+<p>Optimistic Locking is useful in situations where you may have simultaneously concurrent conflicting updates to the same objects. GigaSpaces supports <a href="Optimistic Locking.html" title="Optimistic Locking">Optimistic Locking</a> by maintaining a <tt>Version ID</tt> field when writing and updating the space object. This version allows the space to throw an exception when a non recent object version is used to update the space. The WAN Gateway, using this mechanism, detects these collisions and resolves them via a <tt>CollisionHandler</tt> implementation. The <tt>CollisionHandler</tt> implementation includes a callback method that is invoked once a collision is detected, allowing the WAN Gateway to make a decision about how to handle the collision. You may use the default <tt>CollisionHandler</tt> provided or implement a custom one to resolve conflicts.</p>
+
+<p>To use your own <tt>CollisionHandler</tt>, simply implement the <tt>CollisionHandler</tt> interface and create a bean with your implementation in the pu.xml file. Your handler will be auto-wired to the WAN Gateway.</p>
+
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="Multi-SiteReplicationoverWAN-Interface"></a>Interface</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> CollisionHandler {
+     <span class="code-keyword">public</span> void handleCollision(<span class="code-object">Object</span> object, <span class="code-object">int</span> sourceSiteId, <span class="code-object">int</span> targetSiteId,
+              SpaceOptimisticLockingFailureException solfe, GigaSpace targetSpace) ;
+}</pre>
+</div></div>
+
+
+<h5><a name="Multi-SiteReplicationoverWAN-pu.xml"></a>pu.xml</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"collisionHandler"</span> class=<span class="code-quote">"org.openspaces.wan.mirror.DefaultCollisionHandler"</span> &gt;</span></pre>
+</div></div>
+</div></div>
+
+<h2><a name="Multi-SiteReplicationoverWAN-ObjectLease"></a>Object Lease</h2>
+
+<p>Object written to one of the sites with an expiration lease will be replicated to the other sites with the same lease expiration. Updating the object's lease via a GigaSpaces.write() on one site will also update the object's lease on the other site. However, updating the lease of an object by using the <tt>LeaseContext</tt> interface returned from a <tt>GigaSpace.write()</tt> (i.e. calling <tt>LeaseContext.renew()</tt>) operation will NOT be replicated to the other sites. This change in the lease will only be available at the site where the change was made. It is therefore recommended that lease changes should only be performed using the <tt>GigaSpace.write()</tt> API.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-Considerations"></a>Considerations</h2>
+
+<p>In this section we will explain some of the design decisions made with the GigaSpaces WAN Gateway implementation.</p>
+
+<h3><a name="Multi-SiteReplicationoverWAN-WhyAsynchronousUpdates"></a>Why Asynchronous Updates</h3>
+
+<p>As explained with the <a href="http://www.gigaspaces.com/wiki/display/SBP/Clusters+Over+WAN" title="Clusters Over WAN">Clusters over the WAN</a> section, you may implement synchronous updates over the WAN using GigaSpaces, but the price would be in the detrimental effect this would have on the performance of the local nodes. Any destructive operations (write,update,take) would be only as fast as the WAN link allowed (due to wan network latency). An asynchronous replication approach allows the local cluster to operate at its usual speed while still making best use of the WAN link available to propagate updates to the remote sites.</p>
+
+<h3><a name="Multi-SiteReplicationoverWAN-RecoveryScenarios"></a>Recovery Scenarios</h3>
+
+<p>The WAN feature supports recovery from a failure of a Mirror service. This means that if a Mirror Gateway fails, all of the updates that should have been sent to this mirror and forwarded to remote sites, will be kept in the replicated space. Once the mirror restarts (usually happens implicitly via the GSM that will re-provision it into a running GSC), it will pick up the missing updates sent from the primary instances and process them.</p>
+
+<p>As a result, if one site starts operation while the other is still down, the updates for the target site will remain pending until the site becomes active. See <a href="Controlling the Replication Redo Log.html" title="Controlling the Replication Redo Log">Controlling the Replication Redo Log</a> for details on how to control the pending data waiting to be replicated. When the site starts up, its Mirror Gateway will process all the pending update requests.</p>
+
+<p>Similarly, sporadic failures of the WAN link will not impact system performance. Once the link is reestablished, the replicated space will sync up to its partner targets.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Recovery from the complete failure of a site, including its local cluster, is not supported by GigaSpaces. The application is expected to support a method to load an initial state into the newly started space.</p>
+
+<h3><a name="Multi-SiteReplicationoverWAN-Synchronousvs.AsynchronousReplicatedCluster"></a>Synchronous vs. Asynchronous Replicated Cluster</h3>
+
+<p>The replicated space shared by all mirror gateways uses synchronous replication. This may seem counter-intuitive, as asynchronous communications are usually a better fit to the limited bandwidth and reliability of WAN links. However, in this case it is more important that the information stored in the replicated space be highly-available, so that the failure of any one Mirror Gateway will not pose a risk of data loss.</p>
+
+<p>It is important to remember that there is already an asynchronous step in the WAN update procedure, due to the very nature of the mirror. In addition, if for some reason a write to the replicated space fails, the primary partition that sent the update will redo the update later, so that no information is lost.</p>
+
+<h3><a name="Multi-SiteReplicationoverWAN-ReplicationThroughput"></a>Replication Throughput</h3>
+
+<p>The total amount of data a gateway can push out into remote sites (Total TP) depends on:</p>
+<ul class="alternate" type="square">
+	<li>Network speed - The amount of requests per seconds a process may perform with another process running in the remote site. This is basically relying on the latency between the local gateway and the remote gateway node (the one with the highest latency in case of multiple sites).</li>
+	<li>Partition count - The amount of partitions the local cluster has.</li>
+	<li>Partition activity Distribution - The distribution of activities across the site space cluster partitions.</li>
+	<li>Partition TP - The Throughput of the primary sending operations into the Mirror.</li>
+	<li>Replication Frequency - The async replication frequency between the primary and the Mirror.</li>
+</ul>
+
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>Total TP = (Partition TP X Partitions count X Distribution X Network Speed)/ Replication Frequency
+</pre>
+</div></div>
+<p>This means that if we have 10 partitions, each sending 5000 objects/sec into the mirror with a replication frequency of 10 replication cycles per/sec (100 ms delay between each replication cycle , i.e. 1000 operations per batch) with even distribution (1) and network speed between the sites is 10 requests/sec (i.e. 100 ms latency) the <b>Total TP</b> we will have is:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>(10 X 5000 X 1 X 10) / 10 = 50,000 objects per second.
+</pre>
+</div></div>
+
+<h3><a name="Multi-SiteReplicationoverWAN-SecuringtheWANCommunications"></a>Securing the WAN Communications</h3>
+
+<p>By default, the replicated space is not secured, so update information travels over the wire un-encrypted. As long as a VPN (or an alternative means of securing the WAN communications) is available, this should not be a problem. Otherwise, the replicated space should be configured with SSL Encryption, as described here: <a href="Securing the Transport Layer (using SSL).html" title="Securing the Transport Layer (using SSL)">Securing the Transport Layer (using SSL)</a></p>
+
+<h3><a name="Multi-SiteReplicationoverWAN-WANReplicationEviction"></a>WAN Replication Eviction</h3>
+
+<p>The WAN Gateway writes all destructive operations performed on its local cluster to a Space Cluster so that the changes in the cluster are available to all the other WAN gateways. Entries written to this WAN Space Cluster will be evicted in an LRU order so that the WAN Gateways will not run out of memory. See <a href="#Multi-SiteReplicationoverWAN-reaper">below</a> for more details.</p>
+
+<p><a name="Multi-SiteReplicationoverWAN-configuration"></a></p>
+
+<h1><a name="Multi-SiteReplicationoverWAN-SettingupandConfiguringtheGigaSpacesWANGateway"></a>Setting up and Configuring the GigaSpaces WAN Gateway</h1>
+
+<p>Setting up the GigaSpaces WAN Mirror/Gateway requires deploying a <a href="The Processing Unit Structure and Configuration.html" title="The Processing Unit Structure and Configuration">processing unit</a> with a pu.xml file that contains the information required to configure the gateway and the gs-wan.jar file in the processing unit's lib directory. This PU includes the mirror definition for the local site's cluster, including the Data Source definitions (See example below). That means that the local space cluster must be set to use the mirror. See&nbsp;<a href="Asynchronous Persistency with the Mirror.html" title="Asynchronous Persistency with the Mirror">Asynchronous Persistency with the Mirror</a> for more details.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;beans xmlns=<span class="code-quote">"http://www.springframework.org/schema/beans"</span>
+ <span class="code-keyword">xmlns:xsi</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema-instance"</span>
+ <span class="code-keyword">xmlns:os-core</span>=<span class="code-quote">"http://www.openspaces.org/schema/core"</span>
+ <span class="code-keyword">xmlns:os-events</span>=<span class="code-quote">"http://www.openspaces.org/schema/events"</span>
+ <span class="code-keyword">xmlns:os-remoting</span>=<span class="code-quote">"http://www.openspaces.org/schema/remoting"</span>
+ <span class="code-keyword">xmlns:os-sla</span>=<span class="code-quote">"http://www.openspaces.org/schema/sla"</span>
+ xsi:schemaLocation="http://www.springframework.org/schema/beans
+ http://www.springframework.org/schema/beans/spring-beans.xsd
+ http://www.openspaces.org/schema/core
+ http://www.openspaces.org/schema/core/openspaces-core.xsd
+ http://www.openspaces.org/schema/events
+ http://www.openspaces.org/schema/events/openspaces-events.xsd
+ http://www.openspaces.org/schema/remoting
+ http://www.openspaces.org/schema/remoting/openspaces-remoting.xsd
+ http://www.openspaces.org/schema/sla
+ http://www.openspaces.org/schema/sla/openspaces-sla.xsd"&gt;
+
+<span class="code-tag">&lt;bean class=<span class="code-quote">"org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"</span>/&gt;</span>
+ &lt;bean id=<span class="code-quote">"propertiesConfigurer"</span>
+  class=<span class="code-quote">"org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"</span>&gt;
+  <span class="code-tag">&lt;property name=<span class="code-quote">"properties"</span>&gt;</span>
+   <span class="code-tag">&lt;props&gt;</span>
+    <span class="code-tag">&lt;prop key=<span class="code-quote">"cleanupTaskInterval"</span>&gt;</span>60000<span class="code-tag">&lt;/prop&gt;</span>
+   <span class="code-tag">&lt;/props&gt;</span>
+  <span class="code-tag">&lt;/property&gt;</span>
+ <span class="code-tag">&lt;/bean&gt;</span>
+
+ &lt;bean id=<span class="code-quote">"locations"</span>
+  class=<span class="code-quote">"org.springframework.beans.factory.config.ListFactoryBean"</span>&gt;
+  <span class="code-tag">&lt;property name=<span class="code-quote">"sourceList"</span>&gt;</span>
+   <span class="code-tag">&lt;list&gt;</span>
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"loc1"</span> class=<span class="code-quote">"com.gigaspaces.wan.LocationConfiguration"</span> &gt;</span>
+     <span class="code-tag">&lt;property name=<span class="code-quote">"host"</span> value=<span class="code-quote">"192.168.9.48"</span> /&gt;</span>
+     <span class="code-tag">&lt;property name=<span class="code-quote">"discoveryPort"</span> value=<span class="code-quote">"10001"</span> /&gt;</span>
+     <span class="code-tag">&lt;property name=<span class="code-quote">"replicationPort"</span> value=<span class="code-quote">"10002"</span> /&gt;</span>
+     <span class="code-tag">&lt;property name=<span class="code-quote">"name"</span> value=<span class="code-quote">"Site 1"</span> /&gt;</span>
+    <span class="code-tag">&lt;/bean&gt;</span>
+
+    <span class="code-tag">&lt;bean id=<span class="code-quote">"loc2"</span> class=<span class="code-quote">"com.gigaspaces.wan.LocationConfiguration"</span> &gt;</span>
+     <span class="code-tag">&lt;property name=<span class="code-quote">"host"</span> value=<span class="code-quote">"10.10.10.250"</span> /&gt;</span>
+     <span class="code-tag">&lt;property name=<span class="code-quote">"discoveryPort"</span> value=<span class="code-quote">"20001"</span> /&gt;</span>
+     <span class="code-tag">&lt;property name=<span class="code-quote">"replicationPort"</span> value=<span class="code-quote">"20002"</span> /&gt;</span>
+     <span class="code-tag">&lt;property name=<span class="code-quote">"name"</span> value=<span class="code-quote">"Site 2"</span> /&gt;</span>
+    <span class="code-tag">&lt;/bean&gt;</span>
+
+   <span class="code-tag">&lt;/list&gt;</span>
+  <span class="code-tag">&lt;/property&gt;</span>
+ <span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- An external data source that will be      --&gt;</span></span>
+<span class="code-tag"><span class="code-comment">&lt;!-- responsible for sending data over the WAN --&gt;</span></span>
+ &lt;bean id=<span class="code-quote">"wanDataSource"</span> class=<span class="code-quote">"com.gigaspaces.wan.WanDataSource"</span>
+  init-method=<span class="code-quote">"initialize"</span>&gt;
+
+  <span class="code-tag">&lt;property name=<span class="code-quote">"localClusterSpaceUrl"</span> value=<span class="code-quote">"jini://*/*/site1Space"</span> /&gt;</span>
+  <span class="code-tag">&lt;property name=<span class="code-quote">"wanSpaceUrl"</span> value=<span class="code-quote">"/./wanSpace?cluster_schema=sync_replicated"</span> /&gt;</span>
+  <span class="code-tag">&lt;property name=<span class="code-quote">"wanLookupGroup"</span> value=<span class="code-quote">"WAN_CLUSTER"</span> /&gt;</span>
+  <span class="code-tag">&lt;property name=<span class="code-quote">"locations"</span> ref=<span class="code-quote">"locations"</span> /&gt;</span>
+  <span class="code-tag">&lt;property name=<span class="code-quote">"mySiteId"</span> value=<span class="code-quote">"1"</span> /&gt;</span>
+ <span class="code-tag">&lt;/bean&gt;</span>
+
+ <span class="code-tag"><span class="code-comment">&lt;!-- The mirror Gateway--&gt;</span></span>
+ &lt;os-core:space id=<span class="code-quote">"mirrorSpace"</span> url=<span class="code-quote">"${mirrorURL}"</span>
+  schema=<span class="code-quote">"mirror"</span> external-data-source=<span class="code-quote">"wanDataSource"</span>&gt;
+  <span class="code-tag">&lt;os-core:properties&gt;</span>
+   <span class="code-tag">&lt;props&gt;</span>
+    <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.external-data-source.data-class"</span>&gt;</span>
+      com.gigaspaces.internal.transport.EntryPacket<span class="code-tag">&lt;/prop&gt;</span>
+    <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.mirror-service.cluster.name"</span>&gt;</span>site1Space<span class="code-tag">&lt;/prop&gt;</span>
+    <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.mirror-service.cluster.partitions"</span>&gt;</span>1<span class="code-tag">&lt;/prop&gt;</span>
+    <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.mirror-service.cluster.backups-per-partition"</span>&gt;</span>1<span class="code-tag">&lt;/prop&gt;</span>
+   <span class="code-tag">&lt;/props&gt;</span>
+  <span class="code-tag">&lt;/os-core:properties&gt;</span>
+ <span class="code-tag">&lt;/os-core:space&gt;</span>
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Your processing unit must include the gs-wan.jar file in its lib directory. The gs-wan.jar is available in &lt;GigaSpaces Install Dir&gt;/lib/optional/wan.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-RequiredParameters"></a>Required Parameters</h2>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Bean </th>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> wanDataSource </td>
+<td class='confluenceTd'> localClusterSpaceUrl </td>
+<td class='confluenceTd'> Space URL for the local's site Space. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> wanDataSource </td>
+<td class='confluenceTd'> locations </td>
+<td class='confluenceTd'> List of locations where the mirror gateways of all sites are available. List must contain at least two entries, including the entry for this site. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> space </td>
+<td class='confluenceTd'> cluster.name </td>
+<td class='confluenceTd'> Name of the cluster that this Mirror serves. (See new replication details) </td>
+</tr>
+<tr>
+<td class='confluenceTd'> space </td>
+<td class='confluenceTd'> cluster.partitions </td>
+<td class='confluenceTd'> Number of partitions in the cluster that this Mirror serves. (See new replication details) </td>
+</tr>
+<tr>
+<td class='confluenceTd'> space </td>
+<td class='confluenceTd'> cluster.backups-per-partition </td>
+<td class='confluenceTd'> Number of backups per partition in the cluster that this Mirror serves. (See new replication details) </td>
+</tr>
+</tbody></table>
+
+<h2><a name="Multi-SiteReplicationoverWAN-OptionalParameters"></a>Optional Parameters</h2>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Bean </th>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> wanDataSource </td>
+<td class='confluenceTd'> wanSpaceUrl </td>
+<td class='confluenceTd'> URL for the WAN Space </td>
+<td class='confluenceTd'> <tt>/./wanSpace?cluster_schema=sync_replicated</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> wanDataSource </td>
+<td class='confluenceTd'> mySiteId </td>
+<td class='confluenceTd'> 1-Based index of this site in the locations list </td>
+<td class='confluenceTd'> Not Mandatory. It may be useful to run multiple mirror Gateways on the same host for testing purposes. In such cases the <tt>mySiteId</tt> property must also be set. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> wanDataSource </td>
+<td class='confluenceTd'> numberOfPartitions </td>
+<td class='confluenceTd'> Number of Partitions in local cluster </td>
+<td class='confluenceTd'> Not Mandatory if Service Grid is used, see below </td>
+</tr>
+<tr>
+<td class='confluenceTd'> wanDataSource </td>
+<td class='confluenceTd'> wanAdditionalLocators </td>
+<td class='confluenceTd'> Locators added to wan space URL </td>
+<td class='confluenceTd'> Useful for monitoring the Wan Space in a testing environment </td>
+</tr>
+<tr>
+<td class='confluenceTd'> wanDataSource </td>
+<td class='confluenceTd'> wanLookupGroup </td>
+<td class='confluenceTd'> Lookup Group used by WAN Space Cluster </td>
+<td class='confluenceTd'> Defaults to <tt>WAN_CLUSTER</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> wanDataSource </td>
+<td class='confluenceTd'> wanSpaceProperties </td>
+<td class='confluenceTd'> Additional Properties used to initialize the WAN space cluster. Used for Performance Tuning. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> space </td>
+<td class='confluenceTd'> space-config.mirror-service.operation-grouping </td>
+<td class='confluenceTd'> See <a href="Asynchronous Persistency with the Mirror.html" title="Asynchronous Persistency with the Mirror">Asynchronous Persistency with the Mirror</a> </td>
+<td class='confluenceTd'> Defaults to group-by-replication-bulk. Change to group-by-space-transaction to maintain transaction boundaries after WAN replication </td>
+</tr>
+</tbody></table>
+<p>Note: Each site is assigned a 1-based index, according to the list of locations in the (identical) configuration available in each site. When the mirror starts, it will attempt to match its own IP/Host to the list and set its index accordingly. However, it is possible that the details in the configuration will not match the ones available to the host operating system (For instance, the configuration may include WAN addresses). In such cases the 'mySiteId' property must be set in the pu.xml file.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-PerformanceTuning"></a>Performance Tuning</h2>
+
+<p>The GigaSpaces WAN Gateway uses the GigaSpaces Mirror service to receive updates of all changes performed in the local site. All performance settings relevant for the mirror are also relevant to the WAN Gateway. In general, larger replication bulks are more efficient, especially considering the latency and limited bandwidth of the WAN link.</p>
+
+<h1><a name="Multi-SiteReplicationoverWAN-Considerations"></a>Considerations</h1>
+
+<h2><a name="Multi-SiteReplicationoverWAN-StaticConfiguration"></a>Static Configuration</h2>
+
+<p>The number of sites and the location of their gateway (host, discovery port and replication port) must be available (and identical) in each of the sites. Dynamically adding sites is not supported at this time.</p>
+
+<p>Each mirror gateway requires bi-directional communications with all of the other mirror gateways. As such communications goes over the WAN, some configuration of IT infrastructure (i.e. Firewalls, NATs) may be required.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-ConfiguringthenumberofPartitionsinaLocalSite"></a>Configuring the number of Partitions in a Local Site</h2>
+
+<p>The mirror gateway must know the number of partitions in the local site's space cluster as part of its processing. If the space is deployed using the GigaSpaces <a href="Deploying onto the Service Grid.html" title="Deploying onto the Service Grid">Service Grid</a>, the number of partitions is available via the Admin API. However, if  the service grid is not used (i.e. the space is running in embedded mode  in a container other then the GigaSpaces container), the Admin API  can't tell how many partitions are used. In this case, the 'numberOfPartitions' property must be set in the Data Source bean (see wanDataSource in the example below).</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-MultiPartitionTransactionsinaLocalSite"></a>Multi-Partition Transactions in a Local Site</h2>
+
+<p>Multi-partition transactions are not currently supported by the WAN Gateway. In such a case, each of the updates to the different partitions would be considered a single transaction and handled accordingly.</p>
+
+<h1><a name="Multi-SiteReplicationoverWAN-OpenIssues"></a>Open Issues</h1>
+
+<p>This section describes the currently open issues in this feature, and possible solutions for them.</p>
+
+<p><a name="Multi-SiteReplicationoverWAN-reaper"></a></p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-DeletingoldUpdates"></a>Deleting old Updates</h2>
+
+<p>Once an update is performed on all target sites, there is no longer any need to leave it in the replicated space. The space will eventually delete old objects in an LRU manner, but while they remain they could potentially slow down the recovery of a mirror service that crashed (it would need to sync up with the current state of the replicated space, including the old ones).</p>
+
+<p>A periodic clean up task could collect the current execution state of all sites and remove any entries that are no longer useful from the space. This feature has not been developed yet, though it may be added to a later release.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-WritingSpaceupdatestoaDatabase"></a>Writing Space updates to a Database</h2>
+
+<p>A GigaSpaces cluster can have at most one mirror. If an application requires both asynchronous persistence and WAN replication, it can only use one mirror to do both. You may extend the WAN Gateway's implementation class <tt>com.gigaspaces.wan.WanDataSource</tt> and add any additional functionality you require. A simple implementation can override the <tt>executeBulk()</tt> method, add any persistence implementation you require and then call the parent class' <tt>executeBulk()</tt> method.</p>
+
+<h2><a name="Multi-SiteReplicationoverWAN-PreviousWANReplicationModule"></a>Previous WAN Replication Module</h2>
+<p>GigaSpaces also supports disk based WAN replication, which is an older implementation for replicating data over the WAN. For more details about this implementation and support options for it, please contact the <a href="http://www.gigaspaces.com/contactus">GigaSpaces team</a>.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

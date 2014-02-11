@@ -1,0 +1,246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Troubleshooting Common User Issues</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Troubleshooting Common User Issues</h1>
+</div>
+<br>
+
+<h1><a name="TroubleshootingCommonUserIssues-TroubleshootingCommonUsersMistakesWhichMightLeadtoIssues"></a>Troubleshooting Common Users Mistakes Which Might Lead to Issues</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Num. </th>
+<th class='confluenceTh'> Problem  </th>
+<th class='confluenceTh'> Troubleshooting Information &amp; Possible causes </th>
+<th class='confluenceTh'> Logging information needed by GigaSpaces support </th>
+</tr>
+<tr>
+<td class='confluenceTd'> 1. </td>
+<td class='confluenceTd'> Deployment failure </td>
+<td class='confluenceTd'><ul>
+	<li>Validate if the GSC's with appropriate SLA definitions are started.</li>
+	<li>Validate if GSC's are registered to the same lookup locators with same lookup group.</li>
+	<li>Validate if all the dependencies (classes and jars) for the processing units are included in the deployed jar/war.</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>Server side logs (all GSC's, GSM's, LUS's logs and console logs for each)</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 2. </td>
+<td class='confluenceTd'> Client cannot connect to space </td>
+<td class='confluenceTd'><ul>
+	<li>Validate if Space has been successfully deployed.</li>
+	<li>Validate if the client URL corresponds to the space that is has been deployed (host/ip, lookup group(s), space name).</li>
+	<li>Validate if Space process did not crash because of some error(s).</li>
+	<li>More info in the "Common Basic Scenarios" section on this page, <a href="http://www.gigaspaces.com/wiki/display/XAP71/Troubleshooting+Common+Error+Messages">http://www.gigaspaces.com/wiki/display/XAP71/Troubleshooting+Common+Error+Messages</a>.</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>Client side logs.<br/>
+Server side logs (all GSC's, GSM's, LUS's logs and console logs for each). </li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 3. </td>
+<td class='confluenceTd'> Memory shortage on space </td>
+<td class='confluenceTd'><ul>
+	<li>Validate if space has more data than expected.
+	<ul>
+		<li>If space is having lot of data, unwanted data should be evicted from space. More memory should be allocated to the cluster members to avoid getting into the situation (check XAP memory manager watermarks).</li>
+		<li>If not a lot of data, it could be a JVM garbage collection issue.</li>
+	</ul>
+	</li>
+	<li>Validate if this is a replication issue, is the backup partition terminated? Are primary and backup disconnected which is causing replication redo log size to grow. Restore the backup space partition for redo log to clear and make room for new data.</li>
+	<li>Validate if this is a mirror replication issue - is the mirror terminated? Are primary space and mirror disconnected which is causing redo log size to grow. Restore the backup space partition for redo log to clear and make room for new data.</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>Server side logs (all GSC's, GSM's, LUS's logs and console logs for each).</li>
+	<li>JVM GC logs for space partitions (GSC's that are hosting spaces). * Heap dump of the primary space partition (GSC hosting this space).</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 4. </td>
+<td class='confluenceTd'> Space remote client queries (reads/writes) taking longer than usual </td>
+<td class='confluenceTd'><ul>
+	<li>Validate if the object has appropriate indexes, proper serialization.</li>
+	<li>Validate if query criterion is different from what is expected, causing larger result set than usual and slowing the queries.</li>
+	<li>Validate if object has a payload that is larger than normal.</li>
+	<li>Validate if it is a lrmi thread pool issue where lot of concurrent clients are accessing the space and no more threads are left on the space to accept new client connections.</li>
+	<li>Validate if the client broadcast thread pool is fully exhausted.</li>
+	<li>Validate if backup space or mirror are having any problems which could lead to slower query performance on space.</li>
+	<li>Validate if it is a temporary issue caused by JVM garbage collection.</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>Client side logs.</li>
+	<li>JVM GC logs for space partitions (GSC's that are hosting spaces).</li>
+	<li>Run Thread dumps for the space partitions (GSC's that are hosting spaces) 2-3 times with 1 minute gap and include logs for space partitions.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 5. </td>
+<td class='confluenceTd'> Space remote client execute queries taking longer than usual </td>
+<td class='confluenceTd'><ul>
+	<li>Validate if query criterion is different from what is expected, causing larger result set than usual and slowing the execute requests.</li>
+	<li>Validate if object has a payload that is larger than normal.</li>
+	<li>Validate if it is a lrmi thread pool issue where lot of concurrent clients are accessing the space and thread pool is exhausted.</li>
+	<li>Validate if the client broadcast thread pool is fully exhausted.</li>
+	<li>Validate if backup space or mirror are having any problems which could lead to slower remoting performance on space.</li>
+	<li>Validate if it is a temporary issue caused by JVM garbage collection.</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>Client side logs.</li>
+	<li>JVM GC logs for space partitions (GSC's that are hosting spaces).</li>
+	<li>Run Thread dumps for the space partitions (GSC's that are hosting spaces) 2-3 times with 1 minute gap and include logs for space partitions.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 6. </td>
+<td class='confluenceTd'> Notification delivery is slower than usual </td>
+<td class='confluenceTd'><ul>
+	<li>Validate if this is a slow consumer issue. Make sure the server and client are using appropriate slow consumer configuration settings, <a href="http://www.gigaspaces.com/wiki/display/XAP71/Slow+Consumer">http://www.gigaspaces.com/wiki/display/XAP71/Slow+Consumer</a></li>
+	<li>Validate if notification batch size is large and more data than expected matches the notification template that was defined.</li>
+	<li>Validate if it s a temporary issue caused by JVM garbage collection.</li>
+	<li>Validate if it is a lrmi thread pool issue where lot of clients are registered for notifications for the same data and thread pool is exhausted.</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>Client side logs.</li>
+	<li>JVM GC logs for space partitions (GSC's that are hosting spaces).</li>
+	<li>Run Thread dumps for the space partitions (GSC's that are hosting spaces) 2-3 times with 1 minute gap and include logs for space partitions.</li>
+	<li>GS-UI statistics screen shots for the space partitions. You will see the difference between Notifications sent and Notifications ack counts.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 7. </td>
+<td class='confluenceTd'> Wrong clustered space usage SEVERE error on the server side </td>
+<td class='confluenceTd'><ul>
+	<li>This error message indicates that there was a problem replicating a certain object to the target space. The problem could be caused by several reasons:
+	<ul>
+		<li>The replicated object no longer exists in the target space(in case it was updated, taken or deleted).</li>
+		<li>The object already exists in the target space(in case it was written for the first time and an object with the same id already exists in the target space).</li>
+		<li>The object version in the target space is different than the one in the source space (in case it was updated).<br/>
+More troubleshooting information in the "Common Development Scenarios" in this page, <a href="http://www.gigaspaces.com/wiki/display/XAP71/Troubleshooting+Common+Error+Messages">http://www.gigaspaces.com/wiki/display/XAP71/Troubleshooting+Common+Error+Messages</a> </li>
+	</ul>
+	</li>
+</ul>
+</td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 8. </td>
+<td class='confluenceTd'> Replication Redo log capacity exceeded errors	</td>
+<td class='confluenceTd'><ul>
+	<li>Validate if the backup partition is terminated? Restore the backup space partition for redo log to clear and make room for new data.</li>
+	<li>Validate if primary and backup members are disconnected because of a networking issue? Causing redo log size to grow. Restore the network and restart the backup member in order to recover the current data from primary partition.</li>
+	<li>Backup member going thru a JVM garbage collection causing pause for seconds while the primary space has lot of updates (not very common scenario).</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>Client side logs.</li>
+	<li>Server side logs (all GSC's, GSM's, LUS's logs and console logs for each).</li>
+	<li>JVM GC logs for space partitions (GSC's that are hosting spaces).</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 9. </td>
+<td class='confluenceTd'> Replication Redo log overflows to disk </td>
+<td class='confluenceTd'> This happens when redo log memory capacity is exceeded and GigaSpaces starts writing redo logs to disk. * Validate if the backup partition is terminated? Restore the backup space partition for redo log to clear and make room for new data.
+<ul>
+	<li>Validate if primary and backup members are disconnected because of a networking issue? Causing redo log size to grow. Restore the network and restart the backup member in order to recover the current data from primary partition.</li>
+	<li>Backup member going thru a JVM garbage collection causing pause for seconds while the primary space has lot of updates (not very common scenario).</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>Client side logs.</li>
+	<li>Server side logs (all GSC's, GSM's, LUS's logs and console logs for each).</li>
+	<li>JVM GC logs for space partitions (GSC's that are hosting spaces).</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 10. </td>
+<td class='confluenceTd'> Missing partitions or instances of GigaSpaces application </td>
+<td class='confluenceTd'><ul>
+	<li>Validate if any machine that hosts the GigaSpaces cluster crashed. Identify the root cause for this and restore the machine.</li>
+	<li>Validate if any of the GSC JVM's failed with a JVM hotspot error.</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>JVM typically creates a file beginning with hs_err. This file has the cause of error.</li>
+	<li>Server side logs (all GSC's, GSM's, LUS's logs and console logs for each).</li>
+	<li>JVM GC logs for space partition/instance (GSC) that had the error.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> 11. </td>
+<td class='confluenceTd'> Provision failure (planned &gt; actual) - The processing unit has less actual instances than planned instances </td>
+<td class='confluenceTd'><ul>
+	<li>Validate if any machine that hosts the GigaSpaces cluster crashed. Identify the root cause for this and restore the machine.</li>
+	<li>Validate if any of the GSC JVM's failed with a JVM hotspot error.</li>
+</ul>
+</td>
+<td class='confluenceTd'><ul>
+	<li>JVM typically creates a file beginning with hs_err. This file has the cause of error.</li>
+	<li>Server side logs (all GSC's, GSM's, LUS's logs and console logs for each).</li>
+	<li>JVM GC logs for space partition/instance (GSC) that had the error.</li>
+</ul>
+</td>
+</tr>
+</tbody></table>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

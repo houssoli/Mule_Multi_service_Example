@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : set - GigaSpaces CLI</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>set - GigaSpaces CLI</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Sets the Service Grid system environment variables.  </p>
+</div>
+
+<h1><a name="set-GigaSpacesCLI-Syntax"></a>Syntax</h1>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; set [variable [value]]
+</pre>
+</div></div>
+
+<h1><a name="set-GigaSpacesCLI-Description"></a>Description</h1>
+
+<p>The <tt>set</tt> comand sets the Service Grid system environment variables.</p>
+
+<h1><a name="set-GigaSpacesCLI-Options"></a>Options</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Option </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Value Format </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>groups</tt> </td>
+<td class='confluenceTd'> The Jini lookup groups value. The group filters the specific group of services that should be managed by the current shell context. </td>
+<td class='confluenceTd'><ul>
+	<li>List of comma-delimited names: <tt>group1,group2,...</tt><br clear="all" /></li>
+	<li><tt>all_groups</tt> assigns the current context to all available GridService elements in the network.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>locators</tt> </td>
+<td class='confluenceTd'> A list of Jini locators hosts. The locators provide an alternate discovery mechanism, if multicast is not working. The locator points to the location of Jini lookup hosts. Normally a lookup service is running as an embedded instance with the Grid Service Monitor (GSM). </td>
+<td class='confluenceTd'> <tt>jini://&lt;hostname1&gt;</tt>
+<br clear="all" />
+<br clear="all" />
+To set several locators you have to execute:<br clear="all" />
+<tt>set locators jini://&lt;hostname1&gt;</tt><br clear="all" />
+<tt>set locators jini://&lt;hostname2&gt;</tt><br clear="all" />
+...<br clear="all" />
+<br clear="all" />
+To empty the locators variable you have to exectute:<br clear="all" />
+<tt>set locators null</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>system-props</tt> </td>
+<td class='confluenceTd'> Should be one of the properties used by the system. Omit this parameter to view a list of the available properties. </td>
+<td class='confluenceTd'> <tt>&lt;system property name&gt;=&lt;property value&gt;</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>disco-timeout</tt> </td>
+<td class='confluenceTd'> Jini discovery timeout [in ms]. Defines the time for waiting for service discovery announcements. Relevant for multicast discovery only. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>wait-on-deploy</tt> </td>
+<td class='confluenceTd'> Timeout [in ms] for finding deployable servers. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>deploy-timeout</tt> </td>
+<td class='confluenceTd'> Timeout [in ms] for blocking for deployment status. </td>
+</tr>
+</tbody></table>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Make sure your network and machines running GigaSpaces are configured to have multicast enabled.<br/>
+See the <a href="How to Configure Multicast.html" title="How to Configure Multicast">How to Configure Multicast</a> section for details on how to enable multicast. </td></tr></table></div>
+
+<h1><a name="set-GigaSpacesCLI-Examples"></a>Examples</h1>
+
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+<h2><a name="set-GigaSpacesCLI-DisplayingCurrentSystemVariables"></a>Displaying Current System Variables</h2>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; set
+groups ALL_GROUPS
+locators null
+system-props com.gigaspaces.grid.lib=C:demosGS-Cache1362GigaSpacesXAP6.0ServiceGridlib
+com.gigaspaces.grid.home=C:demosGS-Cache1362GigaSpacesXAP6.0ServiceGrid
+com.gs.jini_lus.groups=gigaspaces-1346
+com.gigaspaces.jini.lib=C:demosGS-Cache1362GigaSpacesXAP6.0ServiceGrid..libjini
+com.gigaspaces.lib=C:demosGS-Cache1362GigaSpacesXAP6.0ServiceGrid..lib
+com.gs.home= C:demosGS
+disco-timeout 5000
+wait-on-deploy true
+deploy-timeout 5000
+</pre>
+</div></div>
+
+<h2><a name="set-GigaSpacesCLI-SettingNewLocationforTwoPropertieswithTimeout"></a>Setting New Location for Two Properties with Timeout</h2>
+<p>This example sets new locations for the properties <tt>com.gigaspaces.lib</tt> and <tt>com.gs.home</tt>, with a timeout of five and a half seconds for discovery.</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; set system-props com.gigaspaces.lib=c:gslib,com.gs.home=c:gs
+gs&gt; set discovery-timeout 5500
+gs&gt; set groups all_groups
+gs&gt; set groups gs-grid,test
+</pre>
+</div></div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

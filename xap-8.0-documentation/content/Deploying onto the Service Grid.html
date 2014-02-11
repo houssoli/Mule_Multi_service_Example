@@ -1,0 +1,397 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Deploying onto the Service Grid</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Deploying onto the Service Grid</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903790";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903790";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Explains how to deploy your processing unit onto the GigaSpaces <a href="The Runtime Environment.html" title="The Runtime Environment">Service Grid</a> to get automated SLA management and self-healing capabilities </p>
+</div>
+
+<h1><a name="DeployingontotheServiceGrid-Overview"></a>Overview </h1>
+
+<p>Deploying your processing unit to the <a href="The Runtime Environment.html" title="The Runtime Environment">service grid</a> is the preferred way to run your it in your production environment. The service grid provides the following main benefits to the processing unit deployed onto it: </p>
+
+<ul>
+	<li>Automatic distribution and provisioning of the processing unit instances: When deploying to the <a href="The Runtime Environment.html" title="The Runtime Environment">service grid</a> the <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">GigaSpaces Manager</a> identifies the relevant <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GigaSpaces Containers</a> and takes care of distributing the processing unit binaries to them. You do not need to manually install the processing unit anywhere on the cluster.</li>
+</ul>
+
+
+<ul>
+	<li>SLA enforcement: The <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">GigaSpaces Manager</a> is also responsible for enforcing your processing unit's Service Level Agreement, or <a href="Configuring the Processing Unit SLA.html" title="Configuring the Processing Unit SLA">SLA</a>. At deployment time, it will create a specified number of processing unit instances and provision them to the running containers while enforcing all the <a href="Configuring the Processing Unit SLA.html#ConfiguringtheProcessingUnitSLA-deploymentreqs">deployment requirements</a>, such as memory and CPU utilization, or specific deployment zones. At runtime, it will monitor the processing unit instances, and if any of them fail to fulfill the SLA or become unavailable it will re-instantiate the processing unit automatically on another container.</li>
+</ul>
+
+
+<ul>
+	<li>Automatic machine provisioning and dynamic SLA enforcement: Elastic Processing Units are a new type of PU. Elastic PUs provision machines and start <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GigaSpaces Containers</a> on their own based on their Memory and CPU requirements. When the available machines do not meet the requirements, the manager provisions new machines and balances the Processing Unit deployment across machines. This occurs when a machine fails, or when the requirements changes while the application is running.</li>
+</ul>
+
+
+<h1><a name="DeployingontotheServiceGrid-TheDeploymentProcess"></a>The Deployment Process </h1>
+
+<p>Once built according to the processing unit <a href="The Processing Unit Structure and Configuration.html" title="The Processing Unit Structure and Configuration">directory structure</a>, the processing unit can be deployed via the various deployment tools available in GigaSpaces XAP (<a href="Graphical User Interface.html" title="Graphical User Interface">UI</a>, <a href="deploy - GigaSpaces CLI.html" title="deploy - GigaSpaces CLI">CLI</a>, Ant, <a href="Maven Plugin.html" title="Maven Plugin">Maven</a> or the <a href="Administration and Monitoring API.html" title="Administration and Monitoring API">Admin API</a>).</p>
+
+<p>After you <a href="Packaging and Deployment.html" title="Packaging and Deployment">package</a> the processing unit and deploy it via one of the deployment tools, the deployment tool uploads it to all the running <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">GSMs</a>, where it is extracted and provisioned to the <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GSCs</a>. </p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>To Jar or Not to Jar</b><br />The recommended way to deploy the processing unit is by packaging it into a .jar or a .zip archive and specifying the location of the packaged file to the deployment tool in use. <br/>
+However, GigaSpaces XAP also supports the deployment of exploded processing units. The deployment tool will package the processing unit directories into a jar file automatically). Another option to deploy a processing unit is by placing the exploded processing unit under the deploy directory of each of the GSMs and issuing  a deploy command with the processing unit name (the name of the directory under the deploy directory).</td></tr></table></div>
+
+<h1><a name="DeployingontotheServiceGrid-DistributionofProcessingUnitBinariestotheRunningGSCs"></a>Distribution of Processing Unit Binaries to the Running GSCs</h1>
+
+<p>By default, when a processing unit instance is provisioned to run on a certain GSC, the GSC downloads the processing unit archive from the GSM into the <tt>&lt;GigaSpaces Root&gt;/work/deployed-processing-units</tt> directory (The location of this directory can be overridden via the <tt>com.gs.work</tt> system property).</p>
+
+<p>Downloading the processing unit archive to the GSC is the recommended option, but it can be disabled. In order to disable it, the <tt>pu.download</tt> <a href="Deployment Properties.html" title="Deployment Properties">deployment property</a>  should be set to <tt>false</tt>. This will not download the entire archive to the GSC, but will force the GSC to load the processing unit classes one at a time from the GSM via a URLClassLoader. </p>
+
+<p><a name="DeployingontotheServiceGrid-deployDirections"></a></p>
+
+<h1><a name="DeployingontotheServiceGrid-ProcessingUnitDeploymentusingvariousDeploymentTools"></a>Processing Unit Deployment using various Deployment Tools </h1>
+
+<p>GigaSpaces provides several options to deploy a processing unit onto the Service Grid. Below you can find a simple deployment example with the various deployment tools for deploying a processing unit archive called myPU.jar located in the <tt>usr/gigaspaces</tt> directory:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="DeployingontotheServiceGrid-AdminAPI"></a>Admin API</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>Deploying via code is done using the GigaSpaces <a href="Administration and Monitoring API.html" title="Administration and Monitoring API">Admin API</a>. The following example shows how to deploy the <tt>myPU.jar</tt> processing unit using one of the available GSMs. For more details please consult the <a href="Administration and Monitoring API.html" title="Administration and Monitoring API">documentation</a> and <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html">javadoc</a> of the Admin API. </p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Admin admin = <span class="code-keyword">new</span> AdminFactory().addGroup(<span class="code-quote">"myGroup"</span>).create();
+File puArchive = <span class="code-keyword">new</span> File(<span class="code-quote">"/opt/gigaspaces/myPU.jar"</span>);
+ProcessingUnit pu = admin.getGridServiceManagers().deploy(<span class="code-keyword">new</span> ProcessingUnitDeployment(puArchive));</pre>
+</div></div>
+
+
+<h5><a name="DeployingontotheServiceGrid-Ant"></a>Ant</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>Deploying with Ant is based on the <tt>org.openspaces.pu.container.servicegrid.deploy.Deploy</tt> class (in fact, all of the deployment tools use this class although it is not exposed directly to the end user). </p>
+
+<p>In the below example we create an Ant macro using this class and use it to deploy our processing unit. The deploy class is executable via its <tt>main()</tt> method, and can accept various parameters to control the deployment process. These parameters are identical to these of the <tt>deploy</tt> CLI command, for a complete list of the available parameters please consult the <a href="deploy - GigaSpaces CLI.html" title="deploy - GigaSpaces CLI"><tt>deploy</tt> CLI reference documentation.</a>.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;deploy file=<span class="code-quote">"/opt/gigaspaces/myPU.jar"</span> /&gt;</span>
+
+<span class="code-tag">&lt;macrodef name=<span class="code-quote">"deploy"</span>&gt;</span>
+    <span class="code-tag">&lt;attribute name=<span class="code-quote">"file"</span>/&gt;</span>
+    <span class="code-tag">&lt;sequential&gt;</span>
+        <span class="code-tag">&lt;java classname=<span class="code-quote">"org.openspaces.pu.container.servicegrid.deploy.Deploy"</span> fork=<span class="code-quote">"false"</span>&gt;</span>
+            <span class="code-tag">&lt;classpath refid=<span class="code-quote">"all-libs"</span>/&gt;</span>
+            <span class="code-tag">&lt;arg value=<span class="code-quote">"-groups"</span> /&gt;</span>
+            <span class="code-tag">&lt;arg value=<span class="code-quote">"mygroup"</span> /&gt;</span>
+            <span class="code-tag">&lt;arg value=<span class="code-quote">"@{file}"</span>/&gt;</span>
+        <span class="code-tag">&lt;/java&gt;</span>
+    <span class="code-tag">&lt;/sequential&gt;</span>
+<span class="code-tag">&lt;/macrodef&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="DeployingontotheServiceGrid-GigaSpacesCLI"></a>GigaSpaces CLI</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>Deploying via the CLI is based on the <tt>deploy</tt> command. This command accepts various parameters to control the deployment process. These parameters are documented in full in the <a href="deploy - GigaSpaces CLI.html" title="deploy - GigaSpaces CLI"><tt>deploy</tt> CLI reference documentation.</a>. </p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&gt; &lt;gigaspaces root&gt;/bin/gs.sh(bat) deploy myPU.jar</pre>
+</div></div>
+
+
+<h5><a name="DeployingontotheServiceGrid-GigaSpacesUI"></a>GigaSpaces UI</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<ul>
+	<li>Open the GigaSpaces UI by launching {{&lt;gigaspaces root&gt;/bin/gs-ui.sh(bat)</li>
+	<li>Click the "Deploy Application" button <img src="download/attachments/17301573/deploy_processing_unit_button.jpg" align="absmiddle" border="0"/> at the top left of the window</li>
+	<li>In the deployment wizard, click <b>...</b> to select your processing unit archive, and then click <b>Deploy</b></li>
+</ul>
+</div></div>
+
+<h1><a name="DeployingontotheServiceGrid-ElasticProcessingUnitDeploymentusingtheAdminAPI"></a>Elastic Processing Unit Deployment using the Admin API</h1>
+<p>When deploying a partitioned Processing Unit or a paritioned Space it is recommended to use the new <a href="Elastic Processing Unit.html" title="Elastic Processing Unit">Elastic Processing Unit</a>. This can be done via the <a href="Administration and Monitoring API.html" title="Administration and Monitoring API">Admin API</a>. The following example shows how to deploy a processing unit as an Elastic PU. </p>
+
+<h2><a name="DeployingontotheServiceGrid-Step1StartaGigaSpacesagentoneachmachine%3A"></a>Step 1 - Start a GigaSpaces agent on each machine:</h2>
+<p>You should have <b>one GigaSpaces agent</b> running the ESM. No GSCs should be started.</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="DeployingontotheServiceGrid-Windows"></a>Windows</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">rem Agent deployment that potentially can start management processes
+set LOOKUPGROUPS=myGroup
+set JSHOMEDIR=d:\gigaspaces
+start cmd /c <span class="code-quote">"%JSHOMEDIR%\bin\gs-agent.bat gsa.global.esm 1 gsa.gsc 0 gsa.global.gsm 2 gsa.global.lus 2"</span></pre>
+</div></div>
+
+
+
+<h5><a name="DeployingontotheServiceGrid-Linux"></a>Linux</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"># Agent deployment that potentially can start management processes
+export LOOKUPGROUPS=myGroup
+export JSHOMEDIR=~/gigaspaces
+nohup ${JSHOMEDIR}/bin/gs-agent.sh gsa.global.esm 1 gsa.gsc 0 gsa.global.gsm 2 gsa.global.lus 2 &gt; /dev/<span class="code-keyword">null</span> 2&gt;&amp;1 &amp;</pre>
+</div></div>
+</div></div>
+
+<h2><a name="DeployingontotheServiceGrid-Step2Runthedeploymentcode%3A"></a>Step 2 - Run the deployment code:</h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// Wait <span class="code-keyword">for</span> the discovery of the managers and at least one agent
+</span>Admin admin = <span class="code-keyword">new</span> AdminFactory().addGroup(<span class="code-quote">"myGroup"</span>).create();
+admin.getGridServiceAgents().waitForAtLeastOne();
+admin.getElasticServiceManagers().waitForAtLeastOne();
+GridServiceManager gsm = admin.getGridServiceManagers().waitForAtLeastOne();
+
+<span class="code-comment">// Deploy the Elastic Processing Unit. Set the maximum memory and CPU capacity and initial capacity
+</span>File puArchive = <span class="code-keyword">new</span> File(<span class="code-quote">"/opt/gigaspaces/myPU.jar"</span>);
+ProcessingUnit pu = gsm.deploy(
+        <span class="code-keyword">new</span> ElasticStatefulProcessingUnitDeployment(puArchive)
+           .memoryCapacityPerContainer(16,MemoryUnit.GIGABYTES)        
+           .maxMemoryCapacity(512,MemoryUnit.GIGABYTES)
+           .maxNumberOfCpuCores(32)                 
+         <span class="code-comment">//.singleMachineDeployment() // uncomment when working with a single machine agent
+</span>           <span class="code-comment">// set the initial memory and CPU capacity
+</span>           .scale(<span class="code-keyword">new</span> ManualCapacityScaleConfigurer()
+                  .memoryCapacity(128,MemoryUnit.GIGABYTES)
+                  .numberOfCpuCores(8)
+                  .create())
+);
+
+<span class="code-comment">// Wait until the deployment is complete.
+</span>pu.waitForSpace().waitFor(pu.getTotalNumberOfInstances());</pre>
+</div></div>
+
+<h2><a name="DeployingontotheServiceGrid-Step3ScalethePUbyincreasingthememoryandCPUcapacity%3A"></a>Step 3 - Scale the PU by increasing the memory and CPU capacity: </h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// Scale in runtime to the desired memory and CPU capacity
+</span>pu.scale(
+    <span class="code-keyword">new</span> ManualCapacityScaleConfigurer()
+       .memoryCapacity(256,MemoryUnit.GIGABYTES)
+       .numberOfCpuCores(16)
+       .create()
+);</pre>
+</div></div>
+
+<h2><a name="DeployingontotheServiceGrid-Step4ToundeploytheProcessingUnitrunthefollowing%3A"></a>Step 4 - To undeploy the Processing Unit run the following: </h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">ProcessingUnit pu = admin.getProcessingUnits().waitFor(<span class="code-quote">"myPU"</span>,10,TimeUnit.SECONDS);
+<span class="code-keyword">if</span> (pu != <span class="code-keyword">null</span>) {
+   pu.undeploy();
+}</pre>
+</div></div>
+
+<p>Since we are undeploying an Elastic Processing Unit, this will also terminate all the GSCs hosting the PU.</p>
+
+<p>Running the deployment code from the command line is very convinient. Rename the java file extension to groovy, and run it using the following command:</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="DeployingontotheServiceGrid-Windows"></a>Windows</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">%JSHOMEDIR%\tools\groovy\bin\groovy deploy.groovy</pre>
+</div></div>
+
+
+
+<h5><a name="DeployingontotheServiceGrid-Linux"></a>Linux</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">${JSHOMEDIR}tools/groovy/bin/groovy deploy.groovy</pre>
+</div></div>
+</div></div>
+
+<h1><a name="DeployingontotheServiceGrid-HotDeploy"></a>Hot Deploy</h1>
+<p>To enable business continuity in a better manner, having system upgrade without any downtime, here is a simple procedure you should follow when you would like to perform a hot deploy, upgrading a PU that includes both a business logic and a collocated embedded space:<br/>
+1. Upload the PU new/modified classes (i.e. polling container <tt>SpaceDataEvent</tt> implementation or relevant listener class and any other dependency classes) to the PU deploy folder on all the GSM machines.<br/>
+2. Restart the PU instance running the backup space. This will force the backup PU instance to reload a new version of the business logic classes from the GSM. <br/>
+3. Wait for the backup PU to fully recover its data from the primary. <br/>
+4. Restart the Primary PU instance. This will turn the existing backup instance to become a primary instance. The previous primary will turn into a backup, load the new business logic classes and recover its data from the existing primary. <br/>
+5. Optional - You can restart the existing primary to force it to switch into a backup instance again. The new primary will also use the new version of the business logic classes.</p>
+
+<p>You can script the above procedure via the <a href="Administration and Monitoring API.html" title="Administration and Monitoring API">Administration and Monitoring API</a>, allowing you to perform system upgrade without downtime.</p>
+
+<h2><a name="DeployingontotheServiceGrid-RestartarunningPUviatheGSUI"></a>Restart a running PU via the GS-UI</h2>
+<p>To restart a running PU (all instances) via the GS-UI you should:<br/>
+1. Start the GS-UI - move into the Deployed Processing Unit tab<br/>
+2. Right click the mouse on the PU instance you want to restart<br/>
+3. Select the restart menu option<br/>
+<img src="download/attachments/48235229/pu_restart.jpg" align="absmiddle" border="0"/><br/>
+4. Confirm the operation<br/>
+<img src="download/attachments/48235229/pu_restart2.jpg" align="absmiddle" border="0"/><br/>
+5. Within few seconds the restart operation will be completed. If the amount of data to recover is large (few millions of objects), this might take few minutes.<br/>
+6. Repeat steps 2-4 for all backup instances. <br/>
+7. Repeat steps 2-4 for all primary instances. This will switch the relevant backup to be a primary mode where the existing primary will switch into a backup mode.</p>
+
+<h2><a name="DeployingontotheServiceGrid-RestartarunningPUviatheAdminAPI"></a>Restart a running PU via the Admin API</h2>
+<p>The <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/admin/pu/ProcessingUnitInstance.html" target="_blank">ProcessingUnitInstance</a> includes few <tt>restart</tt> methods you may use to restart a PU instance:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">restart() 
+restartAndWait() 
+restartAndWait(<span class="code-object">long</span> timeout, TimeUnit timeUnit)</pre>
+</div></div>
+
+<p>Here is an example code that is using the <tt>ProcessingUnitInstance.restart</tt> to restart the entire PU instances in an automatic manner:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">import</span> java.util.concurrent.TimeUnit;
+<span class="code-keyword">import</span> java.util.logging.Logger;
+
+<span class="code-keyword">import</span> org.openspaces.admin.Admin;
+<span class="code-keyword">import</span> org.openspaces.admin.AdminFactory;
+<span class="code-keyword">import</span> org.openspaces.admin.pu.ProcessingUnit;
+<span class="code-keyword">import</span> org.openspaces.admin.pu.ProcessingUnitInstance;
+<span class="code-keyword">import</span> com.gigaspaces.cluster.activeelection.SpaceMode;
+
+<span class="code-keyword">public</span> class PUReatartMain {
+	<span class="code-keyword">static</span> Logger logger = Logger.getLogger(<span class="code-quote">"PUReatart"</span>);
+	
+	<span class="code-keyword">public</span> <span class="code-keyword">static</span> void main(<span class="code-object">String</span>[] args) {
+		<span class="code-object">String</span> puToReatart = <span class="code-quote">"myPU"</span>;
+		Admin admin = <span class="code-keyword">new</span> AdminFactory().createAdmin();
+
+		ProcessingUnit processingUnit = admin.getProcessingUnits().waitFor(
+				puToReatart, 10, TimeUnit.SECONDS);
+
+                <span class="code-keyword">if</span> (processingUnit == <span class="code-keyword">null</span>) 
+                {
+		   logger.info(<span class="code-quote">"can't get PU instances <span class="code-keyword">for</span> "</span>+puToReatart );
+		   admin.close();
+		   <span class="code-object">System</span>.exit(0);
+                }
+
+                <span class="code-comment">// Wait <span class="code-keyword">for</span> all the members to be discovered
+</span>                processingUnit.waitFor(processingUnit.getTotalNumberOfInstances());
+
+		ProcessingUnitInstance[] puInstances = processingUnit.getInstances();
+		<span class="code-comment">// restart all backups
+</span>		<span class="code-keyword">for</span> (<span class="code-object">int</span> i = 0; i &lt; puInstances.length; i++) {
+                   
+			<span class="code-keyword">if</span> (puInstances[i].getSpaceInstance().getMode() == SpaceMode.BACKUP) {
+				restartPUInstance(puInstances[i]);
+			}
+		}
+
+		<span class="code-comment">// restart all primaries
+</span>		<span class="code-keyword">for</span> (<span class="code-object">int</span> i = 0; i &lt; puInstances.length; i++) {
+			<span class="code-keyword">if</span> (puInstances[i].getSpaceInstance().getMode() == SpaceMode.PRIMARY) {
+				restartPUInstance(puInstances[i]);
+			}
+		}
+		admin.close();
+		<span class="code-object">System</span>.exit(0);
+	}
+	<span class="code-keyword">private</span> <span class="code-keyword">static</span> void restartPUInstance(
+			ProcessingUnitInstance pi) {
+		<span class="code-keyword">final</span> <span class="code-object">String</span> instStr = pi.getSpaceInstance().getMode() != SpaceMode.PRIMARY?<span class="code-quote">"backup"</span> : <span class="code-quote">"primary"</span>;
+		logger.info(<span class="code-quote">"restarting instance "</span> + pi.getInstanceId()
+				+ <span class="code-quote">" on "</span> + pi.getMachine().getHostName() + <span class="code-quote">"["</span>
+				+ pi.getMachine().getHostAddress() + <span class="code-quote">"] GSC PID:"</span>
+				+ pi.getVirtualMachine().getDetails().getPid() + <span class="code-quote">" mode:"</span>
+				+ instStr + <span class="code-quote">"..."</span>);
+		
+		pi = pi.restartAndWait();
+		logger.info(<span class="code-quote">"done"</span>);
+	}
+	
+}</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

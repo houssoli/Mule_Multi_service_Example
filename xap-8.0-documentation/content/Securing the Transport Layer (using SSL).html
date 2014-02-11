@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Securing the Transport Layer (using SSL)</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Securing the Transport Layer (using SSL)</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  GigaSpaces provides a generic network filter that also provides SSL support, through an SSL communication filter. </p>
+</div>
+
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="How to Set GigaSpaces Over a Firewall.html" title="How to Set GigaSpaces Over a Firewall">How to Set GigaSpaces Over a Firewall</a></p>
+
+<h1><a name="SecuringtheTransportLayer%28usingSSL%29-Overview"></a>Overview</h1>
+
+<p>GigaSpaces provides two types of communication filter:</p>
+<ul>
+	<li>Stream-based filter - for a protocol like ZIP. This type of filter does not support a handshake phase.</li>
+	<li>Block-based filter - for encryption network filters. These filters do support a handshake phase.</li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> For now, GigaSpaces supports only one communication filter, and this filter is applied to all the connections in the JVM.</p>
+
+<h1><a name="SecuringtheTransportLayer%28usingSSL%29-Usage"></a>Usage</h1>
+
+<p>The way to load and enable the communication filter, is by setting the system property <tt>com.gs.lrmi.filter.factory</tt>. The value should be the <tt>communication filter factory</tt> class name.</p>
+
+<p>For example, to use an SSL communication filter, run GigaSpaces with:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.lrmi.filter.factory=com.gigaspaces.lrmi.nio.filters.SSLFilterFactory</pre>
+</div></div>
+
+<h1><a name="SecuringtheTransportLayer%28usingSSL%29-DefaultSSLFilterFactory"></a>Default SSLFilterFactory</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal">GigaSpaces Java API Documentation</a></p>
+
+<p>Since some types of communication filters are not symmetric regarding the client and server, the class <a href="http://www.gigaspaces.com/docs/JavaDoc7.0/com/gigaspaces/lrmi/nio/filters/SSLFilterFactory.html"><tt>SSLFilterFactory</tt></a> has 2 methods: one to create the communication filter for the client side, and the other for the server side.</p>
+<ul>
+	<li>public IOFilter <a href="http://www.gigaspaces.com/docs/JavaDoc7.0/com/gigaspaces/lrmi/nio/filters/SSLFilterFactory.html#createClientFilter"><tt>createClientFilter()</tt></a> throws Exception;</li>
+</ul>
+
+
+<ul>
+	<li>public IOFilter <a href="http://www.gigaspaces.com/docs/JavaDoc7.0/com/gigaspaces/lrmi/nio/filters/SSLFilterFactory.html#createServerFilter"><tt>createServerFilter()</tt></a> throws Exception;</li>
+</ul>
+
+
+<p>If the communication filter needs its own parameters, it can acquire them by directly reading system properties. For example, the supplied SSLFilter needs to get the keystore file, and the password to this file.</p>
+
+<p>It uses the following system properties to get them:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.lrmi.filter.security.keystore=keystore.ks
+-Dcom.gs.lrmi.filter.security.password=password</pre>
+</div></div>
+<p>The keystore file is loaded from somewhere in the classpath.</p>
+
+<p>The provided SSLFilter uses keystore type JKS, with key management method SunX509.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Please refer to the JavaDocs for more details about the reference classes:
+<br clear="all" /></p>
+<ul>
+	<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.0/com/gigaspaces/lrmi/nio/filters/IOSSLFilter.html"><tt>com.gigaspaces.lrmi.nio.filters.IOSSLFilter</tt></a></li>
+	<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.0/com/gigaspaces/lrmi/nio/filters/IOStreamCompressionFilter.html"><tt>com.gigaspaces.lrmi.nio.filters.IOStreamCompressionFilter</tt></a></li>
+</ul>
+
+
+<p>Code snippet of the space server.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SSLServer {
+	<span class="code-keyword">public</span> <span class="code-keyword">static</span> void main(<span class="code-object">String</span> [] args) <span class="code-keyword">throws</span> Exception{
+		UrlSpaceConfigurer configurer = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./SSLSpace"</span>).
+                lookupGroups(<span class="code-quote">"ssl_example_group"</span>);
+		GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(configurer).gigaSpace();
+	}
+}</pre>
+</div></div>
+
+<p>Code snippet of the space client. </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SSLClient {
+	<span class="code-keyword">public</span> <span class="code-keyword">static</span> void main(<span class="code-object">String</span> [] args) <span class="code-keyword">throws</span> Exception{
+		UrlSpaceConfigurer configurer = 
+                  <span class="code-keyword">new</span> UrlSpaceConfigurer("jini:<span class="code-comment">//localhost/*/SSLSpace).
+</span>                  lookupGroups(<span class="code-quote">"ssl_example_group"</span>);
+		GigaSpace remoteSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(configurer).gigaSpace();
+
+		AnEntry entry = <span class="code-keyword">new</span> AnEntry();
+		entry.key = <span class="code-quote">"first"</span>;
+		entry.payload = <span class="code-quote">"first value"</span>;
+		remoteSpace.write(entry);
+		AnEntry value = remoteSpace.read(<span class="code-keyword">new</span> AnEntry());
+		<span class="code-object">System</span>.out.println(value.payload);
+	}
+	
+	<span class="code-keyword">public</span> <span class="code-keyword">static</span> class AnEntry <span class="code-keyword">implements</span> Entry{
+		<span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">final</span> <span class="code-object">long</span> serialVersionUID = 1L;
+		
+		<span class="code-keyword">public</span> AnEntry() {
+		}
+		<span class="code-keyword">public</span> <span class="code-object">String</span> key;
+		<span class="code-keyword">public</span> <span class="code-object">String</span> payload;
+	}
+}</pre>
+</div></div>
+
+<p>As you can see, until now there is nothing special in the code &#8211; it is the same code as if the SSL was not used.<br/>
+However, when you wish to run this code with SSL encryption, you should run it with the following system properties (both server and client), and have the <a href="download/attachments/53903461/keystore.ks">keystore</a> anywere in the classpath (both server and client).</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.lrmi.filter.factory=com.gigaspaces.lrmi.nio.filters.SSLFilterFactory
+-Dcom.gs.lrmi.filter.security.keystore=keystore.ks
+-Dcom.gs.lrmi.filter.security.password=password</pre>
+</div></div>
+
+<p>The indication that SSL is used is the message: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Communication Filters Information:
+	CommunicationFilterFactory: com.gigaspaces.lrmi.nio.filters.SSLFilterFactory</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

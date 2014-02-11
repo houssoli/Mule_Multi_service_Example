@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : list - GigaSpaces CLI</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>list - GigaSpaces CLI</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Lists information about active Service Grid services.  </p>
+</div>
+
+<h1><a name="list-GigaSpacesCLI-Syntax"></a>Syntax</h1>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; list [type] [options]
+</pre>
+</div></div>
+
+<h1><a name="list-GigaSpacesCLI-Description"></a>Description</h1>
+
+<p>The <tt>list</tt> command lists information about active Service Grid services.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For the space list CLI, please refer to the <a href="space list - GigaSpaces CLI.html" title="space list - GigaSpaces CLI">space list &#45; GigaSpaces CLI</a> section.</p>
+
+<p>The following values are allowed for <tt><b>type</b></tt>. Only one type can be specified.</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>gsm</tt> </td>
+<td class='confluenceTd'> Grid Service Monitor </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>gsc</tt> </td>
+<td class='confluenceTd'> Grid Service Container </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>lus</tt> </td>
+<td class='confluenceTd'> Lists all active Jini Lookup Service instances and their attributes. 
+<br clear="all" /> <br clear="all" />
+<img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>lus</tt> type is <b>new in GigaSpaces version 6.0.2</b> and <b>version 6.5 Beta</b>. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Default (none) </td>
+<td class='confluenceTd'> List all types of services, but in less detail than when the types are specified individually: only service name, group, and machine. </td>
+</tr>
+</tbody></table>
+
+<h1><a name="list-GigaSpacesCLI-Options"></a>Options</h1>
+
+<p>Each option adds to (or subtracts from) the default information listed. You can specify one option, more than one, or none.</p>
+
+<p><b>The following options are available for types</b> <tt><b>gsm</b></tt><b>,</b> <tt><b>gsc</b></tt><b>, and default:</b></p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Option </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cpu</tt> </td>
+<td class='confluenceTd'> Lists the CPU utilization of each machine. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>jmx</tt> </td>
+<td class='confluenceTd'> Lists the jmx connection entry, if any. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>codeserver</tt> </td>
+<td class='confluenceTd'> Lists the IP addresses to which the service has been exported. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>timeout</tt> </td>
+<td class='confluenceTd'> Available for type <tt>lus</tt> only (<b>new in GigaSpaces 6.0.2</b> and onwards) &#8211; the discovery timeout (in milliseconds). Usage example: <tt>timeout=20000</tt>. Default value is 30000 msec. </td>
+</tr>
+</tbody></table>
+
+<h1><a name="list-GigaSpacesCLI-Examples"></a>Examples</h1>
+
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+<h2><a name="list-GigaSpacesCLI-ListAllServicesintheNetwork"></a>List All Services in the Network</h2>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; list
+total services 4
+[1] Lookup gs-grid, gigaspaces-13 11.0.0.3
+[2] Grid Service Container gs-grid pc-nati@11.0.0.3
+[3] Lookup gigaspaces-1365 11.0.0.5
+[4] Grid Service Manager gs-grid pc-nati@11.0.0.3
+</pre>
+</div></div>
+
+<h2><a name="list-GigaSpacesCLI-ListallServiceContainers"></a>List all Service Containers</h2>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; list gsc
+total 1
+[1] Grid Service Container gs-grid pc-nati@11.0.0.3
+No contained services
+</pre>
+</div></div>
+
+<h2><a name="list-GigaSpacesCLI-ListGridServiceManagers"></a>List Grid Service Managers</h2>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; list gsm
+total 1
+[1] Grid Service Manager gs-grid pc-nati@11.0.0.3
+GigaSpace Service Deployment role=primary
+GigaSpace planned=1 actual=1 pending=0
+id=1 11.0.0.3
+</pre>
+</div></div>
+
+<h2><a name="list-GigaSpacesCLI-ListallActiveJiniLookupServiceInstancesandtheirAttributes"></a>List all Active Jini Lookup Service Instances and their Attributes</h2>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; list lus
+Searching for available Jini Lookup Services...
+
+-----------------------------------------------------------------------
+-- Discovered Lookup Service at host [ 192.168.10.133:4160 ].
+-- Lookup Service registered to the following jini groups:
+                 Group [ gigaspaces-6.0XAP-DOTNET-PC ]
+-- Lookup Service has [3] services, lookup took [1828] millis, [1] seconds:
+                 Service Class: com.j_spaces.core.client.JSpaceProxy | 0ab4e4e1-ca5e-4be3-bc00-ac4648108012
+                 Service Attributes Set: [net.jini.lookup.entry.Name(name=myExcelDemoSpace), com.j_spaces.lookup.entry.C
+lusterName(name=NONE), com.j_spaces.lookup.entry.ClusterGroup(electionGroup=null,replicationGroup=NONE,loadBalancingGrou
+p=null), com.j_spaces.lookup.entry.Persistent(type=MEMORY), com.j_spaces.lookup.entry.ContainerName(name=myExcelDemoSpac
+e_container), net.jini.lookup.entry.ServiceInfo(name=JavaSpace,manufacturer=GigaSpaces Technologies Ltd.,vendor=GigaSpac
+es,version=GigaSpaces Platform(TM) 6.0 XAP edition (build 2001-6),model=,serialNumber=), com.j_spaces.lookup.entry.HostN
+ame(name=dotnet-pc), com.j_spaces.lookup.entry.State(state=started,electable=null,replicable=null)]
+
+                 Service Class: com.j_spaces.core.JSpaceContainerProxy | c8bd6d9d-0e79-4541-b7e4-1f3427279e5a
+                 Service Attributes Set: [net.jini.lookup.entry.Name(name=myExcelDemoSpace_container), com.j_spaces.look
+up.entry.ContainerName(name=myExcelDemoSpace_container), net.jini.lookup.entry.ServiceInfo(name=JSpaceContainer,manufact
+urer=GigaSpaces Technologies Ltd.,vendor=GigaSpaces,version=GigaSpaces Platform(TM) 6.0 XAP edition (build 2001-6),model
+=,serialNumber=), com.j_spaces.lookup.entry.HostName(name=dotnet-pc)]
+
+                 Service Class: com.sun.jini.reggie.RegistrarProxy | e375ba99-4b1f-4c13-9cf0-4b5b76eb2327
+                 Service Attributes Set: [net.jini.lookup.entry.ServiceInfo(name=Lookup,manufacturer=Sun Microsystems, I
+nc.,vendor=Sun Microsystems, Inc.,version=2.1,model=,serialNumber=), com.sun.jini.lookup.entry.BasicServiceType(type=Loo
+kup), net.jini.lookup.entry.Name(name=Lookup), org.jini.rio.entry.OperationalStringEntry(name=Service Grid Infrastructur
+e)]
+
+-----------------------------------------------------------------------
+-- Discovered Lookup Service at host [ 192.168.10.36:4160 ].
+-- Lookup Service registered to the following jini groups:
+                 Group [ gigaspaces-6.0XAP-mishak ]
+-- Lookup Service has [9] services, lookup took [1203] millis, [1] seconds:
+                 Service Class: $Proxy18 | 2edbae56-79d6-43bb-abb0-182c5b11a6d0
+                 Service Attributes Set: [org.jini.rio.entry.OperationalStringEntry(name=Compute Grid), org.jini.rio.ent
+</pre>
+</div></div>
+
+<h1><a name="list-GigaSpacesCLI-Troubleshooting"></a>Troubleshooting</h1>
+
+<h2><a name="list-GigaSpacesCLI-Terminatedservicesarestilllisted"></a>Terminated services are still listed</h2>
+
+<p>The <tt>list</tt> command uses the lookup service to extract the information regarding the services.</p>
+
+<p>A service's entry in the lookup is leased and kept until the next renewal attempt fails. If the service is not properly shutdown, i.e. abruptly terminated, it doesn't unregister itself from the lookup service. Thus, attempts to call <tt>list</tt> will still display the service until its lease expires. </p>
+
+<p>For defaults and configuration options, refer to <a href="Configuring the Service Grid Using the services.config File.html" title="Configuring the Service Grid Using the services.config File">Jini Lookup Service configuration</a> settings for <tt>minMaxServiceLease</tt> property.</p>
+</div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

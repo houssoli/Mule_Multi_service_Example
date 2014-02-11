@@ -1,0 +1,429 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Data Event Listener</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Data Event Listener</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903585";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903585";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Describe the common Space Data Event Listener and its different adapters. </p>
+</div>
+
+<h1><a name="DataEventListener-Overview"></a>Overview</h1>
+
+<p>OpenSpaces provides a single interface for Space Data event listeners used by different event containers (Space data event generators) such as Polling Event and Notify Event containers. The benefit of doing so is the loose coupling between how the events are received (the different containers) and what to do with a received event (the listener).</p>
+
+<p><img src="download/attachments/48235229/data_event.jpg" align="absmiddle" border="0"/></p>
+
+<h1><a name="DataEventListener-SpaceDataEventListener"></a>Space Data Event Listener</h1>
+
+<p>At their core, all different event containers should support raising event to an implementation of <tt>SpaceDataEventContainer</tt>. It is a simple interface described below:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> SpaceDataEventListener {
+
+    /**
+     * An event callback with the actual data object of the event.
+     * 
+     * @param data
+     *            The actual data object of the event
+     * @param gigaSpace
+     *            A GigaSpace instance that can be used to perofrm additional operations against the
+     *            space
+     * @param txStatus
+     *            An optional transaction status allowing to rollback a transaction programatically
+     * @param source
+     *            Optional additional data or the actual source event data object (where relevant)
+     */
+    void onEvent(<span class="code-object">Object</span> data, GigaSpace gigaSpace, TransactionStatus txStatus, <span class="code-object">Object</span> source);
+}</pre>
+</div></div>
+
+<p>If we take the following simple implementation of the event listener interface:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleListener <span class="code-keyword">implements</span> SpaceDataEventListener {
+  
+    <span class="code-keyword">public</span> void onEvent(<span class="code-object">Object</span> data, GigaSpace gigaSpace, TransactionStatus txStatus, <span class="code-object">Object</span> source) {
+        <span class="code-comment">// process event
+</span>    }
+}</pre>
+</div></div>
+
+<p>Here is how it can be configured:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="DataEventListener-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:x-container ...&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+
+    <span class="code-tag">&lt;os-events:listener ref=<span class="code-quote">"simpleListener"</span> /&gt;</span> 
+<span class="code-tag">&lt;/os-events&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="DataEventListener-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"..."</span>&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<h1><a name="DataEventListener-POJOEventListenerAdapters"></a>POJO Event Listener Adapters</h1>
+
+<p>OpenSpaces comes with two built in event adapters, the first supporting annotations and the second supporting method listing. Here is a simple example of an event listener implementation using annotations:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleListener {
+  
+    @SpaceDataEvent  
+    <span class="code-keyword">public</span> void myEventHandler(<span class="code-object">Object</span> data) {
+        <span class="code-comment">// process event
+</span>    }
+}</pre>
+</div></div>
+
+<p>The <tt>myEventHandler</tt> is marked using the <tt>SpaceDataEvent</tt> annotation as a callback that needs to be called in case of an event. Here is the XML configuration of the mentioned event listener:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="DataEventListener-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:x-container ...&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="DataEventListener-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"..."</span>&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<p>If we do not wish to use annotations, we can use the method adapter where method listing is used to define which methods are to be invoked. We can reuse the same SimpleListener (simply without the annotation) and configure it in the following manner:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="DataEventListener-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:x-container ...&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:method-adapter method-name=<span class="code-quote">"myEventHandler"</span>&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:method-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="DataEventListener-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"..."</span>&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.MethodEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"methodName"</span> value=<span class="code-quote">"myEventHandler"</span> /&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<h2><a name="DataEventListener-AdapterMethodParameter%27s"></a>Adapter Method Parameter's</h2>
+
+<p>The adapter method callback can accept zero or more parameters following the same order and types of the <tt>SpaceDataEventListener</tt>. Since the different adapters use reflection to invoke the event method, specific types can be used as the data event (based on the template provided to the event container). For example, if we define a template that matches <tt>Trade</tt> objects, our listener can use it directly:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleListener {
+  
+    @SpaceDataEvent  
+    <span class="code-keyword">public</span> void myEventHandler(Trade trade, GigaSpace gigaSpace) {
+        <span class="code-comment">// process event
+</span>    }
+}</pre>
+</div></div>
+
+<h2><a name="DataEventListener-AdapterMethodReturnValue"></a>Adapter Method Return Value</h2>
+
+<p>The adapter method callback can have a return value which will automatically be written back to the Space. The return value can either be a single object (which will cause write to be called) or an array of objects (which will cause writeMultiple to be called).</p>
+
+<p>By default, an update-or-write operation will be perfumed. This flag can be set to <tt>false</tt> which will force a write operation to be performed. Update timeout and write lease can also be configured.</p>
+
+<p>Here is an example of an event listener that returns an array of <tt>Order</tt> as a result of a <tt>Trade</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleListener {
+  
+    @SpaceDataEvent  
+    <span class="code-keyword">public</span> Order[] processTrade(Trade trade, GigaSpace gigaSpace) {
+        <span class="code-comment">// process event
+</span>    }
+}</pre>
+</div></div>
+
+<p>and the following is the configuration of such a listener using the annotation adapter:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="DataEventListener-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:x-container ...&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter update-or-write=<span class="code-quote">"false"</span> update-timeout=<span class="code-quote">"1000"</span> write-lease=<span class="code-quote">"1000"</span>&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="DataEventListener-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"..."</span>&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"writeLease"</span> value=<span class="code-quote">"1000"</span> /&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"updateTimeout"</span> value=<span class="code-quote">"1000"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<h2><a name="DataEventListener-MultipleEventMethods"></a>Multiple Event Methods</h2>
+
+<p>A single class can have several method event listeners all with the same name. This allows for automatic matching based on the data event type. Here is an example using annotations:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleListener {
+  
+    @SpaceDataEvent  
+    <span class="code-keyword">public</span> void processTrade(Trade trade, GigaSpace gigaSpace) {
+        <span class="code-comment">// process event
+</span>    }
+    
+    @SpaceDataEvent  
+    <span class="code-keyword">public</span> void processTrade(SpecialTrade trade, GigaSpace gigaSpace) {
+        <span class="code-comment">// process event
+</span>    }
+}</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>When using a single event method, the event adapter will cache the reflection information in order to invoke the method. In case multiple methods are used, no caching of the reflection information can be done, so a slight performance impact can be experienced.</td></tr></table></div>
+
+<h1><a name="DataEventListener-TaskExecutorEventListenerAdapter"></a>Task Executor Event Listener Adapter</h1>
+
+<p>OpenSpaces comes with an event adapter that allows you to delegate the execution of an event listener to a different task executor (a thread pool). It is handy when using the notify container and wanting to release the notification thread. Here is how it can be configured:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="DataEventListener-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:x-container ...&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.TaskExecutorEventListenerAdapter"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span>&gt;</span>
+                <span class="code-tag">&lt;os-events:annotation-adapter update-or-write=<span class="code-quote">"false"</span> update-timeout=<span class="code-quote">"1000"</span> write-lease=<span class="code-quote">"1000"</span>&gt;</span>
+                    <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+                <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;/property&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="DataEventListener-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"..."</span>&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.TaskExecutorEventListenerAdapter"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span>&gt;</span>
+                <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+                    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+                    <span class="code-tag">&lt;property name=<span class="code-quote">"writeLease"</span> value=<span class="code-quote">"1000"</span> /&gt;</span>
+                    <span class="code-tag">&lt;property name=<span class="code-quote">"updateTimeout"</span> value=<span class="code-quote">"1000"</span> /&gt;</span>
+                <span class="code-tag">&lt;/bean&gt;</span>
+            <span class="code-tag">&lt;/property&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<p>The default task executor uses Spring's <tt>SimpleAsyncTaskExecutor</tt> which creates a thread for each execution. Other <a href="http://static.springframework.org/spring/docs/2.0.x/reference/scheduling.html#scheduling-task-executor">Task Executors</a> can be used by setting it on the <tt>taskExecutor</tt> property.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

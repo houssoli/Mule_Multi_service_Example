@@ -1,0 +1,646 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Transaction Management</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Transaction Management</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903693";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903693";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  OpenSpaces provides several implementations of Spring's <tt>PlatformTransactionManager</tt> allowing you to use the GigaSpaces and <a href="http://www.jini.org/wiki/Jini_Transaction_Specification">Jini Transaction Manager</a>. </p>
+</div>
+
+<h1><a name="TransactionManagement-Overview"></a>Overview</h1>
+
+<p>The Spring Framework provides a transaction manager abstraction using the <tt>PlatformTransactionManager</tt> interface with several different built-in implementations, such as JDBC Data Source and JTA. GigaSpaces provides several implementations for Spring's <tt>PlatformTransactionManager</tt>, allowing you to use the GigaSpaces local and Jini Distributed Transaction Managers.</p>
+
+<p><img src="download/attachments/48235229/tx_manager.jpg" align="absmiddle" border="0"/></p>
+
+<p>By implementing Spring's <tt>PlatformTransactionManager</tt>, The OpenSpaces API allows users to utilize Spring's rich support for <a href="http://static.springframework.org/spring/docs/2.5.x/reference/transaction.html#transaction-declarative">declarative transaction management</a>. The declarative transaction support can be easily utilized with the <a href="The GigaSpace Interface.html" title="The GigaSpace Interface">GigaSpace Interface</a>.</p>
+
+<p>Please note that when using Spring declarative transaction, a proxy is generated for the classes annotated with <tt>@Transactional</tt> methods. In such a case <b>only external method calls</b> coming in through the proxy will be intercepted. This means that 'self-invocation', i.e. a method within the target object calling some other method of the target object, won't lead to an actual transaction at runtime even if the invoked method is marked with <tt>@Transactional</tt>.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In order to make <a href="The GigaSpace Interface.html" title="The GigaSpace Interface">The GigaSpace Interface </a> transactional, the transaction manager must be provided to it when constructing the GigaSpace bean.<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The following should be added to your <tt>pu.xml</tt> to enable the configuration of transactional behavior based on annotations:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;tx:annotation-driven transaction-manager=<span class="code-quote">"transactionManager"</span>/&gt;</pre>
+</div></div>
+
+<p>GigaSpaces provides several transaction managers, and changing the implementation you work with is just a matter of changing the the configuration. </p>
+
+<h2><a name="TransactionManagement-TransactionManagerTypes"></a>Transaction Manager Types</h2>
+
+<p>The section below lists the different types of transaction managers supported by GigaSpaces. Each transaction manager implements Spring's <tt>PlatformTransactionManager</tt> interface and therefore supports the Spring transaction framework (see below). </p>
+
+<h1><a name="TransactionManagement-DistributedJiniTransactionManager"></a>Distributed Jini Transaction Manager</h1>
+
+<p>The distributed <a href="http://www.jini.org/wiki/Jini_Transaction_Specification">Jini Transaction Manager</a> starts an embedded distributed (Mahalo) <b>Jini Transaction Manager</b>, which is then wrapped with an implementation of the Spring <tt>PlatformTransactionManager</tt>. This transaction manager is used in order to perform distributed transactions spanning multiple space instances.</p>
+
+<p>Below is an example of how it can be defined in a Spring application context:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TransactionManagement-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:distributed-tx-manager id=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span> /&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.openspaces.core.transaction.manager.DistributedJiniTransactionManager"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space"</span>).space();
+PlatformTransactionManager ptm = <span class="code-keyword">new</span> DistributedJiniTxManagerConfigurer().transactionManager();
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).transactionManager(ptm).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<h2><a name="TransactionManagement-TimeoutValues"></a>Timeout Values</h2>
+
+<p>The Jini distributed (mahalo) transaction manager allows to set the default timeout value for transactions. A timeout value is used when a transaction is not committed/rolled back (for example due to JVM crash) to control when the transaction will be discarded. By default the timeout value is 90 and is set in seconds. Controlling the timeout value can be done using:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TransactionManagement-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:distributed-tx-manager id=<span class="code-quote">"transactionManager"</span> default-timeout=<span class="code-quote">"1000"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.openspaces.core.transaction.manager.DistributedJiniTransactionManager"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"defaultTimeout"</span> value=<span class="code-quote">"1000"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space"</span>).space();
+PlatformTransactionManager ptm = <span class="code-keyword">new</span> DistributedJiniTxManagerConfigurer().defaultTimeout(1000).transactionManager();
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).transactionManager(ptm).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Time based Parameters Units:</p>
+<ul>
+	<li>The <b>default-timeout</b> parameter is specified in seconds</li>
+	<li>Other parameters such as the commit and abort timeout, lookup-timeout, and others are specified in millisecond</li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When using Spring declarative transaction management, a transaction timeout can be set on the transaction scope. For more details, see <a href="#TransactionManagement-spring">above</a>.</p>
+
+<p>When using Jini based transactions, a timeout value can be set for both the commit and abort operations. This values can also be set on the transaction manager.</p>
+
+<h1><a name="TransactionManagement-LookupJiniTransactionManager"></a>Lookup Jini Transaction Manager</h1>
+
+<p>The lookup Jini Transaction Manager allows you to use the Jini lookup mechanism in order to lookup a Jini Transaction Manager that is present somewhere in the cluster (as opposed to being started locally in your application), which is then wrapped with an implementation of the Spring <tt>PlatformTransactionManager</tt>. This transaction manager is usually used in order to obtain a remote Jini Mahalo transaction manager for distributed transactions spanning multiple space instances.</p>
+
+<p>Below is an example of how it can be defined in a Spring application context:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TransactionManagement-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:jini-tx-manager id=<span class="code-quote">"transactionManager"</span> lookup-timeout=<span class="code-quote">"5000"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span> /&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.openspaces.core.transaction.manager.LookupJiniTransactionManager"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"lookupTimeout"</span> value=<span class="code-quote">"5000"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space"</span>).space();
+PlatformTransactionManager ptm = <span class="code-keyword">new</span> LookupJiniTxManagerConfigurer().lookupTimeout(5000).transactionManager();
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).transactionManager(ptm).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<h2><a name="TransactionManagement-TimeoutValues"></a>Timeout Values</h2>
+
+<p>The Jini lookup transaction manager allows to set the default timeout value for transactions. A timeout value is used when a transaction is not committed/rolled back (for example due to a JVM crash) to control when the transaction will be discarded. By default the timeout value is 60 Sec and is set in seconds. Controlling the timeout value can be done using:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TransactionManagement-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:jini-tx-manager id=<span class="code-quote">"transactionManager"</span> default-timeout=<span class="code-quote">"1000"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.openspaces.core.transaction.manager.LookupJiniTransactionManager"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"defaultTimeout"</span> value=<span class="code-quote">"1000"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space"</span>).space();
+PlatformTransactionManager ptm = <span class="code-keyword">new</span> LookupJiniTxManagerConfigurer().defaultTimeout(1000).transactionManager();
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).transactionManager(ptm).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When using Spring declarative transaction management, a transaction timeout can be set on the transaction scope. For more details, see <a href="#TransactionManagement-spring">above</a>.</p>
+
+<p>When using Jini based transactions, a timeout value can be set for both the commit and abort operations. This values can also be set on the transaction manager.</p>
+
+<h1><a name="TransactionManagement-LocalJiniTransactionManagerDeprecated"></a>Local Jini Transaction Manager - Deprecated</h1>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Local Jini Transaction Manager was deprecated in 8.0. Use <a href="#TransactionManagement-DistributedJiniTransactionManager">Distributed Jini Transaction Manager</a> instead.<br/>
+Please refer to the <a href="http://www.gigaspaces.com/wiki/display/XAP71/Transaction+Management#TransactionManagement-LocalJiniTransactionManager">documentation of release 7.1</a> if you're not using XAP 8.0.</td></tr></table></div>
+
+<h1><a name="TransactionManagement-RenewingTransactions"></a>Renewing Transactions</h1>
+
+<p>Jini transactions allow you to configure automatic renewing of ongoing transactions. This feature is very handy when wanting to configure a long transaction timeout, and have it expire earlier in case of a complete failure (for example, a JVM crash). Expiring the transaction is important so objects held under a transaction lock are released as soon as possible.</p>
+
+<p>Here is an example of how this can be configured:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TransactionManagement-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:local-tx-manager id=<span class="code-quote">"transactionManager"</span> space=<span class="code-quote">"space"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:renew pool-size=<span class="code-quote">"2"</span> duration=<span class="code-quote">"1000"</span> round-trip-time=<span class="code-quote">"500"</span> /&gt;</span>
+<span class="code-tag">&lt;/os-core:local-tx-manager&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.openspaces.core.transaction.manager.DistributedJiniTransactionManager"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"leaseRenewalConfig"</span>&gt;</span>
+	    <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.core.transaction.manager.TransactionLeaseRenewalConfig"</span>&gt;</span>
+	        <span class="code-tag">&lt;property name=<span class="code-quote">"poolSize"</span> value=<span class="code-quote">"2"</span> /&gt;</span>
+	        <span class="code-tag">&lt;proeprty name=<span class="code-quote">"renewRTT"</span> value=<span class="code-quote">"500"</span> /&gt;</span>
+	        <span class="code-tag">&lt;property name=<span class="code-quote">"renewDuration"</span> value=<span class="code-quote">"1000"</span> /&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+	<span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space"</span>).space();
+TransactionLeaseRenewalConfig config = <span class="code-keyword">new</span> TransactionLeaseRenewalConfig();
+config.setPoolSize(2);
+config.setRenewDuration(1000);
+config.setRenewRTT(500);
+PlatformTransactionManager ptm = <span class="code-keyword">new</span> DistributedJiniTxManagerConfigurer(space).leaseRenewalConfig(config).transactionManager();
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).transactionManager(ptm).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p>The above configuration creates a Distributed Transaction Manager with a pool of 2 transaction (lease) renewal managers (a single manager can handle multiple transactions, more managers allow for better concurrency). Each transaction is renewed every 1 second (1000 milliseconds) with an expected round trip time of 500 milliseconds. This means that a transaction with a timeout of 10 seconds is renewed 10 times (approximately) and if the JVM crashes, the transaction expires within a second (at most).</p>
+
+<p>More information regarding Lease Renewal Manager can be found <a href="Leases.html#Leases-LeaseRenewalManager">here</a>.</p>
+
+<h1><a name="TransactionManagement-XA%2FJTASupport"></a>XA/JTA Support</h1>
+
+<p>GigaSpaces can be used within an XA transaction using JTA. The OpenSpaces API allows you to work with Spring's <tt>JTATransactionManager</tt> and provides support for declarative transaction management. Here is an example of how OpenSpaces JTA support can be used (using JOTM):</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TransactionManagement-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"jotm"</span> class=<span class="code-quote">"org.springframework.transaction.jta.JotmFactoryBean"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.springframework.transaction.jta.JtaTransactionManager"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"userTransaction"</span> ref=<span class="code-quote">"jotm"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span> /&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"jotm"</span> class=<span class="code-quote">"org.springframework.transaction.jta.JotmFactoryBean"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.springframework.transaction.jta.JtaTransactionManager"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"userTransaction"</span> ref=<span class="code-quote">"jotm"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"transactionManager"</span> ref=<span class="code-quote">"transactionManager"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="TransactionManagement-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UserTransaction userTransaction = ... <span class="code-comment">//get UserTransaction via JDNI / instantiation
+</span>PlatformTransactionManager ptm = <span class="code-keyword">new</span> JtaTransactionManager(userTransaction);
+IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space"</span>).space();
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).transactionManager(ptm).gig</pre>
+</div></div>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> GigaSpaces JTA support uses the high-performance Local Transaction Manager internally. The Local Transaction Manager can only be used when performing operations against a single Space instance. When working with a clustered topology using a proxy that connects to the whole cluster, operations should be performed only against a single cluster member (controlled using routing index). Working with two different Spaces (and not different cluster members) is supported with JTA.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> XA transactions should generally be avoided and not used. The overhead of managing a 2PC transaction over two or more resources is often times a performance killer. We recommend using well-known patterns in order to avoid it (such as duplicate detection).</p>
+
+<h1><a name="TransactionManagement-MultipleTransactionManagers"></a>Multiple Transaction Managers</h1>
+<p>Starting with Spring 3 you may specify multiple Transaction managers within the same Spring context (pu.xml) and use the <tt>@Transactional</tt> annotation. If you have multiple Transaction managers used, make sure you specify the name of the transaction manager your class/method should use:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>The pu.xml</b></div><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:distributed-tx-manager id=<span class="code-quote">" txManager1"</span> /&gt;
+&lt;os-core:giga-space id=<span class="code-quote">"gigaspace"</span> space=<span class="code-quote">"space"</span>  tx-manager=<span class="code-quote">"txManager1"</span>/&gt;
+&lt;tx:annotation-driven transaction-manager=<span class="code-quote">" txManager1"</span> /&gt; 	
+
+&lt;os-core:distributed-tx-manager id=<span class="code-quote">" txManager2"</span> /&gt;
+&lt;os-core:giga-space id=<span class="code-quote">"gigaspace2"</span> space=<span class="code-quote">"space"</span>  tx-manager=<span class="code-quote">"txManager2"</span>/&gt;
+&lt;tx:annotation-driven transaction-manager=<span class="code-quote">" txManager2"</span> /&gt;</pre>
+</div></div>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>ExampleService1Impl.java</b></div><div class="codeContent panelContent">
+<pre class="code-java">@Transactional(value=<span class="code-quote">"txManager1"</span>)
+<span class="code-keyword">public</span> <span class="code-object">String</span> getFoo()
+{
+    <span class="code-keyword">return</span> dao.find(<span class="code-quote">"foo"</span>);
+}</pre>
+</div></div>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>ExampleService2Impl.java</b></div><div class="codeContent panelContent">
+<pre class="code-java">@Transactional(value=<span class="code-quote">"txManager2"</span>)
+<span class="code-keyword">public</span> <span class="code-object">String</span> getFoo()
+{
+    <span class="code-keyword">return</span> dao.find(<span class="code-quote">"foo"</span>);
+}</pre>
+</div></div>
+
+
+<h1><a name="TransactionManagement-HowtoDemarcateTransactionsinYourCode"></a>How to Demarcate Transactions in Your Code </h1>
+
+<p>There are two ways to demarcate the transaction boundaries in your code:</p>
+<ol>
+	<li>Annotate your methods with the Spring <tt>@Transactional</tt> annotation and configure Spring to process the annotation such that every call to the annotated methods will be automatically performed under a transaction. In such case the transaction starts before the method is called and commits when the method call returns. If an exception is thrown from the method the transaction is rolled back automatically. Note that you can control various aspects of the transaction by using the attributes of the <tt>@Transactional</tt> annotation. Please consult the <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/transaction/annotation/Transactional.html">Javadoc</a> of this class for more details.</li>
+	<li>Programmatically create the required transaction manager (see below) and a <tt>TransactionDefinition</tt> instance, and call the space operations you would to perform under a transaction.</li>
+</ol>
+
+
+<h1><a name="TransactionManagement-DeclarativeTransactionDemarcation"></a>Declarative Transaction Demarcation </h1>
+
+<p>Here is an example how a method should be annotated to support declarative transaction management:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Transactional (propagation=Propagation.REQUIRED)
+<span class="code-keyword">public</span> void myTransactionalMethod(<span class="code-object">Object</span> data) {
+  gigaSpace.write(mySpaceObject);
+  gigaSpace.take(mytemplate);
+  ...
+  }</pre>
+</div></div>
+
+<p>To enable the declarative transaction management:</p>
+<ol>
+	<li>In your processing unit XML, your pu.xml should include the <tt>&lt;tx:annotation-driven&gt;</tt> tag. See the below example for enabling the <tt>@Transactional</tt> annotation processing for the pu.xml. The system will search for <tt>@Transactional</tt> annotations on all of the beans in the pu.xml.</li>
+	<li>For the transactional behavior to take effect, the calling code <b>must be injected with the transactional bean</b>. In the example below, we have the <tt>transactionalBean</tt> bean which annotates some of its methods with the <tt>@Transactional</tt> annotation. The <tt>callingBean</tt> is injected with it. Under the hood, Spring will wrap the <tt>transactionalBean</tt> with a transactional proxy that will initiate a transaction before the method is called and commit/rollback it according to the invocation result.</li>
+	<li>The <tt>@Transactional</tt> annotation is only going to be applied for proxied beans, i.e. beans that have been processed by the framework and injected to other beans which use them.</li>
+	<li>If you try to call an annotated method from within the same class for example (e.g. calling it on <tt>this</tt>), no transaction will be started since your code actually accesses direct reference and not a proxied bean.</li>
+</ol>
+
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;
+&lt;beans xmlns=<span class="code-quote">"http:<span class="code-comment">//www.springframework.org/schema/beans"</span>
+</span>       xmlns:xsi=<span class="code-quote">"http:<span class="code-comment">//www.w3.org/2001/XMLSchema-instance"</span>
+</span>       xmlns:context=<span class="code-quote">"http:<span class="code-comment">//www.springframework.org/schema/context"</span>
+</span>       xmlns:os-core=<span class="code-quote">"http:<span class="code-comment">//www.openspaces.org/schema/core"</span>
+</span>       xmlns:tx=<span class="code-quote">"http:<span class="code-comment">//www.springframework.org/schema/tx"</span>
+</span>       xmlns:os-events=<span class="code-quote">"http:<span class="code-comment">//www.openspaces.org/schema/events"</span>
+</span>       xmlns:os-remoting=<span class="code-quote">"http:<span class="code-comment">//www.openspaces.org/schema/remoting"</span>
+</span>       xsi:schemaLocation="http:<span class="code-comment">//www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+</span>       http:<span class="code-comment">//www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+</span>       http:<span class="code-comment">//www.openspaces.org/schema/core http://www.openspaces.org/schema/core/openspaces-core.xsd
+</span>       http:<span class="code-comment">//www.openspaces.org/schema/events http://www.openspaces.org/schema/events/openspaces-events.xsd
+</span>       http:<span class="code-comment">//www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd      
+</span>       http:<span class="code-comment">//www.openspaces.org/schema/remoting http://www.openspaces.org/schema/remoting/openspaces-remoting.xsd"&gt;
+</span>
+	&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;
+	&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;
+	&lt;!-- Defines a distributed Jini transaction manager. --&gt;
+	&lt;os-core:distributed-tx-manager id=<span class="code-quote">"transactionManager"</span>/&gt;
+        &lt;bean id=<span class="code-quote">"transactionalBean"</span> class=<span class="code-quote">"MyClass"</span>/&gt;
+        &lt;bean id=<span class="code-quote">"callingBean"</span> class=<span class="code-quote">"MyOtherClass"</span>&gt;
+            &lt;property name=<span class="code-quote">"myClass"</span> ref=<span class="code-quote">"transactionalBean"</span>/&gt; 
+        &lt;/bean&gt;
+	&lt;tx:annotation-driven transaction-manager=<span class="code-quote">"transactionManager"</span> /&gt; 
+&lt;/beans&gt;</pre>
+</div></div>
+
+<p>Note that you can also annotate beans exposed via <a href="Space Based Remoting.html" title="Space Based Remoting">space based remoting</a>. If you include the <tt>&lt;tx:annotation-driven&gt;</tt> element in your <tt>pu.xml</tt> file, it will be processed as any other bean and the remoting mechanism will use the proxied instance, thus making the remote call to the bean transactional. </p>
+
+<h1><a name="TransactionManagement-ProgrammaticTransactionManagement"></a>Programmatic Transaction Management</h1>
+
+<p>If you don't want to leverage <a href="http://static.springframework.org/spring/docs/2.5.x/reference/transaction.html#transaction-declarative">Spring's declarative transaction management</a>, or have an application that is not configured by Spring, you can start, commit and rollback transactions explicitly from within your code by using Spring's transaction API. </p>
+
+<p>Here is how you should use the Transaction manager via the API:<br/>
+1. Get a reference to the relevant <tt>PlatformTransactionManager</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>DistributedJiniTxManagerConfigurer</b></div><div class="codeContent panelContent">
+<pre class="code-java">PlatformTransactionManager ptm = <span class="code-keyword">new</span> DistributedJiniTxManagerConfigurer().transactionManager();</pre>
+</div></div>
+<p>or</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>LookupJiniTxManagerConfigurer</b></div><div class="codeContent panelContent">
+<pre class="code-java">PlatformTransactionManager ptm = <span class="code-keyword">new</span> LookupJiniTxManagerConfigurer().lookupTimeout(5000).transactionManager();</pre>
+</div></div>
+
+<p>2. Use the <tt>GigaSpace</tt> to execute space operations and rollback/commit using the <tt>PlatformTransactionManager</tt> created:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace gigaSpace = ...<span class="code-comment">//get reference to a GigaSpace instance
+</span>PlatformTransactionManager ptm = ... <span class="code-comment">//get a reference to a GigaSpaces PlatformTransactionManager 
+</span> <span class="code-comment">// instance as described in step one above. 
+</span> <span class="code-comment">// Use the relevant type based on the nature of the business logic behavior.
+</span>DefaultTransactionDefinition definition = <span class="code-keyword">new</span> DefaultTransactionDefinition();
+<span class="code-comment">//configure the definition...
+</span>TransactionStatus status = ptm.getTransaction(definition);
+<span class="code-keyword">try</span> {    
+    <span class="code-comment">//<span class="code-keyword">do</span> things with the GigaSpace instance...
+</span>} 
+<span class="code-keyword">catch</span> (MyException e) {
+    ptm.rollback(status);
+    <span class="code-keyword">throw</span> e;
+}
+ptm.commit(status);</pre>
+</div></div>
+
+<p>You can also use Spring's <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/transaction/support/TransactionTemplate.html">TransactionTemplate</a> if you prefer. This is documented in full in the <a href="http://static.springframework.org/spring/docs/2.5.x/reference/transaction.html#transaction-programmatic">Spring reference guide</a>.</p>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903693";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903693";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="TransactionManagement-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="Space Locking and Blocking.html" title="Space Locking and Blocking">Space Locking and Blocking</a> &mdash; <span class="smalltext">Using optimistic and pessimistic locking to preserve the integrity of changes in multi-user scenarios.</span><ul><li><a href="GigaSpaces Read Modifiers.html" title="GigaSpaces Read Modifiers">GigaSpaces Read Modifiers</a> &mdash; <span class="smalltext">GigaSpaces <tt>EXCLUSIVE_READ_LOCK</tt>, <tt>READ_COMMITTED</tt>, <tt>DIRTY_READ</tt>, and <tt>REPEATABLE_READ</tt> modifiers.</span></li><li><a href="Optimistic Locking.html" title="Optimistic Locking">Optimistic Locking</a> &mdash; <span class="smalltext">The optimistic locking protocol provides better performance and scalability when having concurrent access to the same data. Optimistic locking offers higher concurrency and better performance than pessimistic locking. It also avoids deadlocks.</span></li><li><a href="Pessimistic Locking.html" title="Pessimistic Locking">Pessimistic Locking</a> &mdash; <span class="smalltext">In the pessimistic locking approach, your program must explicitly obtain a lock using a transaction on one or more objects before making any changes.</span></li></ul></li></ul>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Authenticating against a database</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Authenticating against a database</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903795";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903795";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Storing user details in a relational database using DaoAuthenticationProvider </p>
+</div>
+
+<h1><a name="Authenticatingagainstadatabase-Introduction"></a>Introduction</h1>
+
+<p>Spring's Security <tt>DaoAuthenticationProvider</tt> is a simple authentication provider that uses a fData Access Object (DAO) to retrieve user information from a relational database. It leverages a <tt>UserDetailsService</tt> (as a DAO) in order to lookup the username, password and <tt>GrantedAuthority</tt> s. It authenticates the user simply by comparing the password submitted in a <tt>UsernamePasswordAuthenticationToken</tt>  against the one loaded by the <tt>UserDetailsService</tt>.</p>
+
+<p>Configuring the provider is quite simple: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"daoAuthenticationProvider"</span> 
+      class=<span class="code-quote">"org.springframework.security.authentication.dao.DaoAuthenticationProvider"</span>&gt;
+    &lt;property name=<span class="code-quote">"userDetailsService"</span> ref=<span class="code-quote">"daoUserDetailsService"</span> /&gt;
+&lt;/bean&gt;</pre>
+</div></div>
+
+<p>In addition, you can optionally configure a <tt>PasswordEncoder</tt> and a <tt>SaltSource</tt>. A <tt>PasswordEncoder</tt> provides encoding and decoding of passwords presented in the <tt>UserDetails</tt> object that is returned from the configured <tt>UserDetailsService</tt>. A <tt>SaltSource</tt> enables the passwords to be populated with a "salt", which enhances the security of the passwords in the authentication repository. For more details, refer to Spring Security reference.</p>
+
+<h1><a name="Authenticatingagainstadatabase-UsinganinmemoryDAO"></a>Using an in-memory DAO</h1>
+
+<p>Spring Security comes with <tt>InMemoryDaoImpl</tt>, an implementation of <tt>UserDetailsService</tt> that draws its user information from its Spring configuration. This is perfect when just starting to integrate Spring Security. Here's an example of how you may configure an <tt>InMemoryDaoImpl</tt> in Spring configuration file:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"daoUserDetailsService"</span> 
+      class=<span class="code-quote">"org.springframework.security.core.userdetails.memory.InMemoryDaoImpl"</span>&gt;
+ &lt;property name=<span class="code-quote">"userMap"</span>&gt;
+    &lt;value&gt;
+      Edward = koala, SpacePrivilege READ ClassFilter eg.cinema.Movie, SpacePrivilege READ ClassFilter eg.cinema.Seat, 
+               SpacePrivilege WRITE ClassFilter eg.cinema.Seat
+      Arthur = goanna, SpacePrivilege READ ClassFilter eg.cinema.Movie, SpacePrivilege READ ClassFilter eg.cinema.Seat, 
+               SpacePrivilege WRITE ClassFilter eg.cinema.Seat
+      Emily = kangaroo, GridPrivilege MANAGE_GRID, GridPrivilege MANAGE_PU, GridPrivilege PROVISION_PU, 
+              SpacePrivilege READ PackageFilter eg.cinema
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
+
+* Simpler option is to use the user-service element from the Spring's security namespace.</pre>
+</div></div>
+
+<p>The <tt>userMap</tt> property defines a set of usernames, passwords and privileges. On each line is a username, a password followed by a comma separated list of one or more authorities to be granted to the user. </p>
+
+<p>Consider Edward, a Box-Office Employee, which has privileges to list all movies and their available seats, and to reserve a seat. Edward is granted <tt>READ</tt> privileges for class <tt>eg.cinema.Movie</tt> and for class <tt>eg.cinema.Seat</tt>, and <tt>WRITE</tt> privileges to update a <tt>eg.cinema.Seat</tt> as reserved. Of course, this can get quite cumbersome for production use. </p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This Spring Security configuration file can be found under <tt>&lt;GigaSpaces root&gt;/config/security/in-memory-security-config.xml</tt></td></tr></table></div>
+
+<h1><a name="Authenticatingagainstadatabase-DeclaringaJDBCDAO"></a>Declaring a JDBC DAO</h1>
+
+<p>Spring Security also includes <tt>JdbcDaoImpl</tt>, a <tt>UserDetailsService</tt> that can obtain authentication information from a JDBC data source. It can be declared in the Spring configuration file as follows:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"daoUserDetailsService"</span> class=<span class="code-quote">"org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl"</span>&gt;
+    &lt;property name=<span class="code-quote">"dataSource"</span> ref=<span class="code-quote">"jdbcDataSource"</span> /&gt;
+&lt;/bean&gt;
+
+&lt;bean id=<span class="code-quote">"jdbcDataSource"</span>
+    class=<span class="code-quote">"org.springframework.jdbc.datasource.SimpleDriverDataSource"</span>&gt;
+    &lt;property name=<span class="code-quote">"driverClass"</span> value=<span class="code-quote">"org.hsqldb.jdbcDriver"</span> /&gt;
+    &lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jdbc:hsqldb:hsql:<span class="code-comment">//localhost:9001"</span> /&gt;
+</span>&lt;/bean&gt;</pre>
+</div></div>
+
+<p>There are some basic assumptions on how user information is stored in the database. Specifically, it assumes a Users table and an Authorities table. By default, <tt>JdbcDaoImpl</tt> loads the authorities for a single user with the assumption that the authorities are mapped directly to users. An alternative approach is to partition the authorities into groups (roles) and assign groups to the user. For more information, refer to the <b><tt>JdbcDaoImpl</tt> Javadoc</b> and the <b>Security Database Schema Appendix</b>.</p>
+
+<p>Here is a snippet:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">create table users(
+    username varchar_ignorecase(50) not <span class="code-keyword">null</span> primary key,
+    password varchar_ignorecase(50) not <span class="code-keyword">null</span>,
+    enabled <span class="code-object">boolean</span> not <span class="code-keyword">null</span>);
+
+create table authorities (
+    username varchar_ignorecase(50) not <span class="code-keyword">null</span>,
+    authority varchar_ignorecase(50) not <span class="code-keyword">null</span>,
+    constraint fk_authorities_users foreign key(username) references users(username));
+    create unique index ix_auth_username on authorities (username,authority);
+
+---
+Group Authorities (<span class="code-keyword">if</span> enabled)
+
+create table groups (
+    id bigint generated by <span class="code-keyword">default</span> as identity(start with 0) primary key,
+    group_name varchar_ignorecase(50) not <span class="code-keyword">null</span>);
+
+create table group_authorities (
+    group_id bigint not <span class="code-keyword">null</span>,
+    authority varchar(50) not <span class="code-keyword">null</span>,
+    constraint fk_group_authorities_group foreign key(group_id) references groups(id));
+
+create table group_members (
+    id bigint generated by <span class="code-keyword">default</span> as identity(start with 0) primary key,
+    username varchar(50) not <span class="code-keyword">null</span>,
+    group_id bigint not <span class="code-keyword">null</span>,
+    constraint fk_group_members_group foreign key(group_id) references groups(id));</pre>
+</div></div>
+
+<p>The illustration below represents the table structures assumed by <tt>JdbcDaoImpl</tt> and an example table data holding our "Box-Office" users and roles. If you are not using groups (roles) then a <tt>users</tt> table and an <tt>authorities</tt> table will do.</p>
+
+<p><font color="red">Edward</font>, <font color="red">Arthur</font> and <font color="blue">Thomas</font> are all "Box-Office employees" which share this common role, with privileges to list all movies and their available seats, and to reserve a seat. On the other hand, <font color="blue">Thomas</font> is <b>also</b> a "Box-Office Manager", with privileges to setup a new movie and remove old movies. <font color="#FF0066">Emily</font>, is a "Box-Office Administrator" who is responsible for setting up the "Box-Office" application, and <b>also</b> has (non-role) privileges to read and write all data related to the cinema.</p>
+
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top">
+<p><b>The database tables assumed by <tt>JdbcDaoImpl</tt></b></p>
+
+<p><img src="download/attachments/48235229/SpringSecurity-JdbcDaoImpl.png" align="absmiddle" border="0"/> </p></td>
+<td class="confluenceTd"  valign="top">
+<p><b>Box-Office users and roles</b></p>
+
+<p><img src="download/attachments/48235229/SpringSecurity-JdbcTables.png" align="absmiddle" border="0"/></p></td></tr></tbody></table>
+
+<p>To use <tt>JdbcDaoImpl</tt>, you might need to configure it to find the user information in regards to your database schema (assuming it is different from the default). By setting the <tt>usersByUsernameQuery</tt>, <tt>authoritiesByUsernameQuery</tt>, and <tt>groupAuthoritiesByUsernameQuery</tt> you can configure the <tt>JdbcDaoImpl</tt> to retrieve the user information and granted authorities based on your database schema.</p>
+
+<p>When <tt>JdbcDaoImpl</tt> looks up user information, it will query with the following SQL:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SELECT username,password,enabled FROM users WHERE username = ?</pre>
+</div></div>
+
+<p>You may have noticed that we omitted the 'enabled' column in our example Users table. For this to work, we need to change the <tt>usersByUsernameQuery</tt> to return 'true' for the 'enabled' column value. Likewise, you would set the query to suite your needs.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"daoUserDetailsService"</span> class=<span class="code-quote">"org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl"</span>&gt;
+    &lt;property name=<span class="code-quote">"dataSource"</span> ref=<span class="code-quote">"jdbcDataSource"</span> /&gt;
+    &lt;property name=<span class="code-quote">"usersByUsernameQuery"</span>&gt;
+        &lt;value&gt;SELECT username,password,'<span class="code-keyword">true</span>' FROM users WHERE username = ?&lt;/value&gt;
+    &lt;/property&gt;
+...
+&lt;/bean&gt;</pre>
+</div></div>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This Spring Security configuration file can be found under <tt>&lt;GigaSpaces root&gt;/config/security/jdbc-security-config.xml</tt></td></tr></table></div>
+
+<h1><a name="Authenticatingagainstadatabase-Workingwithencryptedpasswords"></a>Working with encrypted passwords</h1>
+
+<p>Spring Security's <tt>PasswordEncoder</tt> interface is used to support the use of passwords which are encoded in some way in persistent storage. This will normally mean that the passwords are "hashed" using a digest algorithm such as MD5 or SHA.</p>
+
+<p>By default, the <tt>DaoAuthenticationProvider</tt> uses the <tt>PlaintextPasswordEncoder</tt>, which means that the password is left unencoded. Here is how to wire <tt>DaoAuthenticationProvider</tt> to use <b>MD5</b> encoding:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"daoAuthenticationProvider"</span>
+    class=<span class="code-quote">"org.springframework.security.authentication.dao.DaoAuthenticationProvider"</span>&gt;
+    &lt;property name=<span class="code-quote">"userDetailsService"</span> ref=<span class="code-quote">"daoUserDetailsService"</span> /&gt;
+    &lt;property name=<span class="code-quote">"passwordEncoder"</span>&gt;
+        &lt;bean class=<span class="code-quote">"org.springframework.security.authentication.encoding.Md5PasswordEncoder"</span> /&gt;
+    &lt;/property&gt;
+&lt;/bean&gt;</pre>
+</div></div>
+
+<p>You can also set a <em>salt source</em> for the encoder. For more information, refer to Spring Security reference.</p>
+
+
+
+<p><br clear="all" />
+<br clear="all" />
+<br clear="all" /></p>
+<hr />
+<div class="panel" style="border-width: 1px;"><div class="panelContent">
+<p>By now you should be familiar with some important concepts: </p>
+<ul>
+	<li>Setting up a Spring-based security bridge with a simple in-memory DAO or a relational database,</li>
+	<li>Defining privileges for a user, configure a password encoder,</li>
+	<li>Test a standalone security bridge against your configuration,</li>
+	<li>Launch a simple GigaSpaces instance with a Spring Security back-end.</li>
+</ul>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

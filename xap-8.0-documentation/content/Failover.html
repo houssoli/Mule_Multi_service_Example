@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Failover</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Failover</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903744";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903744";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  This section describes GigaSpaces IMDG Failover facilities. </p>
+</div>
+<h1><a name="Failover-Failover"></a>Failover</h1>
+<p>Failover is the mechanism used to route user operations to alternate spaces in case the target space (of the original operation) fails. Several space members can belong to a failover group, which then defines their failover policy.</p>
+
+<p>The component responsible for failover in GigaSpaces is the clustered proxy. This component maintains a list of spaces that belongs to the failover group. When an operation on a space fails, because the space member is unavailable, the clustered proxy tries to locate a live and accessible space member. If it finds such a space, it re-invokes the operation on that space member. If it doesn't find any live space member, it throws the original exception back to the user. </p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> A space cannot reside in different load-balancing and failover groups. In other words, the only way to apply both load-balancing and failover to a space is to define these policies for one group, which the space belongs to.</p>
+
+<h2><a name="Failover-FailoverandRecoveryProcess"></a>Failover and Recovery Process </h2>
+<p>Failover and Recovery process includes the following steps (we assume spaces deployed using the SLA driven container (GSC and GSM):<br/>
+1. Backup identifies that the primary space is not available and moving itself to a primary mode. The active election settings as part of the cluster config can be tuned to speed up this step.<br/>
+2. Client request is routed to backup space. Request will be run on the backup space using a retry logic until the space becomes active/primary. Retry limits and gap between retries is configurable.<br/>
+3. GSM identifies the backup space is missing and provision new space into existing GSC - preferably empty GSC or based on predefined SLA. You can tune this step by modifying the GSM settings. <br/>
+4. Backup started. It is looking for the look service and register itself. <br/>
+5. Backup identifies that a primary space exists (goes through primary election process) and moves itself into backup mode. If there are multiple GSMs and bad network or wrong locators configuration &#8211; you might end up here with split-brain scenario where you have multiple primaries running. <br/>
+6. Backup read existing space objects from the primary space (aka memory recovery). This might take some time with few million space objects. <b>In GigaSpaces 6.5 and onwards this is done via multiple threads</b>. You can tune this by modifying the recovery batch size and also the amount of recovery threads. <br/>
+7. Primary clears its redo log (During the above step) and starts to accumulate incoming destructive events (write , update , take) within its redo log. This is one of the reasons why the redo log size can have limited size in many cases. You can use the redo-log-capacity to configure the redo-log size. For example: If the recovery takes 30 sec and the client performs 1000 destruction operations/sec &#8211; your redo log size can be 30,000.<br/>
+8. Backup completes reading space objects from primary. <br/>
+9. Primary replicates redo log content to the backup (via the async replication channel) &#8211; In this point backup getting also sycn replication events from primary. You can control the redo log replication speed using the async replication batch size.<br/>
+10. Once the redo replication completed &#8211; Recovery done. Backup is ready to act as a primary.</p>
+
+<p>In order to speed up the recovery time you should use the following:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;
+    &lt;os-core:properties&gt;
+        &lt;props&gt;
+            &lt;prop key=<span class="code-quote">"cluster-config.groups.group.repl-policy.recovery-chunk-size"</span>&gt;1000&lt;/prop&gt;
+            &lt;prop key=<span class="code-quote">"cluster-config.groups.group.repl-policy.recovery-thread-pool-size"</span>&gt;8&lt;/prop&gt;
+        &lt;/props&gt;
+    &lt;/os-core:properties&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+<p>The above will change the <tt>recovery-chunk-size</tt> to 1000 objects (default is 200 object per chink) and the amount of threads the backup is running to consume data from the primary to 8 (default is 4).</p>
+
+<h1><a name="Failover-FailoverwithBlockingOperationsandTransactions"></a>Failover with Blocking Operations and Transactions</h1>
+
+<p>Even if a client invokes a blocking operation, like <tt>take with timeout</tt> and the server fails after receiving the take arguments but before returning a result, the client gets an exception, and the failover process aborts. This is because in a clustered engine, unlike a non-clustered one, the server thread servicing the request waits for a final answer to be given (unless the request is timed out).<br/>
+If an operation is performed under a transaction and the target space that serviced the transaction has failed, the clustered proxy automatically aborts the transaction and throws a transaction exception back to the caller. (There is no point in re-invoking the operation to a different space, because the failed space member is a transaction participant. The transaction will ultimately be aborted by the transaction manager.) The caller catching the exception can start a new transaction and continue execution; later calls on the proxy are directed to an available space in the group.</p>
+
+<h1><a name="Failover-SelectiveFailoverWithintheGroup"></a>Selective Failover Within the Group</h1>
+<p>Like a replication policy, a failover policy can also be selective, i.e. some spaces may not failover to all other spaces. For each space, and for each operation (of write, read, take and notify), you can define backup members to which space operations may fail. The backup members are always strictly included in the failover group.<br/>
+Some of these backup members can be designated as backup only. This means that the space is not made available to clients, but rests in wait for the master space to fail. This provides a stronger guarantee of availability.</p>
+
+<h1><a name="Failover-FailovertoAlternateGroups"></a>Failover to Alternate Groups</h1>
+<p>A failover group can name alternate groups as backups. This means that if the failover process commences and no live space is found from the original failover group, the clustered proxy searches for live spaces in the alternate groups.<br/>
+If there is more than one alternate group, the proxy searches them according to a specific order defined in the failover policy. This allows you to set priorities between failover groups in the cluster.<br/>
+The following figure depicts a cluster of four spaces, two of them reside in the "East" site, and two on the "West" site:<br/>
+<img src="download/attachments/48235229/IMG501.gif" align="absmiddle" border="0"/><br/>
+A failover group groups the space members in the "East" and another failover group groups the space members in the "West". If an operation is made on an "Eastern" space that is down, the clustered proxy in the "East" tries to failover to another space member in the "East". If all spaces in the "East" are inaccessible, the proxy tries to find a live space member in the "West" group, and upon finding one, fails the operation to that space. The same occurs in vice verse: If the "Western" clustered proxy cannot fail to a space in the "West," it searches for an available space in the "East."</p>
+<h2><a name="Failover-BackupandBackupOnly"></a>Backup and Backup-Only</h2>
+<p>For each space in a failover group, you can define one or more "backup members." These are other spaces, in the same failover group, to which operations will be routed if the space fails. To activate this option, you must set the space's failover policy to Fail to Backup.<br/>
+It is also possible to create dedicated backup spaces. If you define a backup space as Backup Only, it will not be directly accessible to users, and will stand ready to receive failed operations from other spaces in the failover group.</p>
+
+<h1><a name="Failover-Failoverwithreplication"></a>Failover with replication</h1>
+<p>While you do not have to define replication with failover, this is often necessary. The failover mechanism routes operations transparently to an available space. However, it does not ensure that the space objects, which the user wanted to operate on, exists in that other space. If the user's operation is read or take, for example, it will not have the desired effect unless all the space objects from the master (target) space are precisely replicated in the slave space.<br/>
+This can be achieved by defining both a replication policy and a failover policy for a certain group. This will ensure that as long as the master slave is live, its updates are replicated to the slave space, which is then ready to assume the role of failover slave.</p>
+
+<h1><a name="Failover-InactiveSpaceretries"></a>Inactive Space retries</h1>
+<p>When a primary space partition fails and a backup space partition is being elected as a primary, client proxy will recognize the primary failure and route the requests to the backup. Election of a backup to primary is done using  active election process and this is not instantaneous (might take few seconds based on the active election configuration parameters). Any client requests directed to this partition during this time will still complete because there is a retry logic for recognizing <tt>com.gigaspaces.cluster.activeelection.InactiveSpaceException</tt> conditions, where proxy retries the same operation until the space becomes active/primary. Retry limits and gap between retries can be configured using following system properties on the client side:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property (client side) </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Defualt value</th>
+</tr>
+<tr>
+<td class='confluenceTd'> com.gs.client.inactiveRetryLimit </td>
+<td class='confluenceTd'> Number of retires on operation, <br/>
+waiting for one of the servers to become active after Active election. </td>
+<td class='confluenceTd'> 20 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> com.gs.failover.standby-wait-time</td>
+<td class='confluenceTd'> Retry backoff sleep time(ms). Between retries <br/>
+while waiting for one of the servers to become active after Active election. </td>
+<td class='confluenceTd'> 1000 ms</td>
+</tr>
+</tbody></table>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

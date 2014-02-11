@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Networking How Tos</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Networking How Tos</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Instructions for getting specific things related to networking done. </p>
+</div>
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903541";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903541";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="NetworkingHowTos-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="How to Configure Unicast Discovery.html" title="How to Configure Unicast Discovery">How to Configure Unicast Discovery</a> &mdash; <span class="smalltext">The section explains How to Configure and use Unicast Discovery.</span></li><li><a href="How to Configure Multicast.html" title="How to Configure Multicast">How to Configure Multicast</a> &mdash; <span class="smalltext">Enabling multicast on Linux and windows.</span><ul><li><a href="How to Determine Whether Multicast is Available.html" title="How to Determine Whether Multicast is Available">How to Determine Whether Multicast is Available</a> &mdash; <span class="smalltext">Used to determine whether multicast is available.</span></li></ul></li><li><a href="How to Set GigaSpaces Over NAT.html" title="How to Set GigaSpaces Over NAT">How to Set GigaSpaces Over NAT</a> &mdash; <span class="smalltext">The GigaSpaces settings to enable functioning over NAT.</span></li><li><a href="Lookup Service Configuration.html" title="Lookup Service Configuration">Lookup Service Configuration</a> &mdash; <span class="smalltext">Defining group names and unicast Locators for Jini Services; searching for available lookup services in the network.</span></li><li><a href="How to Configure an Environment With Multiple Network-Cards (Multi-NIC).html" title="How to Configure an Environment With Multiple Network-Cards (Multi-NIC)">How to Configure an Environment With Multiple Network-Cards (Multi-NIC)</a> &mdash; <span class="smalltext">Configuring GigaSpaces for a machine with multiple network cards. By default all network cards are used; you can limit GigaSpaces to specific ones.</span><ul><li><a href="Advanced Multi-NIC Configuration.html" title="Advanced Multi-NIC Configuration">Advanced Multi-NIC Configuration</a> &mdash; <span class="smalltext">How to configure GigaSpaces for Multiple Network Interface Cards.</span></li></ul></li><li><a href="How to Set GigaSpaces Over a Firewall.html" title="How to Set GigaSpaces Over a Firewall">How to Set GigaSpaces Over a Firewall</a> &mdash; <span class="smalltext">The GigaSpaces settings to enable functioning over a Firewall.</span></li><li><a href="How to Control the Used Ports.html" title="How to Control the Used Ports">How to Control the Used Ports</a> &mdash; <span class="smalltext">Default ports used by the space, container, and Jini Lookup Service, and how to configure them.</span></li></ul>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

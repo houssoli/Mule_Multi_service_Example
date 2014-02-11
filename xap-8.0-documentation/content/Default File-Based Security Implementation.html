@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Default File-Based Security Implementation</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Default File-Based Security Implementation</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The default file-based users/roles directory; Overview, Getting Started, Configuration, and Custom Extensions </p>
+</div>
+
+<h1><a name="DefaultFile-BasedSecurityImplementation-Overview"></a>Overview</h1>
+
+<p>GigaSpaces provides a default security implementation. The implementation uses a local file to store the users and roles. This file, needs to be shared or copied between the secured services. The default implementation has configurations for most of its defaults and some handy extension points (e.g. HTTP file-service).</p>
+
+<p>To provide other custom security implementations see the <a href="Custom Security.html" title="Custom Security">Custom Security</a> section.<br/>
+One such custom security implementation is the <a href="Spring Security Bridge.html" title="Spring Security Bridge">Spring Security Bridge</a> (since 7.1.1).</p>
+
+<h1><a name="DefaultFile-BasedSecurityImplementation-GettingStarted"></a>Getting Started</h1>
+
+<p>The default security file-based directory is first created when you try to manage the security directory (either using the UI or API).</p>
+
+<p>The default file is created under <b><tt>&lt;GigaSpaces root&gt;/security/gs-directory.fsm</tt></b>.<br/>
+The <tt>.fsm</tt> is an abbreviation of File Security Manager.</p>
+
+<p>When the file doesn't exist, we create a new file and an <b><tt>admin/admin</tt></b> user is added with both <b>Manage Users</b> and <b>Manage Roles</b> privileges. With this <tt>admin</tt> user you can start to manage the roles and users. The <tt>admin</tt> user has no privileges to perform any other operation. Of course, it can be deleted, and replaced with your own administrator. </p>
+
+<p>The file can be changed while services are up and running. Changes to the file are monitored (see <tt>FileService.lastModified()</tt> API), which triggers a refresh for fetching the updated file contents. The refresh rate is platform dependent. Changes don't affect open sessions, only new established sessions will be aware of the change.</p>
+
+<p>When a secured component is started, it looks for the security configuration properties in order to instantiate the security implementation. The default implementation does not require a properties file to exist, but it is essential if you would want to provide overrides to any of the extensions. The security configuration properties file is implementation specific. Here we describe the properties related to the file-based security manager implementation.</p>
+
+<h1><a name="DefaultFile-BasedSecurityImplementation-Configuration"></a>Configuration</h1>
+
+<p>Any configurations that are applied can be seen by setting the logging level to CONFIG (see <tt>gs_logging.properties</tt>):</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gigaspaces.security.level = CONFIG</pre>
+</div></div>
+
+<h2><a name="DefaultFile-BasedSecurityImplementation-DirectoryfilelocationConfiguration"></a>Directory file location Configuration</h2>
+
+<p>The location of the directory file and its name are configurable using the <tt>com.gs.security.fs.file-service.file-path</tt> property key. The <tt>file-path</tt> is either a direct path to a file, relative path (to <tt>bin</tt>) or a resource in the classpath.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gs.security.fs.file-service.file-path = /opt/head/security/my-directory.fsm</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Note that file separators in a properties file are <tt>'/'</tt>. <br/>
+<img class="emoticon" src="images/icons/emoticons/help_16.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The file extension doesn't have to be <tt>.fsm</tt>.<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If the file doesn't exist, only a warning is displayed</p>
+
+<h1><a name="DefaultFile-BasedSecurityImplementation-CustomExtensions"></a>Custom Extensions</h1>
+
+<p>There are some handy extension points which allow you to modify some of the defaults we have considered, and replace them with your suitable requirements. These are extensions which are relevant to this specific File-based implementation. It might not be relevant for other security implementations.</p>
+
+<h4><a name="DefaultFile-BasedSecurityImplementation-Encodings"></a>Encodings</h4>
+
+<p>The Encoding mechanism is separated into two - password encoding and file-content encoding. Both of these can be changed.</p>
+
+<h5><a name="DefaultFile-BasedSecurityImplementation-PasswordEncoding"></a>Password Encoding</h5>
+
+<p>The password encoder is used to encode the passwords stored in the file-based directory.<br/>
+The default password encoding algorithm is MD5. This is a one-way hash function that is used to encrypt the passwords when they are stored in the directory, and encrypt the passwords for authentication validation. </p>
+
+<p>The <tt>PasswordEncoder</tt> interface exposes two methods:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> PasswordEncoder {
+    <span class="code-object">String</span> encodePassword(<span class="code-object">String</span> rawPass) <span class="code-keyword">throws</span> EncodingException;
+    <span class="code-object">boolean</span> isPasswordValid(<span class="code-object">String</span> encPass, <span class="code-object">String</span> rawPass) <span class="code-keyword">throws</span> EncodingException;
+}</pre>
+</div></div>
+
+<p>To set your own password encoder:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gs.security.fs.password-encoder.class = eg.MyPasswordEncoder</pre>
+</div></div>
+
+<h5><a name="DefaultFile-BasedSecurityImplementation-ContentEncoding"></a>Content Encoding</h5>
+
+<p>The content encoder is used to encode/decode the user details, roles and authorities stored in the file-based directory.<br/>
+The default content encoding algorithm is AES 128-bit. This is a two-way function that requires a private key to encrypt and decrypt. </p>
+
+<p>An AES compliant private key (of type <tt>javax.crypto.SecretKey</tt>) named <b><tt>gs-private.key</tt></b> can be placed in the classpath to replace our default private key. Similar to a local keystore in SSL, to prevent clients the ability to connect if they only hold the password.</p>
+
+<p>The <tt>ContentEncoder</tt> interface exposes two methods:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> ContentEncoder {
+    <span class="code-keyword">public</span> <span class="code-object">byte</span>[] encode(<span class="code-object">Object</span> obj) <span class="code-keyword">throws</span> EncodingException;
+    <span class="code-keyword">public</span> <span class="code-object">Object</span> decode(<span class="code-object">byte</span>[] bytes) <span class="code-keyword">throws</span> EncodingException;
+}</pre>
+</div></div>
+
+<p>To set your own content encoder:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gs.security.fs.content-encoder.class = eg.MyContentEncoder</pre>
+</div></div>
+
+<h4><a name="DefaultFile-BasedSecurityImplementation-URLFileService"></a>URL File Service</h4>
+
+<p>By default, we load a file from the local file system. We also provide a means to "download" a file from a URL. If you want to further customize, you can implement the <tt>FileService</tt> interface.</p>
+
+<p>To configure the URL file service, you need to switch the default file-service implementation class and provide the parameters parsed by the <tt>URLFileService</tt> implementation - in this case a URL.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gs.security.fs.file-service.class = com.gigaspaces.security.fs.URLFileService
+com.gs.security.fs.file-service.url = http:<span class="code-comment">//www.gigaspaces.com/download/attachments/gs-directory.fsm</span></pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The default file-service implementation class is: <tt>com.gigaspaces.security.fs.LocalFileService</tt></p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> It might be obvious to note that you will need to manage the security directory as a local-file, upload the file to an HTTP server, and <ins>only then</ins> configure your services with the above properties. If your HTTP server allows write-access, then the <tt>URLFileService</tt> can also be used for managing your directory; the <tt>writeToFile</tt> method (see interface) will use the output stream to write through this connection.</p>
+
+<h5><a name="DefaultFile-BasedSecurityImplementation-CustomFileService"></a>Custom File Service</h5>
+<p>The <tt>FileService</tt> interface defines access to the security directory file:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> FileService {
+    <span class="code-keyword">public</span> void init(Properties properties) <span class="code-keyword">throws</span> IOException;
+    <span class="code-keyword">public</span> <span class="code-object">boolean</span> fileExists();
+    <span class="code-keyword">public</span> <span class="code-object">byte</span>[] readFromFile() <span class="code-keyword">throws</span> IOException;
+    <span class="code-keyword">public</span> void writeToFile(<span class="code-object">byte</span>[] bytes) <span class="code-keyword">throws</span> IOException;
+    <span class="code-keyword">public</span> <span class="code-object">long</span> lastModified();
+}</pre>
+</div></div>
+
+<p>To set your own file service:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gs.security.fs.file-service.class = eg.MyFileService</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

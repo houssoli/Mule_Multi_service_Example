@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : C++ Benchmark Framework</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>C++ Benchmark Framework</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  How to configure and run the C+&#43; POCO Benchmark Framework </p>
+</div>
+<p><br clear="all" /></p>
+
+<p><br clear="all" /></p>
+
+<h1><a name="C%2B%2BBenchmarkFramework-Overview"></a>Overview</h1>
+
+<p>The GigaSpaces C+&#43; API benchmark framework provides a simple report of the average response time in different scenarios, running with different space topologies and activating different types of operations and space classes.<br/>
+You can import the report to any spread sheet (e.g. Excel) for further processing and for producing graphical results.<br/>
+You can plug-in your own space entry classes in case the ones provided with the benchmark do not fit your needs.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The benchmark source code can be found under: <tt>&lt;GigaSpaces Root&gt;\cpp\examples\benchmark</tt>.</p>
+
+<h1><a name="C%2B%2BBenchmarkFramework-BenchmarkOperations"></a>Benchmark Operations</h1>
+
+<p>The benchmark tests the following operations:</p>
+<ul class="alternate" type="square">
+	<li>write</li>
+	<li>update</li>
+	<li>read</li>
+	<li>take</li>
+	<li>notify</li>
+	<li>writeMiltiple</li>
+	<li>readMultiple</li>
+	<li>takeMultiple</li>
+	<li>GSIterator</li>
+	<li>query</li>
+</ul>
+
+
+<h1><a name="C%2B%2BBenchmarkFramework-BenchmarkCommandArguments"></a>Benchmark Command Arguments</h1>
+
+<p>Here are the different command arguments that the C+&#43; benchmark program accepts:<br/>
+1. &lt;url&gt; &#8211; Space url. This can be a remote clustered space or an embedded one.<br/>
+2. &lt;warmups&gt; &#8211; Number of runs before starting the actual benchmark<br/>
+3. &lt;repeats&gt; &#8211; Number of times to re-run the whole benchmark<br/>
+4. &lt;threads&gt; &#8211; Number of concurrent threads<br/>
+5. &lt;iterations&gt; &#8211; Total amount of entries in the space<br/>
+6. &lt;payload&gt; &#8211; Payload size for each entry (for Payload object type)<br/>
+7. &lt;batch size&gt; &#8211; Size for batch operations<br/>
+8. &lt;Space Class Type&gt; &#8211; Entry class/type. See <a href="#C%2B%2BBenchmarkFramework-SupportedSpaceClassTypes">Supported Space Class Types</a> for details.<br/>
+9. &lt;use transactions&gt; &#8211; Whether to use transactions and their type. Options are: true&#124;false&#124;jini (true &#8211; use Local Transactions, jini - use Jini Transactions).<br/>
+10. &lt;Test Name&gt; (Optional) &#8211; Can have any of the operations listed in <a href="#C%2B%2BBenchmarkFramework-BenchmarkOperations">Benchmark Operations</a>.</p>
+
+<h1><a name="C%2B%2BBenchmarkFramework-SupportedSpaceClassTypes"></a>Supported Space Class Types</h1>
+
+<p>The benchmark can accept any of the following Class Types:</p>
+
+<ul class="alternate" type="square">
+	<li>Payload &#8212; Object that includes a Payload <tt>string</tt> field type with variable size</li>
+	<li>Mixed &#8212; Object with two <tt>string</tt> fields, one <tt>boolean</tt> field and one <tt>long</tt> field</li>
+	<li>Doubles &#8212; Object with 15 <tt>double</tt> fields</li>
+	<li>PayloadFifo &#8212; Same as Payload, except that it uses <em>fifo</em> flag.</li>
+	<li>ComplexObjectWithInnerBinaryPOJO &#8212; Aggregated object that includes an inner <em>Payload</em> field stored as <em>binary</em> type.</li>
+</ul>
+
+
+<p>All the classes above inherit from benchmarkBase Class, which includes a <tt>long</tt> type uid (Indexed field) and a <tt>string</tt> based field storing the object UID.</p>
+
+<h1><a name="C%2B%2BBenchmarkFramework-BenchmarkCommandExamples"></a>Benchmark Command Examples</h1>
+
+<ul>
+	<li>Benchmark command example communicating with a remote space:<br/>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">benchmark <span class="code-quote">"jini:<span class="code-comment">//localhost/*/mySpace?NoWriteLease=<span class="code-keyword">true</span>"</span> 1 1 2 10000 1000 100 Payload <span class="code-keyword">false</span></span></pre>
+</div></div><br clear="all" /></li>
+	<li>Benchmark command example communicating with an embedded space (collocated with the benchmark program running in the same process):<br/>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">benchmark <span class="code-quote">"/./mySpace?NoWriteLease=<span class="code-keyword">true</span>"</span> 1 1 2 10000 1000 100 Payload <span class="code-keyword">false</span></pre>
+</div></div><br clear="all" /></li>
+</ul>
+
+
+<p>The benchmark produces an output file that includes the test name, its duration and the average throughput of the tested operation.</p>
+
+<h1><a name="C%2B%2BBenchmarkFramework-BenchmarkFilesLocation"></a>Benchmark Files Location</h1>
+
+<p>The benchmark program is located at:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>&lt;GigaSpaces Root&gt;\cpp\examples\benchmark\
+</pre>
+</div></div>
+
+<p>The benchmark classes xml decalration file is located at:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>&lt;GigaSpaces Root&gt;\cpp\examples\benchmark\serializer\benchmark.gs.xml
+</pre>
+</div></div>
+
+<p>The benchmark generated serializer code is located at:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>&lt;GigaSpaces Root&gt;\cpp\examples\benchmark\serializer\
+</pre>
+</div></div>
+
+<p>The benchmark serializer DLL is located at:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>&lt;GigaSpaces Root&gt;\cpp\lib\ServiceGrid\native\
+</pre>
+</div></div>
+
+<p>The benchmark program executable is located at:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>&lt;GGigaSpaces Root&gt;\cpp\bin\$(PLATFORM)\$(COMPILER)\
+</pre>
+</div></div>
+
+<h1><a name="C%2B%2BBenchmarkFramework-AddingyourSpaceClass"></a>Adding your Space Class</h1>
+
+<p>To add your own Space Class into the benchmark framework you should add a class inherited from the Benchmark class and add your code.<br/>
+You should add into the <tt>&lt;GigaSpaces Root&gt;\cpp\examples\benchmark\serializer\benchmark.gs.xml</tt> your class space declaration that is supported by your new benchmark implementation.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

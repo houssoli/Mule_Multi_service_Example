@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Programmer's Guide</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Programmer's Guide</h1>
+</div>
+<br>
+
+<h1><a name="Programmer%27sGuide-WhatDoestheProgrammer%27sGuideCover%3F"></a>What Does the Programmer's Guide Cover?</h1>
+
+<p>This guide is written for application developers who wish to build scaled-out applications with GigaSpaces XAP. The guide provides all the information and tools needed to quickly develop either basic or more complex scaled-out applications. This includes reference documentation, foundations, APIs, configurations and more advanced topics.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Note that this guide is specific to XAP developers. For instructions for XAP.NET developers, please refer to the <a href="http://www.gigaspaces.com/wiki/display/XAP8NET/Programmer%27s+Guide" title="Programmer's Guide">XAP.NET Programmer's Guide</a>.</p>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903364";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903364";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="Programmer%27sGuide-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="The Runtime Environment.html" title="The Runtime Environment">The Runtime Environment</a> &mdash; <span class="smalltext">This section gives a detailed description of the GigaSpaces deployment &amp; runtime environment.</span><ul><li><a href="The GigaSpaces Agent.html" title="The GigaSpaces Agent">The GigaSpaces Agent</a> &mdash; <span class="smalltext">A process manager that manages Service Grid processes such as GSM, GSC and LUS</span></li><li><a href="The GigaSpaces Container.html" title="The GigaSpaces Container">The GigaSpaces Container</a> &mdash; <span class="smalltext">A container which hosts Processing Unit Instances provisioned to it by the GSM</span></li><li><a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">The GigaSpaces Manager</a> &mdash; <span class="smalltext">Manages Processing Unit deployments and GigaSpaces Containers</span></li><li><a href="The Lookup Service.html" title="The Lookup Service">The Lookup Service</a> &mdash; <span class="smalltext">A registry of services (GSM, GSC, Space Instances, Processing Unit Instances) that can be lookup up using it.</span></li></ul></li><li><a href="Packaging and Deployment.html" title="Packaging and Deployment">Packaging and Deployment</a> &mdash; <span class="smalltext">This section deals with the internals of the GigaSpaces XAP packaging and deployment unit, namely the processing unit. It explains how to create it and how to run it in the various runtime modes.</span><ul><li><a href="The Processing Unit Structure and Configuration.html" title="The Processing Unit Structure and Configuration">The Processing Unit Structure and Configuration</a> &mdash; <span class="smalltext">This page describes the processing unit directory structure</span></li><li><a href="Deploying and Running the Processing Unit.html" title="Deploying and Running the Processing Unit">Deploying and Running the Processing Unit</a> &mdash; <span class="smalltext">This section describes the various options to debug and run your processing units</span></li><li><a href="Obtaining Cluster Information.html" title="Obtaining Cluster Information">Obtaining Cluster Information</a> &mdash; <span class="smalltext">Obtaining information about the clustering topology, member id and other cluster related information can be useful in many cases. Cluster information can be provided to the processing unit instances at deployment time via the class <tt>org.openspaces.core.cluster.ClusterInfo</tt>, which can be injected into the processing unit components</span></li></ul></li><li><a href="The In-Memory Data Grid.html" title="The In-Memory Data Grid">The In-Memory Data Grid</a> &mdash; <span class="smalltext">Explains the concepts of the GigaSpaces in-memory data grid (the Space), how to access it, and how to configure advanced capabilities, such as persistency, eviction, etc.</span><ul><li><a href="Space Topologies.html" title="Space Topologies">Space Topologies</a> &mdash; <span class="smalltext">Explains the topologies and clustering mechanism of the GigaSpaces in-memory data grid (the Space)</span></li><li><a href="Deploying and Interacting with the Space.html" title="Deploying and Interacting with the Space">Deploying and Interacting with the Space</a> &mdash; <span class="smalltext">Overview of GigaSpaces in-memory data grid - how to create a data grid, connect to it, and interact with it.</span></li><li><a href="Modeling and Accessing Your Data.html" title="Modeling and Accessing Your Data">Modeling and Accessing Your Data</a> &mdash; <span class="smalltext">This section will teach you how to design your data for distributing on the data grid and about the various APIs for accessing you data.</span></li><li><a href="Advanced Topics.html" title="Advanced Topics">Advanced Topics</a></li><li><a href="Caching Scenarios.html" title="Caching Scenarios">Caching Scenarios</a> &mdash; <span class="smalltext">GigaSpaces IMDG supports three different caching mechanisms: in-line cache, side cache and client cache.</span></li></ul></li><li><a href="Services on Top of the Data Grid.html" title="Services on Top of the Data Grid">Services on Top of the Data Grid</a> &mdash; <span class="smalltext">This page provides an overview of the various service components that are available on top of the GigSpaces DataGrid framework. It also outlines when to choose each one of them</span><ul><li><a href="Task Execution over the Space.html" title="Task Execution over the Space">Task Execution over the Space</a> &mdash; <span class="smalltext">Task executors allow you to easily execute grid-wide tasks on the space using the GigaSpace API.</span></li><li><a href="Messaging and Events.html" title="Messaging and Events">Messaging and Events</a></li><li><a href="Space Based Remoting.html" title="Space Based Remoting">Space Based Remoting</a> &mdash; <span class="smalltext">Remoting allows you to use remote invocations of POJO services, with the space as the transport layer.</span></li><li><a href="Reloading Business Logic.html" title="Reloading Business Logic">Reloading Business Logic</a> &mdash; <span class="smalltext">Service reloading allows you to reload business logic without bringing down the Processing Unit.</span></li></ul></li><li><a href="Web Application Support.html" title="Web Application Support">Web Application Support</a><ul><li><a href="Web Processing Unit Container.html" title="Web Processing Unit Container">Web Processing Unit Container</a> &mdash; <span class="smalltext">Allows you to deploy a web application (WAR) into the Service Grid.</span></li></ul></li><li><a href="Administration and Monitoring API.html" title="Administration and Monitoring API">Administration and Monitoring API</a> &mdash; <span class="smalltext">Simple API to monitor and administer GigaSpaces services and components.</span><ul><li><a href="Dump.html" title="Dump">Dump</a> &mdash; <span class="smalltext">Simple API to generate dump files of the runtime GigaSpaces environment.</span></li><li><a href="Logging API.html" title="Logging API">Logging API</a> &mdash; <span class="smalltext">Simple API extract and filter out logging information of GigaSpaces runtime.</span></li><li><a href="Elastic Processing Unit.html" title="Elastic Processing Unit">Elastic Processing Unit</a> &mdash; <span class="smalltext">Explains how to deploy and manage an Elastic Processing Unit (EPU)</span></li><li><a href="Administrative Alerts.html" title="Administrative Alerts">Administrative Alerts</a> &mdash; <span class="smalltext">Runtime administrative alerts - monitoring the "health state" of the system.</span></li></ul></li><li><a href="Integrations.html" title="Integrations">Integrations</a><ul><li><a href="Maven Plugin.html" title="Maven Plugin">Maven Plugin</a> &mdash; <span class="smalltext">Installing the OpenSpaces Maven plugin, creating and running a Processing Unit project.</span></li><li><a href="Mule ESB.html" title="Mule ESB">Mule ESB</a> &mdash; <span class="smalltext">OpenSpaces Mule ESB integration allows you to use the Space as a Mule external transport, replace Mule VM transport with transport over the Space, enhances the Mule SEDA model, and can be packaged and run as a Processing Unit.</span></li></ul></li><li><a href="Interoperability.html" title="Interoperability">Interoperability</a><ul><li><a href="Platform Interoperability in GigaSpaces.html" title="Platform Interoperability in GigaSpaces">Platform Interoperability in GigaSpaces</a> &mdash; <span class="smalltext">The possibility for organizations whose projects include a combination of Java, .NET and C++ platforms to communicate and access each other easily and efficiently while also maintaining the benefits of the GigaSpaces scale-out application server.</span></li><li><a href="XAP CPP.html" title="XAP CPP">XAP CPP</a> &mdash; <span class="smalltext">The GigaSpaces C+&#43; API has been designed to allow the same level of flexibility, usability and interoperability of the Java <a href="POJO Support.html" title="POJO Support">POJO</a> and <a href="http://www.gigaspaces.com/wiki/display/XAP8NET" title="Object Metadata">.NET C# PONO</a> counterpart APIs for building scalable, low-latency SBA applications.</span></li></ul></li><li><a href="Appendix.html" title="Appendix">Appendix</a><ul><li><a href="XAP Overview.html" title="XAP Overview">XAP Overview</a> &mdash; <span class="smalltext">GigaSpaces XAP is a platform for scaling out stateful applications. XAP uses the GigaSpaces space as a core middleware, and provides the Spring-based Open Spaces framework as a development environment.</span></li><li><a href="OpenSpaces FAQ.html" title="OpenSpaces FAQ">OpenSpaces FAQ</a> &mdash; <span class="smalltext">Frequently asked questions about OpenSpaces.</span></li><li><a href="XAP-Community FAQ.html" title="XAP-Community FAQ">XAP-Community FAQ</a></li><li><a href="About Jini.html" title="About Jini">About Jini</a> &mdash; <span class="smalltext">Jini is an open architecture that allows the implementation of network services - One such service is JavaSpaces.</span></li></ul></li></ul>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

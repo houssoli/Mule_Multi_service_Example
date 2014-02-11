@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : HTTP Session Management</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>HTTP Session Management</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903746";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903746";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  HTTP Session Management </p>
+</div>
+
+<h1><a name="HTTPSessionManagement-Overview"></a>Overview</h1>
+<p>The GigaSpaces-Jetty integration comes with support for storing the http session in the Space allowing supporting session replication and failover. </p>
+
+<p>The HTTP Session provides the following:</p>
+<ul class="alternate" type="square">
+	<li>Avoid using database as the persistent storage media - Better performance and simplify the deployment</li>
+	<li>Allow management and control of full lifecycle of web application - From the load-balancer to the data</li>
+	<li>Dynamic scalability - Allows the web application to scale up or down based on SLA</li>
+	<li>Continuous High-Availability - Allows the application to survive any system failures</li>
+	<li>Non intrusive session management or explicit Data Grid API access for fine grain control - Allows multiple web servers to share the same session in transparent manner</li>
+</ul>
+
+
+<p>There are several ways to configure Space session based support, depending on the definition of which Space and how the Space was started.</p>
+
+<p>This is the simplest form of enabling Space based session support. When deploying (or within the <b>META-INF/spring/pu.properties</b>), the <b>jetty.sessions.spaceUrl</b> property can be set with the space url defining where the sessions will be stored.</p>
+
+<p>For example, if the session will be stored on a remote clustered Space with local cache, the URL can be: <b>jini://&#42;/&#42;/sessionSpace?useLocalCache</b> (assuming the name of the Space is <em>sessionSpace</em>). If the session should be stored on a Space that should be started within the web application (in a collocated manner) in a sync_replicated cluster schema (for example), then the url can be <b>/./sessionSpace?cluster_schema=sync_replicated</b> (note, cluster ids will be automatically set based on the number of web applications deployed).</p>
+
+<p>In case there is already a Space configured within the web application. For example, defined within <b>META-INF/spring/pu.xml</b>, it can be used as the Space where sessions will be stored as well. In this case, the <b>jetty.sessions.spaceUrl</b> can use the special prefix <b>bean</b>. For example, if the Space was defined as a bean with id of <b>sessionSpace</b>, the  <b>jetty.sessions.spaceUrl</b> can be set to <b>bean://sessionSpace</b>.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>See the <a href="Step 2 - Enabling HTTP Session Failover and Fault Tolerance.html" title="Step 2 - Enabling HTTP Session Failover and Fault Tolerance">Quick Start Guide</a> for an example how to use the HTTP Session Management.</td></tr></table></div>
+
+<h1><a name="HTTPSessionManagement-Options"></a>Options</h1>
+<p>Controlling the session Management done via the following properties:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Property</th>
+<th class='confluenceTh'>Description</th>
+<th class='confluenceTh'>Default</th>
+<th class='confluenceTh'>Mandatory?</th>
+</tr>
+<tr>
+<td class='confluenceTd'><tt>jetty.sessions.spaceUrl</tt></td>
+<td class='confluenceTd'>specifies the URL of the space with the HTTP session store will be backed. Use the <tt>bean://</tt> notation to reference a space proxy defined within the <tt>META-INF/spring/pu.xml</tt> file.</td>
+<td class='confluenceTd'><tt>jini://&#42;/&#42;/sessionSpace?useLocalCache <br clear="all" /> /./sessionSpace?cluster_schema=replicated <br clear="all" /> bean://sessionSpace</tt></td>
+<td class='confluenceTd'> Yes </td>
+</tr>
+<tr>
+<td class='confluenceTd'><tt>jetty.sessions.scavengePeriod</tt></td>
+<td class='confluenceTd'> Determines how often the web container will check for expired sessions. Set in seconds.</td>
+<td class='confluenceTd'> 300 seconds (5 minutes) </td>
+<td class='confluenceTd'> No </td>
+</tr>
+<tr>
+<td class='confluenceTd'><tt>jetty.sessions.savePeriod</tt></td>
+<td class='confluenceTd'> How often an actual update of a <b>non dirty</b> session will be performed to the Space. Set in seconds</td>
+<td class='confluenceTd'>60 seconds. This is useful for cases where a session attribute is not updated explicitly using the <tt>HttpSession#setAttribute</tt> method. More importantly, it makes sure to report the last time the user has accessed the application to the space so that the user session will not expire </td>
+<td class='confluenceTd'>No </td>
+</tr>
+<tr>
+<td class='confluenceTd'><tt>jetty.sessions.timeout</tt></td>
+<td class='confluenceTd'> Determines the HTTP session timeout in minutes (similar to <tt>session-timeout</tt> element in <tt>web.xml</tt></td>
+<td class='confluenceTd'>30 minutes</td>
+<td class='confluenceTd'> No </td>
+</tr>
+<tr>
+<td class='confluenceTd'><tt>jetty.sessions.lease</tt></td>
+<td class='confluenceTd'> The lease of the <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/jee/sessions/jetty/SessionData.html">SessionData</a> that is written to the Space </td>
+<td class='confluenceTd'><a href="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Long.html#MAX_VALUE">Long.MAX_VALUE</a></td>
+<td class='confluenceTd'> No </td>
+</tr>
+</tbody></table>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> OpenSpaces integration implements Jetty <tt>SessionManager</tt> and <tt>SessionIdManager</tt> in <tt>GigaSesssionManager</tt> and <tt>GigaSessionIdManager</tt>. When setting the <b>jetty.sessions.spaceUrl</b> they get automatically set as the session manager and session id manager of the web app.</p>
+
+<h1><a name="HTTPSessionManagement-DeploymentTopologies"></a>Deployment Topologies</h1>
+
+<p>The HTTP Session support several Deployment Topologies:</p>
+<h2><a name="HTTPSessionManagement-EmbeddedReplicated"></a>Embedded Replicated</h2>
+<ul class="alternate" type="square">
+	<li>Support only Limited amount of Sessions<br/>
+<img src="download/attachments/48235229/session_embedded-replicated.jpg" align="absmiddle" border="0"/>
+<h2><a name="HTTPSessionManagement-PartitionedReplicated"></a>Partitioned+Replicated</h2></li>
+	<li>Session Data is partitioned across multiple machines</li>
+	<li>Allows unlimited amount of data to be stored in memory<br/>
+<img src="download/attachments/48235229/session_partitioned.jpg" align="absmiddle" border="0"/>
+<h2><a name="HTTPSessionManagement-PartitionedReplicatedwithLocalCache"></a>Partitioned+Replicated with Local-Cache</h2></li>
+	<li>Support for read mostly scenario via local cache running within the application server memory address.<br/>
+Avoid remote calls when there are repeated read calls for Session data that are stored in memory across multiple machines. </li>
+	<li>Provide total linear scalability.<br/>
+<img src="download/attachments/48235229/session_partitioned-localcache.jpg" align="absmiddle" border="0"/></li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

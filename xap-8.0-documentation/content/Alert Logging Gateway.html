@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Alert Logging Gateway</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Alert Logging Gateway</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:55935167";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:55935167";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Logging Gateway for Administrative alerts. </p>
+</div> 
+
+<h1><a name="AlertLoggingGateway-Overview"></a>Overview</h1>
+
+<p>The GigaSpaces <tt>Alert</tt> interface exposes the XAP environment and the application's health state. It allows users to register listeners on one or more alert types and receive notifications once an alert has been raised or has been resolved. You may use this framework to build a custom integration with a third party monitoring products to leverage the XAP alerting system.<br/>
+A recommended approach for such integration would be to construct a listener that writes the chosen types of alerts into logger mechanism. Examples for such may be the log4j or the commons-logging frameworks.</p>
+
+<p>The main advantage with this approach is the ability to use an extensive set of out-of-box log appenders that translates log messages into different protocols and APIs to be consumed by third party products.<br/>
+<img src="download/attachments/55935167/AlertsLoggerBridge.jpg" align="absmiddle" border="0"/></p>
+<h1><a name="AlertLoggingGateway-Example"></a>Example</h1>
+
+<p>The <tt>AlertLoggingGateway</tt> example project provided with the GigaSpaces distribution using an existing <tt>Log4J</tt> Appender (SnmpTrapAppender) to convert log messages into SNMP traps, resulting in the alerts propagated to a third party network management solution.<br/>
+<img src="download/attachments/55935167/SNMP_Appender.jpg" align="absmiddle" border="0"/></p>
+
+<h2><a name="AlertLoggingGateway-AlertsLoggingGatwaycomponents"></a>AlertsLoggingGatway components</h2>
+
+<h5><a name="AlertLoggingGateway-SnmpTrapTransmitter"></a>SnmpTrapTransmitter</h5>
+<p>The <b>SnmpTrapTransmitter</b> is a XAP PU responsible for the generic Alert-to-Log bridging. It does that by listening to all alerts in its alert filter file. Any incoming alerts are simply writing to commons logging log. Notice that, being generic in nature, the SnmpTrapTransmitter can be reused without any changes in similar projects.<br/>
+SnmpTrapTransmitter exposes the folowing configuration parameters:<br/>
+<b>AlertFileFilter</b> - the name of Alert filter xml file used to filter Alerts to be logged<br/>
+<b>loggerName</b> - the name of the logger to be created<br/>
+<b>group</b> - the XAP group for which the Alert listener will be configured</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"SnmpTrapTransmitter"</span> class=<span class="code-quote">"org.openspaces.example.alert.logging.snmp.SnmpTrapTransmitter"</span> &gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"alertFileFilter"</span> value=<span class="code-quote">"notify-alerts.xml"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"loggerName"</span> value=<span class="code-quote">"org.openspaces.example.alert.logging.AlertLoggingGateway"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"group"</span> value=<span class="code-quote">"group-name-here"</span> /&gt;</span>
+  <span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+<p>Note that if you implement your own variant for this class, for other types of alert interception, you will also have to override the <tt>construct()</tt> method to register for alerts, the <tt>destroy()</tt> method to cleanup the registration, and to create your own class implementing the <tt>AlertTriggeredEventListener</tt> interface in which you will issue the logging calls:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SnmpTrapTransmitter {
+
+	<span class="code-keyword">private</span> Log logger; 
+
+	@PostConstruct 
+	<span class="code-keyword">public</span> void construct() <span class="code-keyword">throws</span> Exception {
+		registerAlertTrapper();    	
+	}
+
+	@PreDestroy 
+	<span class="code-keyword">public</span> void destroy() <span class="code-keyword">throws</span> Exception {
+	        alertManager.getAlertTriggered().remove(atListener);
+	}     
+
+	<span class="code-keyword">private</span> void registerAlertTrapper() { 
+		atListener = <span class="code-keyword">new</span> AlertTriggeredEventListener() {
+			<span class="code-keyword">public</span> void alertTriggered(Alert alert) {
+				<span class="code-object">String</span> loggRecord;
+				loggRecord = alert.toString();
+				logger.info(loggRecord);
+			}
+		};	
+
+		XmlAlertConfigurationParser cparse = <span class="code-keyword">new</span> XmlAlertConfigurationParser(alertFileFilter);
+		alertManager.configure(cparse.parse());        
+		alertManager.getAlertTriggered().add(atListener);        		
+	}
+}</pre>
+</div></div> 
+
+<h5><a name="AlertLoggingGateway-SnmpTrapSender"></a>SnmpTrapSender</h5>
+<p>The <b>SnmpTrapSender</b> is a utility class that implements the SnmpTrapAppender's <tt>SnmpTrapSenderFacade</tt> interface with an implementation that queues and asynchronously transmits Alerts as SNMP traps. The SNMP transmission method - <tt>sendTrap()</tt> - uses snmp4j library as its underlying implementation.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SnmpTrapSender <span class="code-keyword">implements</span> SnmpTrapSenderFacade {
+	
+	<span class="code-keyword">public</span> void addTrapMessageVariable(<span class="code-object">String</span> trapOID, <span class="code-object">String</span> trapValue) {
+		trapQueue.add(trapValue);
+	}
+
+	
+	<span class="code-keyword">public</span> void initialize(SNMPTrapAppender arg0) {
+		trapQueue.clear();
+		loadRunParams();
+	}
+
+	<span class="code-keyword">public</span> void sendTrap() {
+		<span class="code-object">String</span> trapVal = trapQueue.removeFirst();		
+                PDUv1 trapPdu = (PDUv1)DefaultPDUFactory.createPDU(SnmpConstants.version1);
+                trapPdu.setType(PDU.V1TRAP);
+                <span class="code-comment">// pack trapVal into trapPdu 
+</span>		snmp.send(trapPdu, target);  
+	}</pre>
+</div></div> 
+
+<h5><a name="AlertLoggingGateway-commonslogging.propertiesandlog4j.properties"></a>commons-logging.properties and log4j.properties</h5>
+<p>The <b>Commons-logging.properties</b> file is a commons logging configuration file which re-directs its calls to a log4j logger. In our example this file contains redirection of commons-logging to log4j as the SNMP trapper we use is on top of log4j. <br/>
+<b>log4j.properties</b> is a log4j configuration file which delegates log writes to the SNMPTrapAppender, resulting in SNMP traps.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">log4j.rootCategory=INFO,TRAP_LOG
+log4j.appender.TRAP_LOG=org.apache.log4j.ext.SNMPTrapAppender                                                
+log4j.appender.TRAP_LOG.ImplementationClassName=org.openspaces.example.alert.logging.snmp.SnmpTrapSender
+log4j.appender.TRAP_LOG.ManagementHost=127.0.0.1
+log4j.appender.TRAP_LOG.ManagementHostTrapListenPort=162
+log4j.appender.TRAP_LOG.CommunityString=<span class="code-keyword">public</span>
+log4j.appender.TRAP_LOG.Threshold=INFO
+log4j.appender.TRAP_LOG.layout=org.apache.log4j.PatternLayout
+log4j.appender.TRAP_LOG.layout.ConversionPattern=%d,%p,%t,%c,%m%n</pre>
+</div></div> 
+
+
+<h1><a name="AlertLoggingGateway-RunningtheExample"></a>Running the Example</h1>
+
+<p>The example is located under <tt>&lt;GigaSpaces root/tools/alert-integration</tt>. To run it you please run the following: </p>
+<ol>
+	<li>Set the "group" value in the pu.xml file to your own XAP group. Optionally you may edit the function <tt>registerAlertTrapper()</tt> in <tt>SnmpTrapTransmitter.java</tt> to create your own <tt>Admin</tt> object in any way you see fit.</li>
+	<li>Optionally edit file <tt>notify-alerts.xml</tt> to set your own alerts and alert conditions that will be listened to by this example.</li>
+	<li>Optionally edit <tt>log4j.properties</tt> to set the IP and port used by your SNMP server software (if any).</li>
+	<li>If you do not have SNMP server software, you should download one for the sake of running and testing this example. ByteSphere's OIDView for example (<a href="http://www.oidview.com">http://www.oidview.com</a>) provides good basic SNMP trap viewing capabilities. Make sure you configure log4j.properties to use the same IP and port used by the server.</li>
+	<li>Build and pack the example project into a jar file. This can be done by executing the command "mvn" from the project's root directory or performing an equivalent action within your UI. A successful build should result in the creation of the example jar file in target/SnmpTrapTransmitter.jar.</li>
+	<li>If needed start XAP with at least one running LUS, GSM and GSC belonging to the XAP group declared in item #2.</li>
+	<li>Deploy the example JAR into the GSC.</li>
+	<li>If needed - perform XAP actions that will trigger one or more of the alerts the example is tuned to listen to. Creating a new GSCs is usually a good way for creating a multitude of different alerts.</li>
+	<li>Start-up your SNMP server to intercept and view incoming traps. If you use OIDView enter the Trap Viewer and make sure it is configured to listen on the right IP and port.</li>
+</ol>
+
+
+<h1><a name="AlertLoggingGateway-ExternalDependencies"></a>External Dependencies</h1>
+<ol>
+	<li>log4j version &gt;= 1.2.14</li>
+	<li>snmpTrapAppender version &gt;= 1.2.9</li>
+	<li>snmp4j version &gt;= 1.11.2</li>
+	<li>For the example build process you should have <a href="http://maven.apache.org">Apache Maven</a> installed. You may find it already part of the GigaSpaces folders under <tt>\gigaspaces-xap\tools\maven</tt>.</li>
+</ol>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

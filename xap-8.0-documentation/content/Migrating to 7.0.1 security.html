@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Migrating to 7.0.1 security</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Migrating to 7.0.1 security</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903699";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903699";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  What's New, and migration steps </p>
+</div>
+
+<h1><a name="Migratingto7.0.1security-What%27sNew"></a>What's New</h1>
+<p>GigaSpaces XAP 7.0.1 security allows complete application security and finer grained manageability.</p>
+<ul>
+	<li>Space Data permissions - finer access control with "allow" and "deny" by classname</li>
+	<li>Grid Service permissions - not just "full control" and "read-only"</li>
+	<li>Secured Session between proxy and server</li>
+	<li>GigaSpaces Management Center (UI) visibility of secured Spaces and Clusters in all views, login/logout and authentication view</li>
+	<li>User and Role management are directly manageable from the UI</li>
+</ul>
+
+
+<h1><a name="Migratingto7.0.1security-MigrationSteps"></a>Migration Steps</h1>
+
+<h2><a name="Migratingto7.0.1security-DefaultSecurityFilter"></a>Default Security Filter</h2>
+<p>The most comprehensive change is the deprecation of the <tt>DefaultSecurityFilter</tt>. The 7.0.1 Security is no longer based on a Space Filter, and has been extracted to its own layer. This alone serves the basis for a simpler security model, that can be extended and integrated with other security providers.</p>
+
+<p>If you have the <tt>DefaultSecurityFilter</tt> declared in <tt>pu.xml</tt> or in your Space schemas it should be removed. In general we print out a warning and ignore it.</p>
+
+<h2><a name="Migratingto7.0.1security-OldSecurityFile"></a>Old Security File</h2>
+
+<p>If you have an old "users" security file (<tt>&lt;GigaSpaces root&gt;/security/default-users</tt>), we suggest to <b>throw it and start from scratch!</b><br/>
+XAP 7.0.1 security has finer grained permissions, specifically the removal of the "admin" permission.</p>
+
+<p>If you insist, we provide a migration tool.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Note that in the new security model there is no support for field-value attribute permissions.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="Migratingto7.0.1security-Usagecommandline"></a>Usage - command line</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gigaspaces.security.tool.migration.SecurityFileMigrationTool &lt;source-file-path&gt; &lt;destination-file-path&gt;</pre>
+</div></div>
+
+
+<h5><a name="Migratingto7.0.1security-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gigaspaces.security.tool.migration.SecurityFileMigrationTool..migrate(<span class="code-keyword">new</span> File(<span class="code-quote">"source"</span>), <span class="code-keyword">new</span> File(<span class="code-quote">"dest"</span>);</pre>
+</div></div>
+</div></div>
+
+<p>The <tt>&lt;GigaSpaces root&gt;/security/default-users</tt> file created by the old security is now replaced by <tt>&lt;GigaSpaces root&gt;/security/gs-directory.fsm</tt>. This is the default security file a secured service will access.</p>
+
+<h2><a name="Migratingto7.0.1security-Securityconfiguration"></a>Security configuration</h2>
+
+<p>The old security configurations no longer apply. All configurations are done using properties declared in a properties file. <br/>
+There is one system property for enabling security and one <ins>optional</ins> system property for defining the path to the properties file.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.security.enabled = <span class="code-keyword">true</span>
+-Dcom.gs.security.properties-file = /opt/head/security/my-properties.properties</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

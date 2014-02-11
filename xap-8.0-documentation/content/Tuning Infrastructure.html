@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Tuning Infrastructure</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Tuning Infrastructure</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Helpful recommendations for: tuning the infrastructure on which GigaSpaces XAP is running, boosting its performance, and improving its scalability.</p>
+
+</div>
+
+<h1><a name="TuningInfrastructure-CheckyourInfrastructureFirst"></a>Check your Infrastructure First </h1>
+<p>No matter what kind of optimization you perform, you cannot ignore your infrastructure. Therefore, you must verify that you have the following:</p>
+<ul>
+	<li>Sufficient physical and virtual memory</li>
+	<li>Sufficient disk speed</li>
+	<li>A tuned database</li>
+	<li>Sufficient CPU power to handle the load</li>
+	<li>Network cards configured for speed</li>
+	<li>A JVM with a fast JIT</li>
+</ul>
+
+
+<h1><a name="TuningInfrastructure-MaxProcessesandFileDescriptors%2FHandlersLimit"></a>Max Processes and File Descriptors/Handlers Limit</h1>
+<h2><a name="TuningInfrastructure-Linux"></a>Linux</h2>
+<p>Linux has a Max Processes per user, as well as the limit of file descriptors allowed (which relates to processes, files, sockets and threads). This feature allows you to control the number of processes an existing user on the server may be authorized to have.</p>
+
+<p>To improve performance and stability, you must set the limit of processes for the super-user root to be at least <b>8192</b>, but note that 32k, or even unlimited is also adequate:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">ulimit -u unlimited</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Before deciding about the proper values of the file descriptors, a further testing and monitoring is required on the actual environment. 8K,16K or 32K is used just an example.</p>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Verify that you set the ulimit using the -n option e.g. ulimit -n 8192, rather than ulimit 8192. ulimit defaults to ulimit -f. If <b>no parameter</b> is set, it sets the maximum file size in 512k blocks, which might cause a fatal process crash</td></tr></table></div>
+
+<h3><a name="TuningInfrastructure-HowdoIconfiguretheFileDescriptorsonLinux%3F"></a>How do I configure the File Descriptors on Linux?</h3>
+<p>In /etc/system file, the descriptors <b>hard limit</b> should be set (8192), and the file descriptors <b>soft limit</b> should be increased from 1024 to 8192 as shown below:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">set rlim_fd_max=8192
+set rlim_fd_cur=8192</pre>
+</div></div>
+<p>Edit /etc/system with root access and reboot the server. After reboot, please, run the following in the application account:<br/>
+<tt>ulimit -n</tt> <br/>
+It should report 8192.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>See also:
+<ul>
+	<li><a href="http://www.faqs.org/docs/securing/x4733.html">http://www.faqs.org/docs/securing/x4733.html</a></li>
+	<li><a href="http://www.ss64.com/bash/ulimit.html">http://www.ss64.com/bash/ulimit.html</a></li>
+</ul>
+</td></tr></table></div>
+
+<p>To change the default value, modify the <tt>/etc/security/limits.conf</tt> file.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Modify the <tt>ulimit</tt> value when having many concurrent users accessing the space.</td></tr></table></div>
+
+<h2><a name="TuningInfrastructure-Windows"></a>Windows</h2>
+<p>Windows 2003 has no parameter dealing directly with the number of <b>file handles</b>, it is not explicitly limited, but file handles allocations take part of heap shared section which is relatively small (default 512KB). Heap being exhausted might lead to the application failure.</p>
+
+<h3><a name="TuningInfrastructure-HowdoIconfiguretheFileHandlersonWindows%3F"></a>How do I configure the File Handlers on Windows?</h3>
+<p>To increase it run regedit - HKEY_LOCAL_MACHINE-&gt;SYSTEM-&gt;CurrentControlSet-&gt;Control-&gt;Session Manager-&gt;Subsystems:<br/>
+in the key "Windows" find "SharedSection=1024,3072,512", where 512KB is the size of heap shared section for the processes running in the background. The value should be increased, the recommendation is to increase it initially to 1024KB, max value 3072. <b>Reboot is necessary</b> to enable the new setting.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> See also - <a href="http://www-01.ibm.com/support/docview.wss?rs=769&amp;context=SSXLSW&amp;dc=DB520&amp;dc=DB560&amp;uid=swg21138122&amp;loc=en_US&amp;cs=UTF-8&amp;lang=en&amp;rss=ct769tivoli">File Descriptors - changing the value for Unix and Windows</a></p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4189011">One of reports in Sun bug database</a> describes the fixed bug (fix done in JVM 1.5 RC1) which mention file handles limit 2035 per jvm - the case has the test java code attached. It could be used to check the influence of the registry reconfiguration.</p>
+
+<h1><a name="TuningInfrastructure-TCPtuning"></a>TCP tuning</h1>
+<h2><a name="TuningInfrastructure-Linux"></a>Linux</h2>
+
+<h3><a name="TuningInfrastructure-TCPKEEPALIVETIME"></a>TCP_KEEPALIVE_TIME </h3>
+<p><b>Description</b>: Determines how often to send TCP keepalive packets to keep an connection alive if it is currently unused <br/>
+Should be changed in order to secure fast fail-over in case of network failure (e.g. router failure).<br/>
+<b>Set</b>: <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">echo 1  &gt; /proc/sys/net/ipv4/tcp_keepalive_time</pre>
+</div></div><br/>
+Default value: 7200 seconds (2 hours) <br/>
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Recommended value: 1 seconds </p>
+
+<h3><a name="TuningInfrastructure-TCPKEEPALIVEINTERVAL"></a>TCP_KEEPALIVE_INTERVAL </h3>
+<p><b>Description</b>: Determines the wait time between isAlive interval probes. <br/>
+<b>Set</b>: <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">echo 1 &gt; /proc/sys/net/ipv4/tcp_keepalive_intvl</pre>
+</div></div><br/>
+Default value: 75 seconds <br/>
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Recommended value: 1 seconds </p>
+<h3><a name="TuningInfrastructure-TCPKEEPALIVEPROBES"></a>TCP_KEEPALIVE_PROBES </h3>
+<p><b>Description</b>*: Determines the number of probes before timing out. <br/>
+<b>Set</b>:  <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">echo 5  &gt; /proc/sys/net/ipv4/tcp_keepalive_probes</pre>
+</div></div><br/>
+Default value: 9 <br/>
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Recommended value: 5 </p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>tcp_keepalive_interval is Solaris equivalent to the Linux TCP_KEEPALIVE_TIME setting. Default value in Solaris is 2 hours</td></tr></table></div>
+
+<h3><a name="TuningInfrastructure-Connectionbacklog"></a>Connection backlog</h3>
+
+<p><b>Description</b>: Determines the maximum number of packets, queued on the input side, when the interface receives packets faster than kernel can process them.<br/>
+<b>Set</b>: <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">echo 3000 &gt; /proc/sys/net/core/netdev_max_backlog</pre>
+</div></div><br/>
+Default value: 300 <br/>
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Recommended value: 3000</p>
+
+<p><b>Description</b>: Determines the maximum number of pending connection.<br/>
+Should be changed when a high rate of incoming connection requests result in connection failures.<br/>
+<b>Set</b>: <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">echo 3000 &gt; /proc/sys/net/core/somaxconn</pre>
+</div></div><br/>
+Default value: 128<br/>
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Recommended value: 3000</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>See also:
+<ul>
+	<li><a href="http://tldp.org/HOWTO/TCP-Keepalive-HOWTO/usingkeepalive.html">http://tldp.org/HOWTO/TCP-Keepalive-HOWTO/usingkeepalive.html</a></li>
+</ul>
+</td></tr></table></div>
+
+
+<h2><a name="TuningInfrastructure-Windows"></a>Windows</h2>
+
+<h3><a name="TuningInfrastructure-"></a></h3>
+<p>To update the TCP parameters on widows run <b>regedit</b>.<br/>
+All the TCP/IP parameters are registry values that are located under the subkeys of</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>See also:
+<ul>
+	<li><a href="http://support.microsoft.com/kb/314053">http://support.microsoft.com/kb/314053</a></li>
+</ul>
+</td></tr></table></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

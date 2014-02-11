@@ -1,0 +1,790 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Document (Schema-Free) API</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Document (Schema-Free) API</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:54820939";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:54820939";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Working with Space Documents </p>
+</div>
+
+<h1><a name="Document%28Schema-Free%29API-Overview"></a>Overview</h1>
+
+<p>The GigaSpaces document API exposes the space as <a href="http://en.wikipedia.org/wiki/Document-oriented_database">Document Store</a>. A document, which is represented by the class <tt>SpaceDocument</tt>, is essentially collection of key-value pairs, where the keys are strings and the values are primitives, <tt>String</tt>, <tt>Date</tt>, other documents, or collections thereof. Most importantly, the Space is aware of the internal structure of a document, and thus can index document properties at any nesting level and expose rich query semantics for retrieving documents. </p>
+
+<p>Unlike POJOs, which force users to design a fixed data schema (in the form of a class definition) and adhere to it, a document is much more dynamic - users can add and remove properties at runtime as necessary. A Document always belongs to a certain type, represented by the class <tt>SpaceTypeDescriptor</tt>. </p>
+
+<p>Before a certain Document instance is written to the space, its type should be introduced to it. The type has a name and controls metadata such as identifier property, routing property and which properties are initially indexed (naturally, you can also index new properties at runtime after adding them to your documents). </p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The Type controls <b>metadata</b> - so only the metadata is part of the type. A document can introduce new properties at will.</td></tr></table></div>
+
+<p>Note that the Document type does not describe the properties themselves (except for the names of the ID and Routing properties). These are completely dynamic and each instance can have a different set of properties (although in most cases Document instances of the same type are likely to have identical or similar set of properties). </p>
+
+<h2><a name="Document%28Schema-Free%29API-SchemaEvolutionwithSpaceDocuments"></a>Schema Evolution with Space Documents</h2>
+<p>Since a <tt>SpaceDocument</tt> is completely dynamic by nature, it is very easy to change or evolve your data model without ever taking down the Space. Simply change your application code to add additional properties or remove existing ones, and you're good to go. Even better, old and new versions can co-exist since the space does not enforce any restriction with regards to the property set of documents that belong to a certain type. This is a much more lightweight model in comparison to the classic POJO model, where a recompilation and in many cases a full space restart is required to change the data schema. </p>
+
+<h1><a name="Document%28Schema-Free%29API-TypeDefinition"></a>Type Definition</h1>
+
+<p>Before we start writing and reading <tt>SpaceDocument</tt> from the space, we need an <b>initial</b> schema definition of the document type.</p>
+
+<p>For example, suppose we're implementing an electronic commerce system, and decided we need a type called <b>Product</b> with the following properties:</p>
+<ul>
+	<li>CatalogNumber : String</li>
+	<li>Category : String</li>
+	<li>Name : String</li>
+	<li>Description : String</li>
+	<li>Price : float</li>
+	<li>Features : Nested document (for example: Manufacturer=Acme, RequiresAssembly=false, weight=7.5)</li>
+	<li>Tags : Collection of Strings</li>
+	<li>Reviews : Collection of nested documents</li>
+</ul>
+
+
+<p>We also decide that <b>CatalogNumber</b> will be a primary key, partitioning will be done by the <b>Category</b> property, and the properties <b>Name</b>, <b>Price</b> should be indexed since they participate in most of the queries executed. Remember, the type definition is for metadata only, so we're not concerned about <b>Description</b> and other such fields in the type definition, because Description isn't used for indexing or any other metadata.</p>
+
+<p>The following is an example of how to introduce a new document type:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="Document%28Schema-Free%29API-SpringNamespaceConfiguration"></a>Spring Namespace Configuration</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span> &gt;</span>
+      <span class="code-tag">&lt;os-core:space-type type-name=<span class="code-quote">"Product"</span> &gt;</span>
+		<span class="code-tag">&lt;os-core:id property=<span class="code-quote">"CatalogNumber"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:routing property=<span class="code-quote">"Category"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:basic-index path=<span class="code-quote">"Name"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:extended-index path=<span class="code-quote">"Price"</span>/&gt;</span>
+      <span class="code-tag">&lt;/os-core:space-type&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span>
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="Document%28Schema-Free%29API-PlainSpringXML"></a>Plain Spring XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"spaceTypes"</span> &gt;</span>
+   	      <span class="code-tag">&lt;list&gt;</span>
+   		<span class="code-tag">&lt;ref bean=<span class="code-quote">"productType"</span>/&gt;</span> 
+   	      <span class="code-tag">&lt;/list&gt;</span>
+     <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span>/&gt;</span>	
+<span class="code-tag">&lt;/bean&gt;</span>
+
+    
+&lt;bean name=<span class="code-quote">"productType"</span> 
+        class=<span class="code-quote">"org.openspaces.core.config.GigaSpaceDocumentTypeDescriptorFactoryBean"</span>&gt;
+        <span class="code-tag">&lt;property name=<span class="code-quote">"typeName"</span> value=<span class="code-quote">"Product"</span>/&gt;</span>
+        <span class="code-tag">&lt;property name=<span class="code-quote">"idProperty"</span>&gt;</span>
+           <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.core.config.SpaceIdProperty"</span>&gt;</span>
+	         <span class="code-tag">&lt;property name=<span class="code-quote">"propertyName"</span> value=<span class="code-quote">"CatalogNumber"</span>&gt;</span><span class="code-tag">&lt;/property&gt;</span>    	    
+           <span class="code-tag">&lt;/bean&gt;</span>
+        <span class="code-tag">&lt;/property&gt;</span>
+        <span class="code-tag">&lt;property name=<span class="code-quote">"routingProperty"</span>&gt;</span>
+           <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.core.config.SpaceRoutingProperty"</span>&gt;</span>
+           	 <span class="code-tag">&lt;property name=<span class="code-quote">"propertyName"</span> value=<span class="code-quote">"Category"</span>&gt;</span><span class="code-tag">&lt;/property&gt;</span>
+           <span class="code-tag">&lt;/bean&gt;</span>
+        <span class="code-tag">&lt;/property&gt;</span>
+        <span class="code-tag">&lt;property name=<span class="code-quote">"indexes"</span>&gt;</span>
+             <span class="code-tag">&lt;list&gt;</span>
+   		 <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.core.config.BasicIndex"</span>&gt;</span>
+           	       <span class="code-tag">&lt;property name=<span class="code-quote">"path"</span> value=<span class="code-quote">"Name"</span>&gt;</span><span class="code-tag">&lt;/property&gt;</span>
+                 <span class="code-tag">&lt;/bean&gt;</span>
+                 <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.core.config.ExtendedIndex"</span>&gt;</span>
+           	       <span class="code-tag">&lt;property name=<span class="code-quote">"path"</span> value=<span class="code-quote">"Price"</span>&gt;</span><span class="code-tag">&lt;/property&gt;</span>
+                 <span class="code-tag">&lt;/bean&gt;</span>
+   	      <span class="code-tag">&lt;/list&gt;</span>          
+        <span class="code-tag">&lt;/property&gt;</span>              
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="Document%28Schema-Free%29API-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> void registerProductType(GigaSpace gigaspace) {
+    <span class="code-comment">// Create type descriptor:
+</span>    SpaceTypeDescriptor typeDescriptor = <span class="code-keyword">new</span> SpaceTypeDescriptorBuilder(<span class="code-quote">"Product"</span>)
+        .setIdProperty(<span class="code-quote">"CatalogNumber"</span>)
+        .setRoutingProperty(<span class="code-quote">"Category"</span>)
+        .addPropertyIndex(<span class="code-quote">"Name"</span>, SpaceIndexType.BASIC)
+        .addPropertyIndex(<span class="code-quote">"Price"</span>, SpaceIndexType.EXTENDED)
+        .create();
+    <span class="code-comment">// Register type:
+</span>    gigaspace.getTypeManager().registerTypeDescriptor(typeDescriptor);
+}</pre>
+</div></div>
+</div></div>
+
+<p>Note that this code does not reflect the complete model - most of the properties does not need to be introduced to the schema. Only properties with special roles (ID, Routing) are part of the schema definition. These meta model <b>settings cannot be changed</b> without restarting the space or dropping the type, clearing all its instances and reintroducing it again.</p>
+
+<h1><a name="Document%28Schema-Free%29API-CreatingandWritingDocuments"></a>Creating and Writing Documents</h1>
+
+<p>To create a document create a <tt>Map&lt;String,Object&gt;</tt> with the requested properties, create a <tt>SpaceDocument</tt> object using the type name and properties, and write it to the space using the regular <tt>GigaSpace</tt> write method:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> void writeProduct1(GigaSpace gigaspace) {
+    <span class="code-comment">// 1. Create the properties:
+</span>    Map&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt; properties = <span class="code-keyword">new</span> HashMap&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt;();
+    properties.put(<span class="code-quote">"CatalogNumber"</span>, <span class="code-quote">"hw-1234"</span>);
+    properties.put(<span class="code-quote">"Category"</span>, <span class="code-quote">"Hardware"</span>);
+    properties.put(<span class="code-quote">"Name"</span>, <span class="code-quote">"Anvil"</span>);
+    properties.put(<span class="code-quote">"Price"</span>, 9.99f);
+    properties.put(<span class="code-quote">"Tags"</span>, <span class="code-keyword">new</span> <span class="code-object">String</span>[] {<span class="code-quote">"heavy"</span>, <span class="code-quote">"anvil"</span>});        
+
+    Map&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt; features = <span class="code-keyword">new</span> HashMap&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt;();
+    features.put(<span class="code-quote">"Manufacturer"</span>, <span class="code-quote">"Acme"</span>);
+    features.put(<span class="code-quote">"RequiresAssembly"</span>, <span class="code-keyword">false</span>);
+    features.put(<span class="code-quote">"Weight"</span>, 100);
+    properties.put(<span class="code-quote">"Features"</span>, features);
+        
+    Map&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt; review1 = <span class="code-keyword">new</span> HashMap&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt;();
+    review1.put(<span class="code-quote">"Name"</span>, <span class="code-quote">"Wile E. Coyote"</span>);
+    review1.put(<span class="code-quote">"Rate"</span>, 1);
+    review1.put(<span class="code-quote">"Comments"</span>, <span class="code-quote">"Don't drop <span class="code-keyword">this</span> on your toe, it will hurt."</span>);
+    Map&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt; review2 = <span class="code-keyword">new</span> HashMap&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt;();
+    review2.put(<span class="code-quote">"Name"</span>, <span class="code-quote">"Road Runner"</span>);
+    review2.put(<span class="code-quote">"Rate"</span>, 5);
+    review2.put(<span class="code-quote">"Comments"</span>, <span class="code-quote">"Beep Beep!"</span>);        
+    properties.put(<span class="code-quote">"Reviews"</span>, <span class="code-keyword">new</span> Map[] {review1, review2});
+
+    <span class="code-comment">// 2. Create the document using the type name and properties: 
+</span>    SpaceDocument document = <span class="code-keyword">new</span> SpaceDocument(<span class="code-quote">"Product"</span>, properties);
+    <span class="code-comment">// 3. Write the document to the space:
+</span>    gigaspace.write(document);
+}</pre>
+</div></div>
+
+<p>Another way is to use the <tt>DocumentProperties</tt> class provided, which extends HashMap to provide fluent coding:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> void writeProduct2(GigaSpace gigaspace) {
+    <span class="code-comment">// 1. Create the properties:
+</span>    DocumentProperties properties = <span class="code-keyword">new</span> DocumentProperties()
+        .setProperty(<span class="code-quote">"CatalogNumber"</span>, <span class="code-quote">"av-9876"</span>)
+        .setProperty(<span class="code-quote">"Category"</span>, <span class="code-quote">"Aviation"</span>)
+        .setProperty(<span class="code-quote">"Name"</span>, <span class="code-quote">"Jet Propelled Pogo Stick"</span>)
+        .setProperty(<span class="code-quote">"Price"</span>, 19.99f)
+        .setProperty(<span class="code-quote">"Tags"</span>, <span class="code-keyword">new</span> <span class="code-object">String</span>[] {<span class="code-quote">"New"</span>, <span class="code-quote">"Cool"</span>, <span class="code-quote">"Pogo"</span>, <span class="code-quote">"Jet"</span>})
+        .setProperty(<span class="code-quote">"Features"</span>, <span class="code-keyword">new</span> DocumentProperties()
+            .setProperty(<span class="code-quote">"Manufacturer"</span>, <span class="code-quote">"Acme"</span>)
+            .setProperty(<span class="code-quote">"RequiresAssembly"</span>, <span class="code-keyword">true</span>)
+            .setProperty(<span class="code-quote">"NumberOfParts"</span>, 42))
+        .setProperty(<span class="code-quote">"Reviews"</span>, <span class="code-keyword">new</span> DocumentProperties[] {
+            <span class="code-keyword">new</span> DocumentProperties()
+                .setProperty(<span class="code-quote">"Name"</span>, <span class="code-quote">"Wile E. Coyote"</span>)
+                .setProperty(<span class="code-quote">"Rate"</span>, 1),
+            <span class="code-keyword">new</span> DocumentProperties()
+                .setProperty(<span class="code-quote">"Name"</span>, <span class="code-quote">"Road Runner"</span>)
+                .setProperty(<span class="code-quote">"Rate"</span>, 5)});
+    
+    <span class="code-comment">// 2. Create the document using the type name and properties: 
+</span>    SpaceDocument document = <span class="code-keyword">new</span> SpaceDocument(<span class="code-quote">"Product"</span>, properties);
+    <span class="code-comment">// 3. Write the document to the space:
+</span>    gigaspace.write(document);
+}</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/add.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>GigaSpace.writeMultiple</tt> method can be used to write a batch of documents. <br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Update semantics are the same as POJO, except <b>partial update</b> that is not currently supported.<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Use only alphanumeric characters (a-z, A-Z, 0-9) and the underscore ('_') to construct properties keys. Other characters might have special behaviours in GigaSpaces (for example: the dot ('.') is used to distinguish nested paths).</p>
+
+<h1><a name="Document%28Schema-Free%29API-ReadingandRemovingDocuments"></a>Reading and Removing Documents</h1>
+
+<p>There are three types of document queries:</p>
+
+<h2><a name="Document%28Schema-Free%29API-TemplateQuery"></a>Template Query</h2>
+
+<p>This type of query uses a SpaceDocument with <em>type</em> and any other set of properties values as a template for the query<br/>
+For example: Read a document of type <b>Product</b> whose <b>Name</b> is <b>Anvil</b>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> SpaceDocument readProductByTemplate(GigaSpace gigaSpace) {
+    <span class="code-comment">// Create template:
+</span>    SpaceDocument template = <span class="code-keyword">new</span> SpaceDocument(<span class="code-quote">"Product"</span>);
+    template.setProperty(<span class="code-quote">"Name"</span>, <span class="code-quote">"Anvil"</span>);
+    <span class="code-comment">// Read:
+</span>    SpaceDocument result = gigaSpace.read(template);
+    <span class="code-keyword">return</span> result;
+}</pre>
+</div></div>
+
+<h2><a name="Document%28Schema-Free%29API-SQLQuery"></a>SQL Query</h2>
+
+<p>You can use the <a href="SQLQuery.html" title="SQLQuery">SQLQuery</a> to search for matching <tt>SpaceDocument</tt> entries.<br/>
+For example: Read a document of type <b>Product</b> whose <b>Price</b> is greater than 15:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> SpaceDocument readProductBySQL(GigaSpace gigaSpace) {
+    <span class="code-comment">// Create query:
+</span>    SQLQuery&lt;SpaceDocument&gt; query = 
+        <span class="code-keyword">new</span> SQLQuery&lt;SpaceDocument&gt;(<span class="code-quote">"Product"</span>, <span class="code-quote">"Price &gt; ?"</span>);
+    query.setParameter(1, 15f);
+    <span class="code-comment">// Read:
+</span>    SpaceDocument result = gigaSpace.read(query);
+    <span class="code-keyword">return</span> result;
+}</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Consider indexing properties used in queries to boost performance. </td></tr></table></div>
+
+<p>Queries on nested properties are supported. For example, to read products manufactured by <b>Acme</b>:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> SpaceDocument[] readProductBySQLNested(GigaSpace gigaSpace) {
+    <span class="code-comment">// Create query:
+</span>    SQLQuery&lt;SpaceDocument&gt; query = 
+        <span class="code-keyword">new</span> SQLQuery&lt;SpaceDocument&gt;(<span class="code-quote">"Product"</span>, <span class="code-quote">"Features.Manufacturer = ?"</span>);
+    query.setParameter(1, <span class="code-quote">"Acme"</span>);
+    <span class="code-comment">// Read:
+</span>    SpaceDocument[] result = gigaSpace.readMultiple(query, 10);
+    <span class="code-keyword">return</span> result;
+}</pre>
+</div></div>
+
+<h2><a name="Document%28Schema-Free%29API-IDBasedQuery"></a>ID Based Query</h2>
+
+<p>For example: Read a document of type <b>Product</b> whose ID is <b>hw-1234</b>:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> SpaceDocument readProductById(GigaSpace gigaSpace) {
+    <span class="code-keyword">return</span> gigaSpace.readById(<span class="code-keyword">new</span> IdQuery&lt;SpaceDocument&gt;(<span class="code-quote">"Product"</span>, <span class="code-quote">"hw-1234"</span>));
+}</pre>
+</div></div>
+
+<p>Queries by multiple Ids are supported. For example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> SpaceDocument[] readProductByMultipleIds(GigaSpace gigaSpace) {
+    <span class="code-object">Object</span>[] ids = <span class="code-keyword">new</span> <span class="code-object">Object</span>[] {<span class="code-quote">"hw-1234"</span>, <span class="code-quote">"av-9876"</span>};
+    ReadByIdsResult&lt;SpaceDocument&gt; result = 
+        gigaSpace.readByIds(<span class="code-keyword">new</span> IdsQuery&lt;SpaceDocument&gt;(<span class="code-quote">"Product"</span>, ids));
+    <span class="code-keyword">return</span> result.getResultsArray();
+}</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/add.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> All other <tt>GigaSpace</tt> query operations (readIfExists, readMultiple, take, takeIfExists, takeMultiple, count, clear) are supported for documents entries as well.<br/>
+<img class="emoticon" src="images/icons/emoticons/add.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> All other Id based operations (readIfExists, takeById, takeIfExistsById, takeByIds) are supported for documents as well.<br/>
+<img class="emoticon" src="images/icons/emoticons/add.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> All overloads of those operations with timeout, transactions, modifiers etc. are supported for documents. The semantics is similar to POJOs.</p>
+
+<h1><a name="Document%28Schema-Free%29API-NestedProperties"></a>Nested Properties</h1>
+
+<p>The <tt>Document</tt> properties values can be either scalars (integers, strings, enumuerations, etc), collections (arrays, lists), or nested properties (Map or an extension of map, such as <tt>DocumentProperties</tt>). Values must adhere to the same restrictions as in the POJO model (e.g. be serializable). Nested properties can be queried by using the dot ('.') notation to describe paths, as shown above.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/add.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> It's highly recommended to use <tt>DocumentProperties</tt> for nested documents since it contains performance and memory footprint optimizations which are tailored for GigaSpaces usage.<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> While it's possible to use  <tt>SpaceDocument</tt> as a property, it is probably a mistake, since it contains extra information which is not relevant for nested properties (type name, version, etc.).<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Changing nested properties in an embedded space is not safe.</p>
+
+<h1><a name="Document%28Schema-Free%29API-Indexing"></a>Indexing</h1>
+
+<p>Properties and nested paths can be <a href="Indexing.html" title="Indexing">indexed</a> to boost queries performance. In the type registration sample above the <b>Name</b> and <b>Price</b> properties are indexed.</p>
+
+<p>Since the schema is flexible and new properties might be added after the type has been registered, it is possible to add indexes dynamically as well. </p>
+
+<p>For more information about indexing, see the <a href="Indexing.html" title="Indexing">Indexing</a> page.</p>
+
+<h1><a name="Document%28Schema-Free%29API-Events"></a>Events</h1>
+
+<p>Event containers (both <a href="Polling Container.html" title="Polling Container">Polling Container</a> and <a href="Notify Container.html" title="Notify Container">Notify Container</a>) support Space <tt>Document</tt> entries.</p>
+
+<p>Here is a simple example of a polling event container configuration using a <tt>Document</tt>:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="Document%28Schema-Free%29API-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag"><span class="code-comment">&lt;!-- Enable scan for OpenSpaces and Spring components --&gt;</span></span>
+<span class="code-tag">&lt;context:component-scan base-package=<span class="code-quote">"com.mycompany"</span>/&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- Enable support for @Polling annotation --&gt;</span></span>
+<span class="code-tag">&lt;os-events:annotation-support /&gt;</span>
+
+<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;</span>
+      <span class="code-tag">&lt;os-core:space-type type-name=<span class="code-quote">"Product"</span> &gt;</span>
+		<span class="code-tag">&lt;os-core:id property=<span class="code-quote">"CatalogNumber"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:routing property=<span class="code-quote">"Category"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:basic-index path=<span class="code-quote">"Name"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:extended-index path=<span class="code-quote">"Price"</span>/&gt;</span>
+      <span class="code-tag">&lt;/os-core:space-type&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span></pre>
+</div></div> 
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Polling
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @EventTemplate
+    SpaceDocument unprocessedData() {
+        SpaceDocument template = <span class="code-keyword">new</span> SpaceDocument(<span class="code-quote">"Product"</span>);
+        template.setProperty(<span class="code-quote">"Name"</span>,<span class="code-quote">"Anvil"</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> SpaceDocument eventListener(SpaceDocument event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div>
+
+
+<h5><a name="Document%28Schema-Free%29API-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> &gt;</span>
+  <span class="code-tag">&lt;os-core:space-type type-name=<span class="code-quote">"Product"</span> &gt;</span>
+		<span class="code-tag">&lt;os-core:id property=<span class="code-quote">"CatalogNumber"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:routing property=<span class="code-quote">"Category"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:basic-index path=<span class="code-quote">"Name"</span>/&gt;</span>
+		<span class="code-tag">&lt;os-core:extended-index path=<span class="code-quote">"Price"</span>/&gt;</span>
+      <span class="code-tag">&lt;/os-core:space-type&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:polling-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+    
+    <span class="code-tag">&lt;os-core:template&gt;</span>
+         <span class="code-tag">&lt;bean class=<span class="code-quote">"com.gigaspaces.document.SpaceDocument"</span>&gt;</span>
+                <span class="code-tag">&lt;constructor-arg value=<span class="code-quote">"Product"</span>/&gt;</span>
+                <span class="code-tag">&lt;constructor-arg type=<span class="code-quote">"java.util.Map"</span>&gt;</span>
+                    <span class="code-tag">&lt;map&gt;</span>
+                        <span class="code-tag">&lt;entry key=<span class="code-quote">"Name"</span> value=<span class="code-quote">"Anvil"</span> /&gt;</span>                        	
+                    <span class="code-tag">&lt;/map&gt;</span>
+                <span class="code-tag">&lt;/constructor-arg&gt;</span>
+         <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/os-core:template&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener&gt;</span>
+        <span class="code-tag">&lt;os-events:annotation-adapter&gt;</span>
+            <span class="code-tag">&lt;os-events:delegate ref=<span class="code-quote">"simpleListener"</span>/&gt;</span>
+        <span class="code-tag">&lt;/os-events:annotation-adapter&gt;</span>
+    <span class="code-tag">&lt;/os-events:listener&gt;</span>
+<span class="code-tag">&lt;/os-events:polling-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="Document%28Schema-Free%29API-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"simpleListener"</span> class=<span class="code-quote">"SimpleListener"</span> /&gt;</span>
+
+&lt;bean id=<span class="code-quote">"eventContainer"</span> 
+    class=<span class="code-quote">"org.openspaces.events.polling.SimplePollingEventListenerContainer"</span>&gt;
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+
+    <span class="code-tag">&lt;property name=<span class="code-quote">"template"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"com.gigaspaces.document.SpaceDocument"</span>&gt;</span>
+                <span class="code-tag">&lt;constructor-arg value=<span class="code-quote">"Product"</span>/&gt;</span>
+                <span class="code-tag">&lt;constructor-arg type=<span class="code-quote">"java.util.Map"</span>&gt;</span>
+                    <span class="code-tag">&lt;map&gt;</span>
+                        <span class="code-tag">&lt;entry key=<span class="code-quote">"Name"</span> value=<span class="code-quote">"Anvil"</span> /&gt;</span>                        	
+                    <span class="code-tag">&lt;/map&gt;</span>
+                <span class="code-tag">&lt;/constructor-arg&gt;</span>
+         <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.events.adapter.AnnotationEventListenerAdapter"</span>&gt;</span>
+    	    <span class="code-tag">&lt;property name=<span class="code-quote">"delegate"</span> ref=<span class="code-quote">"simpleListener"</span> /&gt;</span>
+    	<span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="Document%28Schema-Free%29API-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace gigaSpace = <span class="code-comment">// either create the GigaSpace or get it by injection
+</span>
+SpaceDocument template = <span class="code-keyword">new</span> SpaceDocument(<span class="code-quote">"Product"</span>);
+template.setProperty(<span class="code-quote">"Name"</span>,<span class="code-quote">"Anvil"</span>);
+SimplePollingEventListenerContainer pollingEventListenerContainer = <span class="code-keyword">new</span> SimplePollingContainerConfigurer(gigaSpace)
+                .template(template)
+                .eventListenerAnnotation(<span class="code-keyword">new</span> <span class="code-object">Object</span>() {
+                    @SpaceDataEvent
+                    <span class="code-keyword">public</span> void eventHappened() {
+                        eventCalled.set(<span class="code-keyword">true</span>);
+                    }
+                }).pollingContainer();
+                
+<span class="code-comment">// when needed dispose of the notification container
+</span>pollingEventListenerContainer.destroy();</pre>
+</div></div>
+</div></div>
+
+<h1><a name="Document%28Schema-Free%29API-FIFO"></a>FIFO</h1>
+
+<p><a href="FIFO Support.html" title="FIFO Support">FIFO Support</a> is off by default with <tt>Document</tt> entries (same as with POJO). To enable FIFO support, modify the type introduction code and set the desired FIFO support mode. For example:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="Document%28Schema-Free%29API-SpringNamespaceConfiguration"></a>Spring Namespace Configuration</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span> &gt;</span>
+    <span class="code-tag">&lt;os-core:space-type type-name=<span class="code-quote">"Product"</span> fifo-support=<span class="code-quote">"OPERATION"</span> &gt;</span>
+		<span class="code-tag"><span class="code-comment">&lt;!-- other properties definition --&gt;</span></span>		
+    <span class="code-tag">&lt;/os-core:space-type&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span>
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="Document%28Schema-Free%29API-PlainSpringXML"></a>Plain Spring XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"spaceTypes"</span> &gt;</span>
+   	      <span class="code-tag">&lt;list&gt;</span>
+   		<span class="code-tag">&lt;ref bean=<span class="code-quote">"productType"</span>/&gt;</span> 
+   	      <span class="code-tag">&lt;/list&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span>/&gt;</span>	
+<span class="code-tag">&lt;/bean&gt;</span>
+    
+&lt;bean name=<span class="code-quote">"productType"</span> 
+        class=<span class="code-quote">"org.openspaces.core.config.GigaSpaceDocumentTypeDescriptorFactoryBean"</span>&gt;
+        <span class="code-tag">&lt;property name=<span class="code-quote">"typeName"</span> value=<span class="code-quote">"Product"</span>/&gt;</span>       
+        <span class="code-tag"><span class="code-comment">&lt;!-- other properties definition --&gt;</span></span>
+        <span class="code-tag">&lt;property name=<span class="code-quote">"fifoSupport"</span> value=<span class="code-quote">"OPERATION"</span>/&gt;</span>
+            
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="Document%28Schema-Free%29API-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// Create type descriptor:
+</span>SpaceTypeDescriptor typeDescriptor = <span class="code-keyword">new</span> SpaceTypeDescriptorBuilder(<span class="code-quote">"Product"</span>)
+    <span class="code-comment">// Other type descriptor settings.
+</span>    .setFifoSupport(FifoSupport.OPERATION)
+    .create();
+<span class="code-comment">// Register type:
+</span>gigaspace.getTypeManager().registerTypeDescriptor(typeDescriptor);</pre>
+</div></div>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Changing FIFO support after a type has been registered is not supported.<br/>
+For more information about FIFO, see the <a href="FIFO Support.html" title="FIFO Support">FIFO Support</a> page.</p>
+
+<h1><a name="Document%28Schema-Free%29API-TransactionsandOptimisticLocking"></a>Transactions and Optimistic Locking</h1>
+<p>Transactions and isolation modifiers semantics is identical to the POJO semantics. For more information about transactions, see the <a href="Transaction Management.html" title="Transaction Management">Transaction Management</a> page.</p>
+
+<p>Optimistic locking is disabled by default with <tt>Document</tt> entries (same as with POJO). To enable it, modify the type introduction code and set the optimistic locking support. For example:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="Document%28Schema-Free%29API-SpringNamespaceConfiguration"></a>Spring Namespace Configuration</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+      <span class="code-tag">&lt;os-core:space-type type-name=<span class="code-quote">"Product"</span> optimistic-lock=<span class="code-quote">"true"</span> &gt;</span>
+		<span class="code-tag"><span class="code-comment">&lt;!-- other properties definition --&gt;</span></span>		
+      <span class="code-tag">&lt;/os-core:space-type&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span>
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="Document%28Schema-Free%29API-PlainSpringXML"></a>Plain Spring XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"spaceTypes"</span> &gt;</span>
+   	      <span class="code-tag">&lt;list&gt;</span>
+   		<span class="code-tag">&lt;ref bean=<span class="code-quote">"productType"</span>/&gt;</span> 
+   	      <span class="code-tag">&lt;/list&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span>/&gt;</span>	
+<span class="code-tag">&lt;/bean&gt;</span>
+    
+&lt;bean name=<span class="code-quote">"productType"</span> 
+        class=<span class="code-quote">"org.openspaces.core.config.GigaSpaceDocumentTypeDescriptorFactoryBean"</span>&gt;
+        <span class="code-tag">&lt;property name=<span class="code-quote">"typeName"</span> value=<span class="code-quote">"Product"</span>/&gt;</span>
+       
+        <span class="code-tag"><span class="code-comment">&lt;!-- other properties definition --&gt;</span></span>
+        <span class="code-tag">&lt;property name=<span class="code-quote">"optimisticLock"</span> value=<span class="code-quote">"true"</span>/&gt;</span>            
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="Document%28Schema-Free%29API-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// Create type descriptor:
+</span>SpaceTypeDescriptor typeDescriptor = <span class="code-keyword">new</span> SpaceTypeDescriptorBuilder(<span class="code-quote">"Product"</span>)
+    <span class="code-comment">// Other type descriptor settings.
+</span>    .setSupportsOptimisticLocking(<span class="code-keyword">true</span>)
+    .create();
+<span class="code-comment">// Register type:
+</span>gigaspace.getTypeManager().registerTypeDescriptor(typeDescriptor);</pre>
+</div></div>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Changing optimistic locking after a type has been registered is not supported.<br/>
+For more information about optimistic locking, see the <a href="Optimistic Locking.html" title="Optimistic Locking">Optimistic Locking</a> page.</p>
+
+<h1><a name="Document%28Schema-Free%29API-LocalCache%2FLocalView"></a>Local Cache / Local View</h1>
+
+<p><a href="Local View and Local Cache.html" title="Local View and Local Cache">Local View and Local Cache</a> are supported for Documents. By default, the <tt>SpaceDocument</tt> instance is stored in the cache which speeds up query performance since the data does not need to be transformed from internal structure to <tt>SpaceDocument</tt>.</p>
+
+<p>If you intend to use local cache or local view in a mixed POJO-Document environment, please refer to <a href="Document-POJO Interoperability.html" title="Document-POJO Interoperability">Document-POJO Interoperability</a>.</p>
+
+<h1><a name="Document%28Schema-Free%29API-Persistency"></a>Persistency</h1>
+<p>External Data Source is supported for space documents.<br/>
+Example on how to implement an EDS that persists SpaceDocuments of type "Trade":</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="Document%28Schema-Free%29API-Configuration"></a>Configuration</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"documentDataSource"</span> class=<span class="code-quote">"com.test.DocumentEDS"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> schema=<span class="code-quote">"persistent"</span> external-data-source=<span class="code-quote">"documentDataSource"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:space-type type-name=<span class="code-quote">"Trade"</span> &gt;</span>
+	   <span class="code-tag">&lt;os-core:id property=<span class="code-quote">"uid"</span> auto-generate=<span class="code-quote">"true"</span>/&gt;</span>
+	   <span class="code-tag">&lt;os-core:routing property=<span class="code-quote">"symbolLabel"</span>/&gt;</span>			
+    <span class="code-tag">&lt;/os-core:space-type&gt;</span>
+    <span class="code-tag">&lt;os-core:properties&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"space-config.external-data-source.data-class"</span>&gt;</span>com.gigaspaces.document.SpaceDocument<span class="code-tag">&lt;/prop&gt;</span>           
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/os-core:properties&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div>
+
+
+
+<h5><a name="Document%28Schema-Free%29API-TheEDSImplementation"></a>The EDS Implementation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>The EDS Implementation</b></div><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.test;
+
+<span class="code-keyword">public</span> class DocumentEDS
+        <span class="code-keyword">implements</span> ManagedDataSource&lt;SpaceDocument&gt;, BulkDataPersister
+{
+   
+    <span class="code-keyword">public</span> void init(Properties prop) <span class="code-keyword">throws</span> DataSourceException
+    {
+        <span class="code-comment">// initialize persistency layer
+</span>    }
+
+    <span class="code-keyword">public</span> DataIterator&lt;SpaceDocument&gt; initialLoad() <span class="code-keyword">throws</span> DataSourceException
+    {
+        <span class="code-comment">// load all the data from persistency
+</span>        <span class="code-comment">// build and <span class="code-keyword">return</span> an iterator of documents
+</span>    }
+
+    <span class="code-keyword">public</span> void executeBulk(List&lt;BulkItem&gt; bulk) <span class="code-keyword">throws</span> DataSourceException
+    {
+        <span class="code-keyword">for</span> (BulkItem bulkItem : bulk)
+        {
+            SpaceDocument document = (SpaceDocument) bulkItem.getItem();
+
+            <span class="code-keyword">switch</span> (bulkItem.getOperation())
+            {
+                <span class="code-keyword">case</span> BulkItem.WRITE:
+
+                   <span class="code-comment">// writeDocument(document);
+</span>                    <span class="code-keyword">break</span>;
+                <span class="code-keyword">case</span> BulkItem.UPDATE:
+
+                   <span class="code-comment">// updateDocument(document, bulkItem.getIdPropertyName());
+</span>                    <span class="code-keyword">break</span>;
+                <span class="code-keyword">case</span> BulkItem.REMOVE:
+                    <span class="code-comment">//removeDocument(document, bulkItem.getIdPropertyName());
+</span>
+                    <span class="code-keyword">break</span>;
+
+                <span class="code-keyword">default</span>:
+                    <span class="code-keyword">break</span>;
+            }
+        }
+    }
+
+
+    <span class="code-keyword">public</span> void shutdown() <span class="code-keyword">throws</span> DataSourceException
+    {
+        <span class="code-comment">//cleanup resources and close the persistency
+</span>    }
+
+}</pre>
+</div></div>
+</div></div>
+
+<p>Different document database can be used to implement the document persistency - MongoDB, CouchDB and others.<br/>
+Pojos can be persisted via document EDS as well, in the same way.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In order to support initialLoad of documents the relevant types must be declared in the "space" bean, so that they are registered in the space before initialLoad is invoked.<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Document persistence is currently not provided by default - If needed, the External Data Source should be implemented to fit the required solution.</p>
+
+<h1><a name="Document%28Schema-Free%29API-SpaceFilters"></a>Space Filters</h1>
+<p>Space Filter are supported for space documents. </p>
+
+<p>If you intend to use space filters in a mixed POJO-Document environment, please refer to <a href="Document-POJO Interoperability.html" title="Document-POJO Interoperability">Document-POJO Interoperability</a>.</p>
+
+<h1><a name="Document%28Schema-Free%29API-SpaceReplicationFilters"></a>Space Replication Filters</h1>
+<p>Space Replication Filter are supported for space documents. </p>
+
+<p>If you intend to use space filters in a mixed POJO-Document environment, please refer to <a href="Document-POJO Interoperability.html" title="Document-POJO Interoperability">Document-POJO Interoperability</a>.</p>
+
+<h1><a name="Document%28Schema-Free%29API-AdvancedOptions"></a>Advanced Options</h1>
+<ul><li><a href="Extending Space Documents.html" title="Extending Space Documents">Extending Space Documents</a></li><li><a href="Document-POJO Interoperability.html" title="Document-POJO Interoperability">Document-POJO Interoperability</a></li></ul>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

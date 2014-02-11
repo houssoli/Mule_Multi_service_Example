@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Caching Scenarios</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Caching Scenarios</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  GigaSpaces IMDG supports three different caching mechanisms: in-line cache, side cache and client cache. </p>
+</div>
+
+<h1><a name="CachingScenarios-Overview"></a>Overview</h1>
+<p>GigaSpaces IMDG supports three kinds of caching mechanisms. Using GigaSpaces IMDG as a cache provides you the following benefits:</p>
+<ul class="alternate" type="square">
+	<li>Low latency - In-Memory Data access time without any disk usage.</li>
+	<li>Data access layer elasticity - Scale out/up on demand to leverage additional machine resources.</li>
+	<li>Less load on the database layer - Since the cache will isolate the database from the application somewhat, you will have less contention generated at the database layer.</li>
+	<li>Continuous High-Availability - Zero downtime of your data access layer with the ability to survive system failures without any data loss.</li>
+</ul>
+
+
+<p>The main supported caching mechanisms are the <a href="#CachingScenarios-InlineCache">in-line cache</a> and the <a href="#CachingScenarios-SideCache">side cache</a>.</p>
+
+<p>Both the In-line cache and the Side cache support the common deployment toplogies: <a href="Terminology - Data Grid Topologies.html#Terminology-DataGridTopologies-PrimaryBackupDataGrid">replicated</a>, <a href="Terminology - Data Grid Topologies.html#Terminology-DataGridTopologies-PartitionedDataGrid">partitioned</a> and <a href="Terminology - Data Grid Topologies.html#Terminology-DataGridTopologies-PrimaryBackupPartitionedDataGrid">primary-backup partitioned</a>.</p>
+
+<h1><a name="CachingScenarios-InlineCache"></a>In-line Cache</h1>
+<p>With this mechanism, the IMDG is the system of record. The database data is loaded into the IMDG when it is started. The IMDG is responsible for loading the data and pushing updates back into the database. The database can be updated in synchronously or asynchronously.</p>
+
+<ul class="alternate" type="square">
+	<li>When running in <tt>all-in-cache</tt> <a href="Memory Management Facilities.html" title="Memory Management Facilities">cache policy mode</a>, all data is loaded from the database into the cache once it is started.</li>
+	<li>When running in <tt>LRU</tt> <a href="Memory Management Facilities.html" title="Memory Management Facilities">cache policy</a> mode, a subset of the data is loaded from the database into the cache when it is started. Data is evicted from the cache based on available memory or a maximum amount of cache objects. Once there is a cache miss, the cache looks for the data within the underlying data-source. If matching data is found, it is loaded into the cache and delivered to the application.</li>
+</ul>
+
+
+<p><img src="download/attachments/48235229/in-line-cache.jpg" align="absmiddle" border="0"/></p>
+
+<p>The in-line cache is implemented using the following configurations:</p>
+<ul class="alternate" type="square">
+	<li><a href="Direct Persistency.html" title="Direct Persistency">Read-through and Write-through</a> - For persisting the cache data synchronously.</li>
+	<li><a href="Asynchronous Persistency with the Mirror.html" title="Asynchronous Persistency with the Mirror">Write-behind - Mirror</a> - For persisting the cache data asynchronously.</li>
+</ul>
+
+
+<p>Persistence logic can either be the out-of-the-box <a href="Hibernate External Data Source.html" title="Hibernate External Data Source">Hibernate external data source</a> or any custom persistence logic that implements the <a href="External Data Source API.html" title="External Data Source API">external data source interfaces</a>.</p>
+
+<p>The in-line cache ensures maximum performance when fetching data where the database is outside the critical path of the application transaction. (This makes more sense than it might seem: database contention is a primary source of application performance failure.)</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>For best performance you should use the <a href="ALL IN CACHE-Cache Policy.html" title="ALL IN CACHE-Cache Policy">ALL-IN-CACHE cache policy</a> with the <a href="Asynchronous Persistency with the Mirror.html" title="Asynchronous Persistency with the Mirror">write-behind mirror</a>. This will ensure maximum hit rate when accessing the cache. With this mode, you should make sure the cache can accommodate <em>all</em> the data you will access.</td></tr></table></div>
+
+<p>The in-line cache mechanism is widely used with the following GigaSpaces APIs:</p>
+<ul class="alternate" type="square">
+	<li><a href="The GigaSpace Interface.html" title="The GigaSpace Interface">GigaSpace API</a> - GigaSpaces native Object/SQL API.</li>
+	<li><a href="The GigaMap Interface.html" title="The GigaMap Interface">Map API</a> - GigaSpaces Key/Value (JCache/Hashtable) API.</li>
+</ul>
+
+
+<h2><a name="CachingScenarios-Whenyoushoulduseaninlinecache%3F"></a>When you should use an in-line cache? </h2>
+<p>An in-line cache is very useful when:</p>
+<ul class="alternate" type="square">
+	<li>The total size of data stored within the database (or any other external data source) is equal or less than the amount of data stored in memory. Ideally, you'd use the <tt>ALL_IN_CACHE</tt> cache policy mode.</li>
+	<li>The original data model of the data within the database (or any other external data source) is similar to the data model of the objects in memory. The <a href="External Data Source.html" title="External Data Source">External Data Source</a> will work very well: the data will be loaded automatically from the database into the cache and every change to the data in the cache will be propagated to the database behind the scenes.</li>
+</ul>
+
+
+<h1><a name="CachingScenarios-SideCache"></a>Side Cache</h1>
+<p>With this mechanism, the application is responsible for maintaining the data in the cache. Here is the flow, identical to other cache products:<br/>
+1. The application attempts to read an object from the cache. <br/>
+2. If the object is found within the cache, the application uses it.<br/>
+3. If the object isn't found within the cache:</p>
+<ul class="alternate" type="square">
+	<li>The application fetches it from the database.</li>
+	<li>The application writes it into the cache.<br/>
+4. The next time the application attempts to fetch the same object, it will be read from the cache - unless the object has been expired or evicted.</li>
+</ul>
+
+
+<p><img src="download/attachments/48235229/side_cache.jpg" align="absmiddle" border="0"/></p>
+
+<p>The Side cache scenario is widely used with the following GigaSpaces APIs:</p>
+<ul class="alternate" type="square">
+	<li><a href="The GigaSpace Interface.html" title="The GigaSpace Interface">GigaSpace API</a> - GigaSpaces native Object/SQL API.</li>
+	<li><a href="The GigaMap Interface.html" title="The GigaMap Interface">Map API</a> - GigaSpaces Key/Value (JCache/Hashtable) API.</li>
+	<li><a href="JDBC Driver.html" title="JDBC Driver">JDBC API</a> - GigaSpaces native JDBC driver.</li>
+	<li><a href="The Memcached API.html" title="The Memcached API">memcached API</a> - Using any memcached client (<a href="http://code.google.com/p/xmemcached">Java</a> , C# , C , C++..). See <a href="http://code.google.com/p/memcached/wiki/Clients">memcached libraries page</a> for the different programming languages supporting the memcached protocol that may be used with GigaSpaces server memcached implementation.</li>
+	<li><a href="GigaSpaces for Hibernate ORM Users.html" title="GigaSpaces for Hibernate ORM Users">Hibernate</a> - Leveraging GigaSpaces as Hibernate 2nd Level Cache.</li>
+</ul>
+
+
+<h2><a name="CachingScenarios-Whenyoushoulduseasidecache%3F"></a>When you should use a side cache? </h2>
+<p>A side cache is very useful when:</p>
+<ul class="alternate" type="square">
+	<li>The total amount of data stored in the database (or any other external data source) is relatively much higher than the amount of data stored in-memory. In such a case, you should be running in <tt>LRU</tt> cache policy mode.</li>
+	<li>The original data model of the data within the database (or any other external data source) is very different than the data model of the objects in-memory. In such a case the built-in <a href="External Data Source.html" title="External Data Source">External Data Source</a> may not work well, but customized mapping logic should be implemented at the client application side to load data from the database and push it into the cache.</li>
+</ul>
+
+
+<h1><a name="CachingScenarios-ClientCache"></a>Client Cache</h1>
+<p>Together with the in-line cache and side cache scenarios, you can also use client cache. This client cache may host data loaded from any IMDG partition. The client cache data access does not involve any serialization or network calls. </p>
+
+<p>When using client cache, you use a two-layered cache architecture: The first layer runs locally, within the client, and the second layer runs in the remote IMDG. The remote IMDG may use any of the supported deployment topologies.</p>
+
+<h5><a name="CachingScenarios-Inlinecachewithaclientcache%3A"></a>In-line cache with a client cache:</h5>
+<p><img src="download/attachments/48235229/in-line_cache-local-cache.jpg" align="absmiddle" border="0"/></p>
+
+
+<h5><a name="CachingScenarios-Sidecachewithaclientcache%3A"></a>Side cache with a client cache:</h5>
+<p><img src="download/attachments/48235229/side-cache-local-cache.jpg" align="absmiddle" border="0"/></p>
+
+<p>The client cache size is limited to the client process heap size. The client-side cache is updated automaticaly once the master copy of the object within the IMDG is updated. The client cache can be implemented using the following configurations:</p>
+<ul class="alternate" type="square">
+	<li><a href="Local View and Local Cache.html#LocalViewandLocalCache-LocalCache">Local Cache</a> - On-demand client cache loading data based on client activity. This type of client cache evicts data once the client available memory drops below a configurable value. The local cache is designed for data retrival based on ID (readByID).</li>
+	<li><a href="Local View and Local Cache.html#LocalViewandLocalCache-LocalView">Local View</a> - Pre-fetch client cache loading data based on set SQL queries. This client cache does not evict data. This client cache is designed to be read-only and support both queries and reads based on ID.</li>
+</ul>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Client cache is not enabled by default.</td></tr></table></div>
+
+<h2><a name="CachingScenarios-WhenyoushoulduseaClientCache%3F"></a>When you should use a Client Cache? </h2>
+<p>Client side cache should be used when most of the application activities (above 80%) involves reading data (a read-mostly scenario). When having repeated read activities for the same data (using <tt>readById</tt> operation), client cache will provide excellent performance boost (up to 100 times faster when compared to when a client cache is not being used). You should not use client cache when having a relatively large amount of data updates or removal operations since the overhead of the client cache updates will impact the overall application performance.</p>
+
+<h1><a name="CachingScenarios-CacheRefreshOptions"></a>Cache Refresh Options</h1>
+<p>When running the cache in LRU cache policy mode, you may need to expire or evict the cache data. This will make sure you will not load the cache with unnecessary data. Another reason to expire or evict the cache data is to make sure the memory allocated for the cache (JVM heap size) can accommodate the most valuable objects your applications needs. </p>
+
+<p><img src="download/attachments/48235229/query-service.jpg" align="absmiddle" border="0"/></p>
+
+<p>Here are the options you may use to refresh the cache:</p>
+<ul class="alternate" type="square">
+	<li>Eviction - You may configure the space to evict data by running in <a href="LRU-Cache Policy.html" title="LRU-Cache Policy">LRU eviction policy</a>.</li>
+	<li>Lease expiration - You may write objects into the space with a specific time to live (lease duration).</li>
+	<li>Programmatic expiration - You may expire the object using:
+	<ul class="alternate" type="square">
+		<li><tt>net.jini.core.lease.Lease.cancel()</tt> - You can get the Lease object as a result of a write operation for a new object.</li>
+		<li><tt>GigaSpace.write</tt> operation for an existing object (update) using a short lease time. See the <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/GigaSpace.html" target="_blank">GigaSpace</a> interface write operation for details.</li>
+		<li>Take operation with <a href="LRU-Cache Policy.html#LRU-CachePolicy-ExplicitEvictionofObjectsfromtheSpace">TakeModifiers.EVICT_ONLY mode</a>. See the <a href="http://www.gigaspaces.com/docs/JavaDoc7.1/org/openspaces/core/GigaSpace.html" target="_blank">GigaSpace</a> interface take operation for details.</li>
+	</ul>
+	</li>
+	<li>Periodic refresh - You may push data into the cache in a periodic manner via a timer. The Timer will be fetching relevant data that was recently updated within the database and pushing it into the cache.</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

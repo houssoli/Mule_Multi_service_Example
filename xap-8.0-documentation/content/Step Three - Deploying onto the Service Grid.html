@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Step Three - Deploying onto the Service Grid</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Step Three - Deploying onto the Service Grid</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903592";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903592";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+
+<p><b>Tutorial summary</b>: In this tutorial you learn how to deploy the Hello World application onto the GigaSpaces Service Grid to achieve fail-over, scaling and self-healing capabilities for your application. <sub>Approx 10 min</sub> </p>
+
+
+<h2><a name="StepThree-DeployingontotheServiceGrid-Overview"></a>Overview</h2>
+
+
+
+<p><img src="download/attachments/17301573/folder_icon.gif" align="absmiddle" border="0"/> Example Folder - &lt;GigaSpaces Root&gt;\examples\helloworld<br/>
+<img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Features Introduced - Service Grid, Grid Service Manager (GSM), Grid Service Container (GSC), Failover, Self-Healing, Deployment.
+<br clear="all" /></p>
+<hr 
+ size="1" 
+ color="C9C9C9" 
+ >
+
+
+
+
+<h4><a name="StepThree-DeployingontotheServiceGrid-BeforeyouBegin"></a>Before you Begin</h4>
+
+<p>We recommend that you go through the following steps before starting this tutorial:</p>
+<ol>
+	<li><a href="Setting Up your IDE to work with GigaSpaces.html" title="Setting Up your IDE to work with GigaSpaces">Download GigaSpaces and set up your development environment</a> - this is needed to run the tutorial sample application.</li>
+	<li><a href="Step One - Using Processing Units for Scaling.html" title="Step One - Using Processing Units for Scaling">Step One - Using Processing Units For Scaling</a> - a short introduction to how processing units are used for scaling your application - <b>Recommended</b>.</li>
+	<li><a href="Step Two - Creating the Hello World Application.html" title="Step Two - Creating the Hello World Application">Step Two - Creating the Hello World Application</a> - Create and run your first Processing Unit.
+<br clear="all" /></li>
+</ol>
+
+
+<hr 
+ size="1" 
+ color="C9C9C9" 
+ >
+
+
+
+<h4><a name="StepThree-DeployingontotheServiceGrid-Goals"></a>Goals</h4>
+
+<p>Start the Service Grid components, deploy and run the Hello World application on them, with and without backups. Test failover and SLA capabilities, and monitor the application at runtime.</p>
+
+
+<h4><a name="StepThree-DeployingontotheServiceGrid-Steps"></a>Steps</h4>
+<ol>
+	<li><a href="#StepThree-DeployingontotheServiceGrid-DeploymentProcess">Deployment process</a></li>
+	<li><a href="#StepThree-DeployingontotheServiceGrid-Failover">Failover to a backup instance</a></li>
+	<li><a href="#StepThree-DeployingontotheServiceGrid-DeployandRun">Starting the service grid components - Grid Service Manager (GSM) and Grid Service Containers (GSCs)</a></li>
+	<li><a href="#StepThree-DeployingontotheServiceGrid-PrepareSingleInstance">Deploying the Hello World application onto the Service Grid</a>.</li>
+	<li><a href="#StepThree-DeployingontotheServiceGrid-RunFeeder">Running the feeder application</a></li>
+	<li><a href="#StepThree-DeployingontotheServiceGrid-undeploy">Undeploying the single instance deployment</a></li>
+	<li><a href="#StepThree-DeployingontotheServiceGrid-deploywithbackup">Deploying the Hello World application with Primary-Backup mode to enable automatic failover</a>
+</li>
+</ol>
+
+
+<p><br clear="all" />
+<br clear="all" /></p>
+
+
+<p><img src="download/attachments/17301573/Jump arrow green.bmp" align="absmiddle" border="0"/> <font color="green"><b>Jump</b></font> ahead and <a href="#StepThree-DeployingontotheServiceGrid-DeployandRun">deploy the sample application</a>, in case you want to see the final result of the tutorial before we begin.
+<br clear="all" />
+<br clear="all" /></p>
+
+
+
+<h4><a name="StepThree-DeployingontotheServiceGrid-ApplicationComponents"></a>Application Components</h4>
+
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="70%">
+
+
+<p>The Processing Unit that we deploy onto the Service Grid is our Hello World Processor from the <a href="Step Two - Creating the Hello World Application.html" title="Step Two - Creating the Hello World Application">previous step</a>. <br/>
+Reminder - the Feeder application writes each Message object to the processor Processing Unit, which in turn processes them.</p>
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Application Components.jpg" align="absmiddle" border="0"/><br/>
+<sub><b>Figure 1. The Hello World Feeder and Processor Processing Unit</b></sub></p></div>
+</td>
+<td class="confluenceTd"  valign="top">
+</td></tr></tbody></table>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+
+<td class="confluenceTd"  valign="top" width="70%">
+<h4><a name="StepThree-DeployingontotheServiceGrid-Infrastructure%28ServiceGrid%29Components"></a>Infrastructure (Service Grid) Components</h4>
+
+<p>The <em>Service Grid</em> is a set of containers (<em>Grid Service Containers</em> - GSCs) managed by one or more managers (<em>Grid Service Managers</em> - GSMs).<br/>
+Each Grid Service Container runs inside its own JVM. The containers themselves host <em>Processing Units</em>.<br/>
+The Grid Service Manager manages the deployment of processing units and their provisioning to the the Grid Service Containers. In production scenarios you may want to have more than one manager, so it does not become a single point of failure. <br/>
+The <em>GigaSpaces Management Center</em> is the graphical user interface for administrating and monitoring the <em>Service Grid</em> and the deployed applications.</p>
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Infra Components.jpg" align="absmiddle" border="0"/><br/>
+<sub><b>Figure 2. A Service Grid consisting of a Grid Service Manager and two Grid Service Containers</b></sub></p></div>
+
+</td>
+<td class="confluenceTd"  valign="top">
+</td></tr></tbody></table>
+
+<h4><a name="StepThree-DeployingontotheServiceGrid-DeploymentOverview"></a>Deployment Overview</h4>
+<p>In this tutorial we deploy the Hello World Processor onto the service Grid, first as a single instance (Figure 3), then with an additional backup instance to support failover (Figure 4).</p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="40%">
+<div class="" align='center'>
+<p><img src="download/attachments/48235229/Application With Infra.jpg" align="absmiddle" border="0"/><br/>
+<sub><b>Figure 3. The Hello World Processor deployed onto the Service Grid as a single instance</b></sub></p></div>
+</td>
+<td class="confluenceTd"  valign="top" width="40%">
+<div class="" align='center'>
+<p><img src="download/attachments/48235229/Sync2Backup With Infra.jpg" align="absmiddle" border="0"/><br/>
+<sub><b>Figure 4. The Hello World Processor deployed onto the Service Grid with one primary instance and one backup instance</b></sub></p></div>
+</td></tr></tbody></table>
+<p><br clear="all" />
+<br clear="all" /></p>
+
+<p><a name="StepThree-DeployingontotheServiceGrid-DeploymentProcess"></a></p>
+<h2><a name="StepThree-DeployingontotheServiceGrid-DeploymentProcess"></a>Deployment Process</h2>
+<p>After the Hello World Processor application is <a href="#StepThree-DeployingontotheServiceGrid-DeployandRun">built and put into a JAR file</a>, we <a href="#StepThree-DeployingontotheServiceGrid-StartServiceGrid">start the Service Grid Components</a>. We use the <em>Management Center GUI</em> to deploy the Hello World Processor to the Service Grid, first as a <a href="#StepThree-DeployingontotheServiceGrid-DeployAsSingleInstance">single instance</a>, and then <a href="#StepThree-DeployingontotheServiceGrid-deploywithbackup">with a backup instance as well</a>, to demonstrate failover.</p>
+
+<p><b>What happens during the deployment process</b><br/>
+Deploying a Processing Unit is done by selecting its JAR file for deployment from the <em>Management Center</em> user interface. The JAR is then passed to the <em>Grid Service Manager</em>, which analyzes its deployment requirements (These requirements are expressed in a file called the <em>Deployment Descriptor</em>) The Grid Manager then provisions the Processing Unit instances into the <em>Grid Service Containers</em>, which in turn load the processing unit binaries from the <em>Grid Service Manager</em> and start the Processing Unit instance - see Figure 5 below.</p>
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Deploying.jpg" align="absmiddle" border="0"/><br/>
+<sub><b>Figure 5. Deploying the Processor Processing Unit onto the Service Grid</b></sub></p></div>
+
+<p><br clear="all" />
+<br clear="all" /></p>
+
+<p><a name="StepThree-DeployingontotheServiceGrid-Failover"></a></p>
+<h2><a name="StepThree-DeployingontotheServiceGrid-FailovertoaBackupInstance"></a>Failover to a Backup Instance</h2>
+<p>To achieve failover capabilities and avoid a single point of failure, the Processing Unit is deployed with two instances - a primary and a backup. All objects written to the space of the primary instance are synchronously replicated to the backup instance, thus enabling quick failover to the backup instance in case the primary instance fails. <br/>
+In addition, after the failover, the <em>Grid Service Manager</em> provisions a new backup to another Grid Service Container (if it exists), to maintain high availability for the Processing Unit. This is the self-healing part of the GigaSpaces deployment mechanism. </p>
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Failover.jpg" align="absmiddle" border="0"/><br/>
+<sub><b>Figure 6. Failover to the backup instance after failure of the primary Processing Unit</b></sub></p></div>
+
+
+<p><font color="#ffffff">blank-line</font></p>
+<h4><a name="StepThree-DeployingontotheServiceGrid-FeederViewoftheFailoverProcess"></a>Feeder View of the Failover Process</h4>
+<p>Since the feeder interacts with (writes objects to) the space, using a space proxy, which hides the actual deployment topology and runtime status from it, the whole failover process is completely transparent to it.<br/>
+The only noticeable effect may be a slight delay in the space response time to the feeder calls.  </p>
+
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/Feeder Proxy.jpg" align="absmiddle" border="0"/><br/>
+<sub><b>Figure 7. The Feeder is using a proxy that automatically connects to the primary Processing Unit</b></sub></p></div>
+
+<p><br clear="all" />
+<br clear="all" /></p>
+
+
+
+<p><a name="StepThree-DeployingontotheServiceGrid-DeployandRun"></a></p>
+<h2><a name="StepThree-DeployingontotheServiceGrid-StartingtheServiceGridComponentsandDeployingtheApplication"></a>Starting the Service Grid Components and Deploying the Application</h2>
+<p><img src="download/attachments/17301573/Play arrow green.bmp" align="absmiddle" border="0"/> <b>Steps to deploy the application:</b></p>
+
+<p><b>Install GigaSpaces</b></p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> After going through the previous tutorial <a href="Step Two - Creating the Hello World Application.html" title="Step Two - Creating the Hello World Application">Step Two &#45; Creating the Hello World Application</a>, you should have GigaSpaces installed and the Hello World sample application environment set. If not, please <a href="Setting Up your IDE to work with GigaSpaces.html" title="Setting Up your IDE to work with GigaSpaces">download GigaSpaces and set up your development environment</a> to work with GigaSpaces - this is needed to run the tutorial sample application.</p>
+
+<p><a name="StepThree-DeployingontotheServiceGrid-StartServiceGrid"></a></p>
+<h4><a name="StepThree-DeployingontotheServiceGrid-StartingtheServiceGridComponents"></a>Starting the Service Grid Components </h4>
+
+<ol>
+	<li>Start <b>GigaSpaces Management Center (GS-UI)</b> by running <tt>&lt;GigaSpaces Root&gt;/bin/gs-ui.bat(.sh)</tt>.</li>
+	<li>Start a <b>GigaSpaces Agent (GSA)</b> by running <tt>&lt;GigaSpaces Root&gt;/bin/gs-agent.(sh/bat)</tt>.<br/>
+The GSA, by default, will start 2 local Grid Service Containers, and manage a global Grid Service Manager and a global Lookup Service.<br/>
+<span id='tgl_content_AGENT' class='cloakToggle'></span> What is a GigaSpaces Agent...
+
+
+<div class="panel" style="background-color: white;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<p><font color="#ffffff">blank-line</font></p>
+<p><b>The GigaSpaces Agent</b></p>
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><a href="The GigaSpaces Agent.html" title="The GigaSpaces Agent">The GigaSpaces Agent (GSA)</a> acts as a process manager that can spawn and manage Service Grid processes (Operating System level processes) such as the Grid Service Manager (aka <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">The GigaSpaces Manager</a>), the Grid Service Container (aka <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">The GigaSpaces Container</a>), and Lookup Service.</p>
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><span id='tgl_content_AGENT' class='cloakToggle'></span> <ins>Hide details</ins></p>
+
+<p><font color="#ffffff">blank-line</font></p>
+</div></div>
+
+
+
+<p>A new Grid Service Manager starts on your local machine, and its output can be viewed by clicking its name <b>gsm-1</b> inside the <b>Hosts</b> tab.<br/>
+A new Grid Service Containers start on your local machine, and its output can be viewed by clicking their names <b>gsc-1</b>/<b>gsc-2</b> inside the <b>Hosts</b> tab.<br/>
+The Grid Service Manger automatically detects the Grid Service Containers. Now we have a Service Grid with one manager and two containers up and running!</p></li>
+</ol>
+
+
+
+
+<p><sub>(The Service Grid Components started here are <em>local</em> services, all running on your own machine. Naturally, in a production environment, they are started on separate machines, using the startup scripts that the product provides.)</sub></p>
+
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><a name="StepThree-DeployingontotheServiceGrid-PrepareSingleInstance"></a> </p>
+<h4><a name="StepThree-DeployingontotheServiceGrid-DeployingtheApplicationwithNoBackupInstances"></a>Deploying the Application with No Backup Instances</h4>
+
+<p><b>Prepare the Processor Processing Unit for deployment with No Backups</b></p>
+
+<ol>
+	<li>Build the processor Processing Unit by running <tt>&lt;Hello World Example Root&gt;/build.bat(.sh) dist</tt>.<br/>
+ This compiles the Processor source files and creates the processing unit JAR file, ready for deployment under <tt>&lt;Hello World Example Root&gt;/processor/pu/hello-processor.jar</tt>.</li>
+</ol>
+
+
+<p><a name="StepThree-DeployingontotheServiceGrid-DeployAsSingleInstance"></a> <br/>
+<b>Deploying the Hello World Processor with No Backup</b></p>
+
+<ol>
+	<li>Click the <b>Deploy Processing Unit Button</b> <img src="download/attachments/17301573/deploy_processing_unit_button.jpg" align="absmiddle" border="0"/> to open the <b>Deployment Wizard</b> dialog.</li>
+	<li>Click the <b>Processing Unit</b> field <b>...</b> button, to browse for the processing unit JAR file.</li>
+	<li>Browse to the <b>hello-processor.jar</b> JAR file, located at <tt>&lt;Hello World Example Root&gt;/processor/pu</tt> folder, and select it.</li>
+	<li>Click the <b>Deploy</b> button, to deploy and wait for the processing unit to be provisioned to the running Grid Service Container.</li>
+</ol>
+
+
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><a name="StepThree-DeployingontotheServiceGrid-RunFeeder"></a></p>
+<h4><a name="StepThree-DeployingontotheServiceGrid-RunningtheFeeder"></a>Running the Feeder</h4>
+
+<ol>
+	<li>Start the feeder by running <tt>&lt;Hello World Example root&gt;/build.bat(.sh) run-feeder</tt>.</li>
+</ol>
+
+
+<p>Before deploying the application with a backup, we first undeploy the current single instance deployment:</p>
+
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><a name="StepThree-DeployingontotheServiceGrid-undeploy"></a></p>
+<h4><a name="StepThree-DeployingontotheServiceGrid-UndeployingtheSingleInstanceDeployment"></a>Undeploying the Single Instance Deployment </h4>
+<ol>
+	<li>In the <b>Deployed Processing Units tab</b>, under the <b>Processing Units</b> tree, right click the <b>hello-processor</b> deployment and click <b>Undeploy</b>.</li>
+	<li>Click <b>Yes</b> to approve.</li>
+</ol>
+
+
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><a name="StepThree-DeployingontotheServiceGrid-deploywithbackup"></a></p>
+<h4><a name="StepThree-DeployingontotheServiceGrid-DeployingasaSingleInstancewithBackup"></a>Deploying as a Single Instance with Backup</h4>
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>For Community Edition Users</b><br />If you are a community edition user, please note that you will not be able to perform this step since the community edition limits the number of space instances to one</td></tr></table></div>
+
+<p><a name="StepThree-DeployingontotheServiceGrid-PrepareSingleWithBackup"></a> <br/>
+<b>Prepare the Processor Processing Unit for deployment as a single instance with backup</b></p>
+
+<ol>
+	<li>Edit the processor's  <b>pu.xml</b> configuration file located under <tt>&lt;GigaSpaces root&gt;/examples/helloworld/processor/src/META-INF/spring</tt> folder.</li>
+	<li>Uncomment (Remove the surrounding &lt;!-- --&gt;), or add the following SLA bean definition, which contains the deployment configuration, to the <b>pu.xml</b> file:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">&lt;os-sla:sla 
+	cluster-schema=<span class="code-quote">"partitioned-sync2backup"</span>
+	number-of-instances=<span class="code-quote">"1"</span>
+	number-of-backups=<span class="code-quote">"1"</span>
+	max-instances-per-vm=<span class="code-quote">"1"</span>&gt;
+<span class="code-tag">&lt;/os-sla:sla&gt;</span></pre>
+</div></div></li>
+	<li>Build the processor Processing Unit by running <tt>&lt;Hello World Example Root&gt;/build.bat(.sh) dist</tt>.<br/>
+This compiles the processor into a JAR file, ready for deployment, located under <tt>&lt;Hello World Example Root&gt;/processor/pu/hello-processor.jar</tt>.</li>
+</ol>
+
+
+<p><a name="StepThree-DeployingontotheServiceGrid-DeployasaSingleInstancewithBackup"></a> <br/>
+<b>Deploying the Hello World Processor as a Single Instance with Backup</b></p>
+ 
+<ol>
+	<li>Click the <b>Deploy Processing Unit Button</b> <img src="download/attachments/17301573/deploy_processing_unit_button.jpg" align="absmiddle" border="0"/> to open the <b>Deployment Wizard</b> dialog.</li>
+	<li>Click the <b>Processing Unit</b> field <b>...</b> button, to browse for the processing unit JAR file.</li>
+	<li>Browse to the <b>hello-processor.jar</b> JAR file, located at <tt>&lt;Hello World Example Root&gt;/processor/pu</tt> folder, and select it.</li>
+	<li>Click the <b>Deploy</b> button, to deploy and wait for the processing unit instances to be provisioned to the running Grid Service Containers.</li>
+</ol>
+
+
+
+<p><font color="#ffffff">blank-line</font></p>
+<p><a name="StepThree-DeployingontotheServiceGrid-RunFeeder2"></a></p>
+<h4><a name="StepThree-DeployingontotheServiceGrid-RunningtheFeeder"></a>Running the Feeder</h4>
+
+<ol>
+	<li>Start the feeder by running <tt>&lt;Hello World Example root&gt;/build.bat(.sh) run-feeder</tt></li>
+</ol>
+
+
+
+
+<p><font color="#ffffff">blank-line</font></p>
+<h2><a name="StepThree-DeployingontotheServiceGrid-What%27sNext%3F"></a>What's Next?</h2>
+<p><img src="download/attachments/17301573/Jump arrow green.bmp" align="absmiddle" border="0"/> <font color="green"><b>Step Four</b></font> - <a href="Step Four - Scaling the Hello World Application.html" title="Step Four - Scaling the Hello World Application">Scaling the Hello World Application</a></p>
+
+<p>Or return to the <a href="Quick Start Guide.html" title="Quick Start Guide">Quick Start Guide</a>.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

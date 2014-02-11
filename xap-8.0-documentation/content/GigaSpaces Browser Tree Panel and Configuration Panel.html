@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : GigaSpaces Browser Tree Panel and Configuration Panel</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>GigaSpaces Browser Tree Panel and Configuration Panel</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Using the Grid Tree and the Configuration Panel on the right.  </p>
+</div>
+
+<h1><a name="GigaSpacesBrowserTreePanelandConfigurationPanel-GridTreePanel"></a>Grid Tree Panel</h1>
+
+<p>The left hand panel of the Space Browser is the <b>Grid Tree</b>. This panel allows you to view and manage all registered containers, their spaces on the network and clusters.</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903440/IMG212.gif" align="absmiddle" border="0"/></p></div>
+<p>The <b>Grid Tree</b> shows the following main types of nodes: Container ( <img src="download/attachments/53903446/container.gif" align="absmiddle" border="0"/>), Space ( <img src="download/attachments/53903446/spaceTreeIcon.gif" align="absmiddle" border="0"/>) and Cluster ( <img src="download/attachments/53903446/cluster_node.gif" align="absmiddle" border="0"/>).</p>
+
+<h1><a name="GigaSpacesBrowserTreePanelandConfigurationPanel-SpacesNetworkView"></a>Spaces Network View</h1>
+
+<p>Click the main node in the tree, labeled <b>Spaces</b>, to view all the spaces currently running in the network.</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SpaceNetworkView_6.5_RC2.jpg" align="absmiddle" border="0"/></p></div>
+<p>The table shows various information regarding each space. Each column represents a different type of information. You can select the columns you want to appear in the table by right-clicking one of the column names and clicking <b>Select Columns</b>:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/space_network_view_selectColumns_6.1.jpg" align="absmiddle" border="0"/></p></div>
+<p><img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <b>Select Columns</b> option is new in <b>GigaSpaces version 6.5</b> and onwards.</p>
+
+<p>In the Select Columns window, check the checkboxes of the columns you want to see, or <b>Select All</b> (automatically selects all checkboxes):</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/space_network_view_selectColumns_window_6.5.jpg" align="absmiddle" border="0"/></p></div>
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <b>Name</b> (space name) and <b>Container Name</b> are default options and cannot be unchecked.</p>
+
+<p>The columns to choose from are as follows:</p>
+<ul>
+	<li><b>Objects Count</b> &#8211; the number of objects in the space.
+<br clear="all" />
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In GigaSpaces version 6.5 and onwards, the <b>Objects Count</b> column does not display the number of objects for persistent spaces working in LRU mode (this might result in very high CPU usage). To change this, see the <a href="GigaSpaces Browser Menus and Buttons.html#GigaSpacesBrowserMenusandButtons-DisplayPersistentLRUSpaceMetrics">Menus and Buttons</a> section.
+<br clear="all" />
+<br clear="all" /></li>
+	<li><b>Object Count Delta</b> &#8211; shows an ascending or descending arrow, if the number of objects in the space is currently growing or being reduced (when objects are either written to or taken from the space). For example, if you are currently taking objects from a certain space, during the take operation, an arrow pointing down appears in this column (see screenshot above).
+<br clear="all" />
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> For this option to work, the <b>Objects Count</b> checkbox must also be selected.
+<br clear="all" />
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <b>Object Count Delta</b> column is new in <b>GigaSpaces version 6.5</b> and onwards.
+<br clear="all" />
+<br clear="all" /></li>
+	<li><b>Templates Count</b> &#8211; the number of templates in the space.</li>
+	<li><b>Host Name</b> &#8211; the name of the machine hosting the container.</li>
+	<li><b>Jini Group</b> &#8211; the Jini lookup group used when starting the space.</li>
+	<li><b>Locators</b> &#8211; the Jini locators used when starting the space.</li>
+	<li><b>Schema name</b> &#8211; the space's current schema.</li>
+	<li><b>Persistent</b> &#8211; whether the space is persistent or not.</li>
+	<li><b>Clustered</b> &#8211; whether the space participates in a cluster.</li>
+	<li><b>Primary</b> &#8211; whether the space is primary (<b>Yes</b>) or a backup space (<b>No</b>).</li>
+	<li><b>Used Memory (MB)</b> &#8211; the amount of used memory in this space, in MB.<br/>
+This column is highlighted in orange if the space memory usage is more than the minimum (low) watermark percentage and lower than the write only block percentage (defined in the <a href="Memory Management Facilities.html#MemoryManagementFacilities-MemoryUsage">memory usage tag</a>), for example:
+<br clear="all" />
+<br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/GMC_space_SpaceNetworkView_UsedMoemory_Column_Orange_6.5_RC2.jpg" align="absmiddle" border="0"/></p></div><br clear="all" />
+<br clear="all" />
+This column is highlighted in red if the space memory exceeds the write only block percentage (defined in the <a href="Memory Management Facilities.html#MemoryManagementFacilities-MemoryUsage">memory usage tag</a>), for example:
+<br clear="all" />
+<br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/space_network_view_memoryUsage_red_6.5.jpg" align="absmiddle" border="0"/></p></div>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details on memory usage, refer to the Memory Management section.</p>
+<p><img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <b>Used Memory</b> column is new in GigaSpaces 6.5 and onwards.
+<br clear="all" />
+<br clear="all" /></p></li>
+	<li><b>Write</b>, <b>Update</b>, <b>Read</b>, <b>Take</b>, <b>Notify Sent</b>, <b>Notify Ack.</b>, <b>Notify Registration</b> &#8211; shows the number of objects the operation has been performed on. For example, 60000 in the <b>Write</b> column means that 60000 objects have been written to this space.
+<br clear="all" />
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> These columns are new in <b>GigaSpaces version 6.5</b> and onwards.</li>
+</ul>
+
+
+<p>You can right-click a row in the table to view options for a space. These are the same options available under each space node (see <a href="#GigaSpacesBrowserTreePanelandConfigurationPanel-spacenode">Space Node</a> below). Clicking one of the options in the context menu switches to the clicked view, and selects the space in the tree on the left. This is an easy way to access a space or any its sub-nodes directly, without expanding the <b>Grid Tree</b>.</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/space_network_view_spaceNodeSelected_6.5.jpg" align="absmiddle" border="0"/></p></div>
+<p><img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <b>New in GigaSpaces 6.5</b> and onwards &#8211; The <b>Launch JConsole</b> option opens a <a href="Space JMX Management.html" title="Space JMX Management">JConsole</a> for the selected space.</p>
+
+<p>You can choose to refresh the Space Network view periodically. Select the desired refresh rate from the <b>Refresh Rate</b> drop-down menu. To stop automatically refreshing the Space Network View, click the <b>Stop</b> button. When auto-refresh is running, a green blinking dot is displayed on the right side of the screen.</p>
+
+<h1><a name="GigaSpacesBrowserTreePanelandConfigurationPanel-ContainerNode"></a>Container Node</h1>
+
+<p>Container nodes ( <img src="download/attachments/53903446/container.gif" align="absmiddle" border="0"/>) represent space containers.</p>
+
+<p>Right-clicking a container node invokes a context menu containing the following options:</p>
+
+<p><div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/grid_tree_containerNodeSelected_6.5.jpg" align="absmiddle" border="0"/></p></div><br clear="all" />
+<br clear="all" /></p>
+<ul>
+	<li><b>Refresh</b> &#8211; refreshes the tree panel display.</li>
+	<li><b>Runtime Configuration Report</b> &#8211; displays the current configuration of the selected container (see <a href="Container Maintenance - GigaSpaces Browser.html#ContainerMaintenance-GigaSpacesBrowser-RuntimeConfigurationReport">Runtime Configuration Report</a>).</li>
+	<li><b>Launch JConsole</b> &#8211; launches a <a href="Space JMX Management.html" title="Space JMX Management">JConsole</a> for the selected space container.<br/>
+<img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <b>Launch JConsole</b> option is new in <b>GigaSpaces 6.5</b> and onwards.</li>
+</ul>
+
+
+<p>When the container node is selected, its configuration data is displayed in the configuration panel on the right side.</p>
+
+<p>Selecting the container node also makes available the three leftmost buttons on the button toolbar at the top of the GigaSpaces Browser screen. These allow you to create a space and perform several maintenance operations on the container.</p>
+
+<h1><a name="GigaSpacesBrowserTreePanelandConfigurationPanel-SpaceNode"></a>Space Node</h1>
+
+<p><a name="GigaSpacesBrowserTreePanelandConfigurationPanel-spacenode"></a><br/>
+Space nodes ( <img src="download/attachments/53903446/spaceTreeIcon.gif" align="absmiddle" border="0"/>) represent a single space in the system.</p>
+
+<p><b>The space node has five possible views:</b></p>
+<ul>
+	<li><a href="Classes View - GigaSpaces Browser.html" title="Classes View - GigaSpaces Browser">Classes view</a></li>
+	<li><a href="Query View - GigaSpaces Browser.html" title="Query View - GigaSpaces Browser">Query view</a></li>
+	<li><a href="Statistics View - GigaSpaces Browser.html" title="Statistics View - GigaSpaces Browser">Statistics view</a></li>
+	<li><a href="Benchmark View - GigaSpaces Browser.html" title="Benchmark View - GigaSpaces Browser">Benchmark view</a></li>
+	<li><a href="Transactions View - GigaSpaces Browser.html" title="Transactions View - GigaSpaces Browser">Transactions view</a></li>
+	<li><a href="Connections View - GigaSpaces Browser.html" title="Connections View - GigaSpaces Browser">Connections view</a></li>
+</ul>
+
+
+<p>Right-clicking a space node invokes a context menu containing the following options:</p>
+<ul>
+	<li><b>Clean</b> &#8211; cleans the space.</li>
+	<li><b>Ping</b> &#8211; pings the space.
+<br clear="all" />
+<br clear="all" />
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903440/IMG214.gif" align="absmiddle" border="0"/></p></div></li>
+</ul>
+
+
+<p>When a space node is selected, its configuration data is displayed in the <b>Service View</b> panel on the right side:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/53903626/network_view_config.gif" align="absmiddle" border="0"/></p></div>
+
+<h1><a name="GigaSpacesBrowserTreePanelandConfigurationPanel-ClusterNode"></a>Cluster Node</h1>
+
+<p>A cluster is a collection of spaces from one or more containers. The cluster node ( <img src="download/attachments/53903446/cluster_node.gif" align="absmiddle" border="0"/>) in the <b>Grid Tree</b> represents a cluster of spaces.</p>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details, refer to the <a href="Cluster View - GigaSpaces Browser.html" title="Cluster View - GigaSpaces Browser">Cluster View</a> section.</p>
+
+<h1><a name="GigaSpacesBrowserTreePanelandConfigurationPanel-ServiceViewpanel"></a>Service View panel</h1>
+
+<p>The <b>Service View</b> panel takes up most of the Space Browser screen; it is located on the right of the <b>Grid Tree</b> panel. This panel shows configuration details for the node selected in the tree on the left, allowing you to edit some of them.</p>
+
+<p>The <b>Save</b> or <b>Save As</b> buttons at the bottom of this panel save any changes to the configuration file of the container or space.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

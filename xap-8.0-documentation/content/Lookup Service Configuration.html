@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Lookup Service Configuration</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Lookup Service Configuration</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Defining group names and unicast Locators for Jini Services; searching for available lookup services in the network. </p>
+</div>
+<h1><a name="LookupServiceConfiguration-EssentialGuidelines"></a>Essential Guidelines</h1>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <b>It is essential to set the</b> <tt><b>groups</b></tt> <b>and</b> <tt><b>locators</b></tt> <b>system properties in the Java process which starts the Lookup Service or Mahalo services</b>. This is required in order to "tell" the Jini service which groups and locators it should join, and which to serve. If these properties are not set, the Lookup Service/Mahalo uses the Jini fallback values and that impact the SLA these services serve with.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/forbidden.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <b>Do not have more than two Jini Lookup Services across one site</b> &#45; having the <tt>gsInstance</tt> running a Jini Lookup Service embedded by default can cause problems. As a result of not have more than two Jini Lookup Services across one site, spaces do not have to deal with registering themselves into too many Jini Lookup Services, and the Space Browser's freezing behavior is reduced.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <b>Jini groups vs. locators</b> &#45; Jini groups are irrelevant when using unicast lookup discovery - they are relevant only when using multicast lookup discovery. If you have multiple spaces with the same name and you are using unicast lookup discovery, you might end up getting the wrong proxy.</p>
+
+<p>In such a case, make sure you have a different lookup group for each space, where each space is configured to use a specific lookup. A good practice is to have different space/service names.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When using multicast please review the following section <b><a href="How to Determine Whether Multicast is Available.html" title="How to Determine Whether Multicast is Available">How to Determine Whether Multicast is Available</a></b> and <a href="How to Configure Multicast.html" title="How to Configure Multicast">How to Configure Multicast</a>.</p>
+
+<h1><a name="LookupServiceConfiguration-SettinguptheLookupServiceForMulticastDiscovery%28UsingLookupGroup%29"></a>Setting up the Lookup Service For Multicast Discovery (Using Lookup Group)</h1>
+
+<p>Each of the Jini Services (such as the Reggie lookup service or the Mahalo Transaction Manager) registers and advertises using a group name which is defined by the following system property (set in the <tt>/bin/setenv.bat file</tt>):<br clear="all" />
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>set LOOKUPGROUPS="gigaspaces-%USERNAME%"
+set LOOKUP_GROUPS_PROP=-Dcom.gs.jini_lus.groups=%LOOKUPGROUPS%
+</pre>
+</div></div><br clear="all" /> <br clear="all" />
+While the <tt>%USERNAME%</tt> will be replaced after installation with the version number e.g.<br/>
+set <tt>LOOKUPGROUPS="gigaspaces-7.0XAPga"</tt>.</p>
+
+<p>The command that loads a space needs to have this system property set. Another way of doing it instead of setting the <tt>com.gs.jini_lus.groups</tt> system property, is to set the Space URL groups attribute, e.g.:<br clear="all" /></p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">/./mySpace?schema=cache&amp;groups=myPrivateGroupName</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>If you are looking for a way to use a unicast discovery, please refer to the <a href="How to Configure Unicast Discovery.html" title="How to Configure Unicast Discovery">How to Configure Unicast Discovery</a> section for more details.</td></tr></table></div>
+
+<h1><a name="LookupServiceConfiguration-MulticastSettings"></a>Multicast Settings</h1>
+
+<p><img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The following capability is new in <b>GigaSpaces version 6.5</b> and onwards. To support co-existence of different GigaSpaces versions, the defaults below may change between releases.</p>
+
+<p>Adjusting the lookup services multicast settings can be done using the following system properties:</p>
+<ul>
+	<li><tt><b>com.gs.multicast.announcement</b></tt> &#45; the multicast address that controls the lookup service announcement. The lookup service uses this address to periodically announce its existence. Defaults to <tt>224.0.1.188</tt>.</li>
+	<li><tt><b>com.gs.multicast.request</b></tt> &#45; the multicast address that controls the request of clients (when started) to available lookup services. Defaults to <tt>224.0.1.187</tt>.</li>
+	<li><tt><b>com.gs.multicast.discoveryPort</b></tt> &#45; the port used during discovery for multicast requests. Defaults to <tt>4166</tt>. Note that in case the property <tt>com.sun.jini.reggie.initialUnicastDiscoveryPort</tt> system property is not defined it is also used as the default post for unicast requests.</li>
+	<li><tt><b>com.gs.multicast.ttl</b></tt> &#45; The multicast packet time to live. Defaults to 3.</li>
+	<li><tt><b>com.gs.multicast.enabled</b></tt> &#45; a global property allowing you to completely enable or disable multicast in the system.</li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The two multicast addresses allow you to completely separate two different GigaSpaces installations, so lookup services won't communicate with each other (even on the wire level, which is different than the groups, which communicate on the content level).</p>
+
+<h1><a name="LookupServiceConfiguration-TroubleshootingtheDiscovery%2FGroupConfiguration"></a>Troubleshooting the Discovery/Group Configuration</h1>
+
+<p>Using the <a href="list - GigaSpaces CLI.html#list-GigaSpacesCLI-ist6.0ListsallactiveJiniLookupServiceinstance...">list LUS </a> CLI option, run from <tt>&lt;GigaSpaces Root&gt;\bin\gs.bat/sh</tt>, you can search for available Jini Lookup Services in the network.</p>
+
+<p>Since GS 6.0.2:<br/>
+<tt>&lt;GigaSpaces Root&gt;\bin\gs.bat/sh</tt> list lus</p>
+
+<p>The following result examples appear on the console:<br clear="all" /></p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-----------------------------------------------------------------------
+-- Discovered Lookup Service at host [ 192.168.10.233 ].
+-- Lookup Service registered to the following jini groups:
+                 Group [ gigaspaces-gershon ]
+-- Lookup Service has [3] services, lookup took [631] millis, [0] seconds:
+                 Service <span class="code-object">Class</span>: com.j_spaces.core.JSpaceContainerProxy | 018aae08-5d2a-4b61-9739-36c915f4e2d9
+                 Service <span class="code-object">Class</span>: com.j_spaces.core.client.JSpaceProxy | 6f05db92-187f-4e26-b52d-ec32d3d4723c
+                 Service <span class="code-object">Class</span>: com.sun.jini.reggie.ConstrainableRegistrarProxy | 2ff6aab3-8e1a-4a2b-a1b2-
+                 4391825c2bbc
+
+-----------------------------------------------------------------------
+-- Discovered Lookup Service at host [ 192.168.10.233 ].
+-- Lookup Service registered to the following jini groups:
+                 Group [ gigaspaces-gershon ]
+-- Lookup Service has [3] services, lookup took [50] millis, [0] seconds:
+                 Service <span class="code-object">Class</span>: com.j_spaces.core.JSpaceContainerProxy | 018aae08-5d2a-4b61-9739-36c915f4e2d9
+                 Service <span class="code-object">Class</span>: com.j_spaces.core.client.JSpaceProxy | 6f05db92-187f-4e26-b52d-ec32d3d4723c
+                 Service <span class="code-object">Class</span>: com.sun.jini.reggie.ConstrainableRegistrarProxy | d3e7e224-9b46-4782-a902-
+                 e4e64c11ca95</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>For details on viewing the exact configuration in which the system is currently running, refer to the <a href="Container Maintenance - GigaSpaces Browser.html#ContainerMaintenance-GigaSpacesBrowser-RuntimeConfigurationReport">Container Maintenance</a> section.</td></tr></table></div>
+
+<h1><a name="LookupServiceConfiguration-MultiNetworkCardConfiguration"></a>Multi Network Card Configuration</h1>
+
+<p>The <tt>configs/services/services.config</tt> contain a specific setup for Multi-NIC interfaces (as part of the <tt>net.jini.discovery.LookupDiscovery</tt> and Reggie/Mahalo blocks).</p>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td> For more details on multi-network card configuration, refer to: <a href="How to Configure an Environment With Multiple Network-Cards (Multi-NIC).html" title="How to Configure an Environment With Multiple Network-Cards (Multi-NIC)">How to Configure an Environment With Multiple Network&#45;Cards &#40;Multi&#45;NIC&#41;</a>.</td></tr></table></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

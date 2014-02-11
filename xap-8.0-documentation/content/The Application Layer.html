@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : The Application Layer</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>The Application Layer</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  This section describes the GigaSpaces Application Layer. </p>
+</div>
+<p>Applications deployed on GigaSpaces XAP are very much like JEE or OSGi distributed server-side applications.</p>
+
+<p>Each application is composed of one or more scalable modules, and contains one or more business logic code components, domain model objects (entries), in-memory data storage, messaging, and event processing code.</p>
+
+<p>A module in SBA is called a Processing Unit. This is the smallest unit for cross-cluster scaling. This unit is used for design, development, testing, packaging and deployment. It is very similar in nature to a JEE WAR file, and in fact shares many structural similarities with it.</p>
+
+<h1><a name="TheApplicationLayer-ProcessingUnit"></a>Processing Unit</h1>
+<p>A <a href="Packaging and Deployment.html" title="Packaging and Deployment">Processing Unit</a> is the unit of scale. It is an application component, provided by the application developer, which is deployed to be run on several GSC instances. </p>
+
+<p>The Service Grid is responsible for taking a single copy of a Processing Unit, and creating several instances on multiple GSCs.</p>
+
+<p>In technical details, a Processing Unit is a collection of classes and a configuration file, packaged as a single unit of scale. Classes are usually Services and Domain objects, which are part of the application. The configuration file is used to define the relationship between the Processing Unit components.</p>
+
+<p><b>There are several types of Processing Units</b>:</p>
+<ul>
+	<li><a href="Packaging and Deployment.html" title="Packaging and Deployment"><b>Java</b> Processing Unit</a> - has code components in Java, and may contain a space component.</li>
+	<li><a href="http://www.gigaspaces.com/wiki/display/XAP8NET/.NET+Processing+Unit+Container" title=".NET Processing Unit Container"><b>.NET</b> Processing Unit</a> -  has its code components in .NET, and may contain a space component.</li>
+	<li><a href="Web Processing Unit Container.html" title="Web Processing Unit Container"><b>Web</b> Processing Unit</a> - contains web applications. This Processing Unit can be packaged as a standard JEE WAR (Web Archive) file, and may contain a space component.</li>
+	<li><a href="The Processing Unit Structure and Configuration.html#TheProcessingUnitStructureandConfiguration-dataOnlyPUs"><b>EDG</b> Processing Unit</a> - contains space component(s) only.</li>
+</ul>
+
+
+<p>A Processing Unit package structure is defined, based on the technology:</p>
+<ul>
+	<li>A <a href="The Processing Unit Structure and Configuration.html" title="The Processing Unit Structure and Configuration"><b>Java</b> Processing Unit</a> is packaged usually as a JAR file, modeled after the Spring DI structure. The package can also be within a file structure based on the same structure.</li>
+	<li>A <b>.NET</b> Processing Unit is packaged as a directory structure. For more information, please refer to the <a href="http://www.gigaspaces.com/wiki/display/XAP8NET/.NET+Processing+Unit+Container" title=".NET Processing Unit Container">XAP.NET Programmer's Guide</a>.</li>
+	<li>A <a href="Web Processing Unit Container.html#WebProcessingUnitContainer-Deployment"><b>Web</b> Processing Unit</a> is packaged as a standard JEE WAR file.</li>
+</ul>
+
+
+<h1><a name="TheApplicationLayer-DataOnlyProcessingUnit%28EDG%29"></a>Data-Only Processing Unit (EDG)</h1>
+<p>In some cases there is a need to deploy an In Memory Data Grid (IMDG) only. For this reason there is a special Processing Unit called EDG - Enterprise Data Grid which can be deployed into the Service Grid. The EDG Processing Unit provides IMDG capabilities, and is accessed using the GigaSpace APIs.</p>
+
+<p>An EDG Processing Unit is usually used in caching scenarios, when there is a need to provide the front-end of an information system or a database.</p>
+
+<p>The value of an EDG Processing Unit is that its SLA is still maintained by the Service Grid.</p>
+
+
+<h1><a name="TheApplicationLayer-CollocationofBusinessLogicandData"></a>Collocation of Business Logic and Data</h1>
+<p>One of the key values of SBA, as explained above, is the ability to collocate data, business logic and messaging. A typical Processing Unit will contain, within the boundaries of the same Processing Unit, a space instance and business logic services.</p>
+
+<p>The services will usually operate on data that is stored within the same space partition, providing memory access within the same process address space. This mode of interaction allows the minimal latency possible, as data is accessed by reference, as opposed to serialization required for out-of-process communication. Further more operation performance is maximal, as context switches are minimal.</p>
+
+<p>Scalability is reached by deploying multiple instances of the same Processing Unit. Spaces of various Processing Units form a space cluster. However, each service within a particular Processing Unit accesses information on its own space partition.</p>
+
+<h1><a name="TheApplicationLayer-MigratingyourApplicationtoGigaSpacesXAP"></a>Migrating your Application to GigaSpaces XAP</h1>
+<p>It's important to realize that ease of migration was a core focus for GigaSpaces XAP. As such, there are many ways to migrate your application to GigaSpaces XAP, with gains in scalability and ease of maintenance all along the way.</p>
+
+<ol>
+	<li>Migrating a traditional Java EE application to GigaSpaces XAP is often started by replacing the asynchronous invocation layer with GigaSpaces XAP - i.e., removing your normal JMS container, with its points of failure based on database backends and TCP/IP connections, and using GigaSpaces XAP instead. This is a simple configuration change!</li>
+	<li>The next step in migrating a traditional Java EE application involves using the in-memory data grid to lower requirements on the standard relational database, which means your speed of execution of transactions goes up dramatically.</li>
+	<li>The third step in migration is converting the business logic to run inside GigaSpaces XAP itself in a processing unit, instead of using an enterprise application archive in a Java EE container. This conversion is usually very easy if the prior migration steps are followed - and they're easy as well.</li>
+</ol>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

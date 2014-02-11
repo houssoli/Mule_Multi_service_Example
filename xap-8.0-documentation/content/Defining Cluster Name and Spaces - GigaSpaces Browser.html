@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Defining Cluster Name and Spaces - GigaSpaces Browser</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Defining Cluster Name and Spaces - GigaSpaces Browser</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Defining the cluster name and spaces intended to be members in the static cluster. </p>
+</div>
+<h1><a name="DefiningClusterNameandSpaces-GigaSpacesBrowser-Overview"></a>Overview</h1>
+<p>The first step in creating a cluster is to define its name, specify the cluster configuration file, and plan for the spaces in it.<br/>
+<b>To define a cluster and its spaces:</b></p>
+<ol>
+	<li>Start the GigaSpaces Browser.</li>
+	<li>In the <b>Cluster menu</b>, click <b>New</b>. The <b>Create a New Cluster</b> dialog appears.<br/>
+<img src="download/attachments/53903517/IMG502.jpg" align="absmiddle" border="0"/> <br/>
+<img src="download/attachments/53903517/IMG503.jpg" align="absmiddle" border="0"/> </li>
+	<li>Use the <b>Cluster Name</b> field to enter a name for the cluster, which is used in the GigaSpaces environment.</li>
+	<li>In the <b>Cluster File</b> field, type the path to the cluster configuration file, and its name. The cluster configuration file does not exist yet &#8211; this specifies the path it is created in, and its filename. Take note of this path and name, as you have to specify it when creating the cluster's spaces.</li>
+	<li>Click the <b>Next</b> button to continue. The <b>Define the Cluster Space-Members</b> dialog box is displayed.<br/>
+<img src="download/attachments/53903517/IMG504.jpg" align="absmiddle" border="0"/> 
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>In this step you plan the cluster by defining which spaces should be members. You do not actually create the spaces here &#8211; this is done after you finish the Cluster Wizard.</td></tr></table></div></li>
+	<li>Click the <b>Add</b> button. The <b>Setup the Cluster Members Attributes</b> dialog box is displayed.<br/>
+<img src="download/attachments/53903517/IMG505.jpg" align="absmiddle" border="0"/> </li>
+	<li>Press the <b>...</b> button to the right of the <b>Member Name</b> field. The <b>URL Setting...</b> dialog opens.</li>
+	<li>Type the Host Name, Container Name and Space Name for the space you wish to create and press <b>OK</b>. In the <b>Setup Cluster Members Attributes</b> dialog, the <b>Member Name</b> and <b>Member URL</b> fields are automatically filled in.</li>
+	<li>Click the <b>Create</b> button to define the space and return to the <b>Define the Cluster Space-Members</b> dialog box.</li>
+	<li>Repeat steps 6-9 to define additional spaces. You should define at least two spaces.</li>
+	<li>The spaces you defined are added to the <b>Member Name</b> list in the *Define the Cluster Space-Members dialog box.
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The spaces you have defined need not necessarily exist. The system does not check the paths and names of the spaces you specify. It is assumed that you use the same paths and names to create the space in a subsequent procedure.</td></tr></table></div></li>
+	<li><a href="Defining Groups in Static Cluster - GigaSpaces Browser.html" title="Defining Groups in Static Cluster - GigaSpaces Browser">Create cluster groups</a> by following the procedure in the following section.</li>
+</ol>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

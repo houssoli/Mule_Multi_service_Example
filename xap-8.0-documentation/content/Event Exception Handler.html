@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Event Exception Handler</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Event Exception Handler</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903787";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903787";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Describe the common Exception Event Listener and its different adapters. </p>
+</div>
+
+<h1><a name="EventExceptionHandler-Overview"></a>Overview</h1>
+
+<p>OpenSpaces provides a mechanism allowing to hook into how exception raised by event listeners are handled, specifically when the event listeners are executed under the context of a transaction.
+<br clear="all" /></p>
+<h1><a name="EventExceptionHandler-EventExceptionHandler"></a>Event Exception Handler</h1>
+
+<p>An event exception handler should implement the following interface:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> EventExceptionHandler&lt;T&gt; {
+
+    /**
+     * A callback when a successful execution of a listener.
+     *
+     * @param data      The actual data object of the event
+     * @param gigaSpace A GigaSpace instance that can be used to perform additional operations against the
+     *                  space
+     * @param txStatus  An optional transaction status allowing to rollback a transaction programmatically
+     * @param source    Optional additional data or the actual source event data object (where relevant)
+     */
+    void onSuccess(T data, GigaSpace gigaSpace, 
+                   TransactionStatus txStatus, <span class="code-object">Object</span> source) <span class="code-keyword">throws</span> RuntimeException;
+
+    /**
+     * A callback to handle exception in an event container. The handler can either handle the exception
+     * or propagate it.
+     *
+     * &lt;p&gt;If the event container is transactional, then propagating the exception will cause the transaction to
+     * rollback, which handling it will cause the transaction to commit.
+     *
+     * &lt;p&gt;The TransactionStatus can also be used to control <span class="code-keyword">if</span> the transaction
+     * should be rolled back without throwing an exception.
+     *
+     * @param exception The listener thrown exception
+     * @param data      The actual data object of the event
+     * @param gigaSpace A GigaSpace instance that can be used to perform additional operations against the
+     *                  space
+     * @param txStatus  An optional transaction status allowing to rollback a transaction programmatically
+     * @param source    Optional additional data or the actual source event data object (where relevant)
+     */
+    void onException(ListenerExecutionFailedException exception, T data, 
+                     GigaSpace gigaSpace, TransactionStatus txStatus, <span class="code-object">Object</span> source) <span class="code-keyword">throws</span> RuntimeException;
+}</pre>
+</div></div>
+
+<p>If we take the following simple implementation of the event listener interface:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleEventExceptionHandler <span class="code-keyword">implements</span> EventExceptionHandler {
+    <span class="code-keyword">public</span> void onSuccess(T data, GigaSpace gigaSpace, 
+                          TransactionStatus txStatus, <span class="code-object">Object</span> source) <span class="code-keyword">throws</span> RuntimeException {
+        <span class="code-comment">// process success
+</span>    } 
+    
+    <span class="code-keyword">public</span> void onException(ListenerExecutionFailedException exception, <span class="code-object">Object</span> data, 
+                            GigaSpace gigaSpace, TransactionStatus txStatus, <span class="code-object">Object</span> source) <span class="code-keyword">throws</span> RuntimeException {
+        <span class="code-comment">// process failure
+</span>    }
+}</pre>
+</div></div>
+
+<p>Here is how it can be configured:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventExceptionHandler-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@EventDriven @Polling
+<span class="code-keyword">public</span> class SimpleListener {
+
+    @ExceptionHandler
+    <span class="code-keyword">public</span> EventExceptionHandler exceptionHandler() {
+        <span class="code-comment">// can <span class="code-keyword">return</span> <span class="code-keyword">this</span> is SimpleListener implemented EventExceptionHandler
+</span>        <span class="code-keyword">return</span> <span class="code-keyword">new</span> SimpleEventExceptionHandler();
+    }
+
+    @EventTemplate
+    Data unprocessedData() {
+        Data template = <span class="code-keyword">new</span> Data();
+        template.setProcessed(<span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> template;
+    }
+    
+    @SpaceDataEvent
+    <span class="code-keyword">public</span> Data eventListener(Data event) {
+        <span class="code-comment">//process Data here
+</span>    }
+}</pre>
+</div></div> 
+
+
+<h5><a name="EventExceptionHandler-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleExceptionHandler"</span> class=<span class="code-quote">"SimpleEventExceptionHandler"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:x-container ...&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+
+    <span class="code-tag">&lt;os-events:exception-handler ref=<span class="code-quote">"simpleExceptionHandler"</span> /&gt;</span> 
+<span class="code-tag">&lt;/os-events&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventExceptionHandler-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"simpleExceptionHandler"</span> class=<span class="code-quote">"SimpleEventExceptionHandler"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"..."</span>&gt;</span>
+    <span class="code-tag"><span class="code-comment">&lt;!-- ... --&gt;</span></span>
+    
+    <span class="code-tag">&lt;property name=<span class="code-quote">"exceptionHandler"</span> ref=<span class="code-quote">"simpleExceptionHandler"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<h1><a name="EventExceptionHandler-UsingtheEventExceptionHandler"></a>Using the Event Exception Handler</h1>
+
+<p>One of the main use cases that an Exception Handler can be used for is to filter out poison messages. For example, with a polling container, if the event data (the message) can't be processed, and the polling container is transactional, it will continue to retry the message indefinitely. It will start a transaction, perform a take, try and process the message, throwing an exception in the process, and rolling back the transaction causing the take operation to be rolled back.</p>
+
+<p>If the type of the exception is know to be unrecoverable, an exception handler can be registered that will check the exception type (the cause of the ListenerExecutionFailedException), detect it, and not re-throw an exception, but instead write that entry wrapped in a "Poison Message" entry back into the space creating a dead letter queue that can be processed later on.</p>
+
+<p>A retry counter can also be handled by creating a generic interface, for example called <tt>RetryMessageEntry</tt>, which certain messages will implement. That interface will allow to increment a counter and reset it. The counter field will be part of the entry (i.e. persisted in the space).</p>
+
+<p>When an exception occurs, the retry counter will be incremented. If its under a specific threshold, the data object will be rewritten back to the space with the incremented counter (causing it to be taken again by the polling container). No exception will be raised in this case, as we want the transaction to be committed with the updated counter. Another option is to write a new entry with an updated counter, if there might have been side affects to the listener that the transaction should not commit.</p>
+
+<p>If the threshold has been breached, the same poising message handling described above can be applied.</p>
+
+<p>Its important to note that the exception handler <tt>onException</tt> and <tt>onSuccess</tt> operate under the existing on going transaction started by the polling container. Doing something outside of a transaction can be done by using a <tt>GigaSpace</tt> instance that is not associated with a transaction manager.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

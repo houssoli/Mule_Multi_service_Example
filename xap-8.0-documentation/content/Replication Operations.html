@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Replication Operations</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Replication Operations</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:55443791";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:55443791";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>   This section describes in detail how each space operation is replicated provides relevant configuration and optimizations . </p>
+</div>
+
+<h1><a name="ReplicationOperations-Overview"></a>Overview</h1>
+
+<p>The replication module used to synchronize the data and state between two space instances, but each space operations is handled slightly different to achieve maximum reliability and performance.</p>
+
+<h1><a name="ReplicationOperations-Whichoperationsarereplicated"></a>Which operations are replicated</h1>
+
+<ol>
+	<li>Write/Update/Take of space objects.</li>
+	<li>Registration to notify events.</li>
+	<li>Object/Notifications lease cancellation or renewal.</li>
+	<li>Committed transactions.</li>
+</ol>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> All the operations that are replicated, are also recovered during the space recovery process. See <a href="Space Instance Recovery.html" title="Space Instance Recovery">Space Instance Recovery</a></p>
+
+<h1><a name="ReplicationOperations-Whichoperationsarenotreplicated"></a>Which operations are not replicated</h1>
+
+<ol>
+	<li>Notifications on space operations.</li>
+	<li>Object/Notifications lease expiration.</li>
+	<li>Data loading from the database.</li>
+	<li>Uncommitted transactions.</li>
+	<li>Space tasks</li>
+	<li>Read only operations - read/count etc.</li>
+</ol>
+
+
+<h1><a name="ReplicationOperations-ReplicationGranularity"></a>Replication Granularity</h1>
+
+<p>By default, all data and operations are replicated to all target spaces that belong to the same replication group.<br/>
+You can control the replication granularity and limit what is replicated and what not. Below are the different replication granularity options:</p>
+
+<ul>
+	<li><b>Class level replication</b> - replicate only specific classes. To configure that you need to set:</li>
+</ul>
+
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cluster-config.groups.group.repl-policy.policy-type=partial-replication</pre>
+</div></div>
+
+<p>and add the following annotation to the space class:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@SpaceClass(replicate=<span class="code-keyword">false</span>)
+<span class="code-keyword">public</span> class MyPojo
+{
+ ...
+}</pre>
+</div></div>
+
+<ul>
+	<li><b>Operation level replication</b> - space can be configured so that only specific operations are replicated from a source space to the target space(s).</li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In replicated topology, <b>the take and clear operations are identical</b>. Therefore, referrals to the take operation in this section are also relevant for the clear operation.</p>
+
+<p>This can be done by setting the following property: </p>
+
+<p>For example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./mySpace"</span> &gt;</span>
+    <span class="code-tag">&lt;os-core:properties&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+             <span class="code-tag">&lt;prop key=<span class="code-quote">"cluster-config.groups.group.repl-policy.permitted-operations"</span>&gt;</span>write, extend_lease, lease_expiration, notify<span class="code-tag">&lt;/prop&gt;</span>
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/os-core:properties&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div>
+
+<p>In the example above, the <tt>take</tt> and <tt>update</tt> operations are not replicated , while the <tt>write</tt>, <tt>extend_lease</tt>, <tt>lease_expiration</tt>, and <tt>notify_registration</tt> operations are replicated to all spaces.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> all possible operations  are - write, take, extend_lease, update, discard, lease_expiration, notify<br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> An empty value means no operations to be replicated.</p>
+
+<ul>
+	<li><b>Instance level granularity</b> - replication filters can be used to control which objects are replicate and which are not, per object instance.</li>
+</ul>
+
+
+<h2><a name="ReplicationOperations-Transactionreplication"></a>Transaction replication</h2>
+
+<p>Space transaction is replicated as part of the commit process. This means that uncommitted transactions are saved only on the active space instance and in case of a space instance failure must be restarted by the application.<br/>
+Once transaction is committed on the active space instance, it is replicated to all the target space instances as one atomic operation.</p>
+
+
+<h2><a name="ReplicationOperations-Notificationregistrationreplication"></a>Notification registration replication</h2>
+
+<p>By default notify registrations are replicated to the target space instance but only the source notifies the listener registered to those events.<br/>
+The replication in this case is done to ensure that if the source space fails the target will continue to send the events to the registered listeners.<br/>
+This behavior can be controlled with the following configuration:</p>
+
+<p>Here are the system behaviors when using these options:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.replicate-notify-templates</tt> </td>
+<td class='confluenceTd'> Boolean value. If set to <tt>true</tt>, the notify templates are replicated to the target space. </td>
+<td class='confluenceTd'> true</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.trigger-notify-templates</tt> </td>
+<td class='confluenceTd'> Boolean value. If set to <tt>true</tt>, the replicated operations will trigger the notify templates and send events to the registered listeners. </td>
+<td class='confluenceTd'> false </td>
+</tr>
+</tbody></table>
+
+
+<p>A table describing the behavior of combining the different properties:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Replicate Notify Template Setting </th>
+<th class='confluenceTh'> Trigger Notify Template Setting </th>
+<th class='confluenceTh'> Explanation </th>
+</tr>
+<tr>
+<td class='confluenceTd'> True </td>
+<td class='confluenceTd'> False </td>
+<td class='confluenceTd'> Client gets notification from the active space after registration. <br clear="all" />
+ If the active source space fails the target  space instance will continue to send the events to the registered listeners. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> False </td>
+<td class='confluenceTd'> False </td>
+<td class='confluenceTd'> Client gets notification only from those spaces to which it registered.<br clear="all" />
+ Client does not get notifications from spaces which received their data by replication. Failover is not supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'> False </td>
+<td class='confluenceTd'> True </td>
+<td class='confluenceTd'> Client gets notification only from those spaces that it registered for notification.<br clear="all" />
+ Notification occurs when data has been delivered to the space, either by a client application or from the replication. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> True </td>
+<td class='confluenceTd'> True </td>
+<td class='confluenceTd'> Client gets notification from all cluster spaces after registration.<br clear="all" />
+ Client gets multiple notifications for every space event. </td>
+</tr>
+</tbody></table>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Enabling both the Replicate notify templates and trigger notify templates triggers an event for each space, so it may result in more events than you initially intended.<br/>
+ You can use the source of the event to check which space triggered it.</p>
+
+<h1><a name="ReplicationOperations-Conflictingoperationhandling"></a>Conflicting operation handling</h1>
+
+<p>Certain scenarios can cause the replication target space instance to receive duplicate or conflicting data updates.<br/>
+It usually happens in active-active topologies where the replication channel is bidirectional and each space both sends and receives data updates via replication.<br/>
+Most common scenarios:</p>
+
+<ol>
+	<li>The same object is added/updated or removed at the same time on two space instances.</li>
+	<li>Data recovery in topology that has more than 2 space instances in the same replication group.</li>
+	<li>Frequent lease expiration/renewal of the same object</li>
+</ol>
+
+
+<p>The default behavior in these cases is to treat the conflicting operations as duplicates and ignore them.<br/>
+This can be controlled using the following property:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cluster-config.groups.group.repl-policy.on-conflicting-packets</tt> </td>
+<td class='confluenceTd'> Enum value. If set to <tt>ignore</tt>, the conflicting operations are ignored. If set to <tt>override</tt> the newest operation will override the data in the target.</td>
+<td class='confluenceTd'> ignore</td>
+</tr>
+</tbody></table>
+
+<h1><a name="ReplicationOperations-Replicationoptimizations"></a>Replication optimizations</h1>
+
+<p>By default some operations are replicated in an optimized way - only the minimum required data for the operation is replicated.<br/>
+For example the take operation only replicates the object ID to minimize the network overhead.</p>
+
+<p>Additional optimizations that can affect the replication performance is the update operation.<br/>
+Regular object updates replicate the whole object state - all the properties even those that were not changed.<br/>
+This can be optimized by using WriteModifier.PARTIAL_UPDATE modifier when performing the object update.<br/>
+When this modifier is used, the replication will replicate only the changed properties and not the whole object.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When mirror is used additional settings are required to support the partial update. See <a href="Asynchronous Persistency with the Mirror.html#AsynchronousPersistencywiththeMirror-OptimizingtheMirrorActivity">Optimizing the Mirror Activity</a>.</p>
+
+
+<h1><a name="ReplicationOperations-ReplicationFilters"></a>Replication Filters</h1>
+
+<p>You can call your own business logic whenever the data is replicated. For example, you can modify the space objects data, compress/decompress, or block specific operations and space objects from being replicated to other spaces. Your business logic is called whenever the replication packet leaves the source space (output event), and arrives at the target space (input event).<br/>
+This is described under the <a href="Cluster Replication Filters.html" title="Cluster Replication Filters">Cluster Replication Filters</a> section. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

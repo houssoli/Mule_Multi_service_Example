@@ -1,0 +1,443 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Platform Interoperability in GigaSpaces</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Platform Interoperability in GigaSpaces</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903366";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903366";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The possibility for organizations whose projects include a combination of Java, .NET and C++ platforms to communicate and access each other easily and efficiently while also maintaining the benefits of the GigaSpaces scale-out application server. </p>
+</div>
+
+<h1><a name="PlatformInteroperabilityinGigaSpaces-Overview"></a>Overview</h1>
+
+<p>GigaSpaces introduces interoperability &#8211; the possibility for organizations whose projects include a combination of Java, .NET and C++ platforms to communicate and access each other easily and efficiently, while also maintaining the benefits of the GigaSpaces scale-out application server:</p>
+<ul>
+	<li><b>Transparency</b>: using your native API in the space transparently with minimum changes to existing assets. Objects are stored in the space in the same manner regardless of the platform they are written from. For example, an object can be written to the space from a Java feeder, processed using a C+&#43; Processing Unit, and a .NET client can receive the notification.</li>
+	<li><b>Performance</b>: communication between platforms is performed through the space directly, without the need for adapters or XML translation.</li>
+	<li><b>SOA</b>: all applications communicate using the space, allowing each of them to exist as as a loosely-coupled service.</li>
+</ul>
+
+
+<p><img src="download/attachments/53903366/interop.png" align="absmiddle" border="0" width="50%|high=50%"/></p>
+
+<p>To work with GigaSpaces interoperability, classes from the different platforms should meet the following criteria:</p>
+<ul>
+	<li>The classes should have the <b>same fully qualified name</b> (i.e. including package/namespace).</li>
+	<li>The classes should have the <b>same hierarchy</b> (i.e. same base/superclass structure).</li>
+	<li>The classes should have the <b>same properties with the same names and matching types</b>.</li>
+</ul>
+
+
+<p>There are two methodologies for developing interoperable solutions: </p>
+
+<ul>
+	<li>Writing the class code in each relevant platform by yourself (See the <b>Writing Interoperable Class</b> tab below)</li>
+	<li>Writing an XML file that describes the Entry, and use the code generation tool in the C+&#43; component to generate classes for all platforms (see the <b>Code Generator</b> tab below)</li>
+</ul>
+
+
+<p>There are pros and cons for each alternative. Here are some points to help you decide which methodology is best for you:</p>
+<ul>
+	<li>If you need a C+&#43; version of the class, you have to write the <tt>gs.xml</tt> file to generate the C+&#43; code.</li>
+	<li>If you're getting started with interoperability, you can use the code generator as a learning tool to review interoperable classes in all platforms.</li>
+	<li>The code generation tool does not support some of the advanced features in .NET. If you have a need for these features, it is recommended to use the generator to get started, and manually edit the generated code. In this case you need to be careful when changing the class, since regenerating the code might override your manual changes.</li>
+</ul>
+
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="PlatformInteroperabilityinGigaSpaces-WritingInteroperableClasses"></a>Writing Interoperable Classes</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  This page is focused on designing interoperable classes manually, and some related advanced features. </p>
+</div>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more information about the code generation tool, see the <a href="CPP API Code Generator.html" title="CPP API Code Generator">gs.xml Code Generator</a>.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> The .NET-Java example demonstrates many .NET-Java interoperability features. For more details, see GigaSpaces Starter Examples; .NET; DotNetJava &#42;** </p>
+
+<h1><a name="PlatformInteroperabilityinGigaSpaces-DesigningInteroperableClasses"></a>Designing Interoperable Classes</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> C# </th>
+<th class='confluenceTh'> Java </th>
+</tr>
+<tr>
+<td class='confluenceTd'><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Using GigaSpaces.Core.Metadata;
+
+namespace MyCompany.MyProject.Entities
+{
+    [SpaceClass(AliasName=<span class="code-quote">"com.mycompany.myproject.entities.Person"</span>)]
+    <span class="code-keyword">public</span> class Person
+    {
+        <span class="code-keyword">private</span> string _name;
+        [SpaceProperty(AliasName=<span class="code-quote">"name"</span>)]
+        <span class="code-keyword">public</span> string Name
+        {
+            get { <span class="code-keyword">return</span> <span class="code-keyword">this</span>._name; }
+            set { <span class="code-keyword">this</span>._name = value; }
+        }
+    }
+}</pre>
+</div></div></td>
+<td class='confluenceTd'><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.mycompany.myproject.entities;
+
+
+<span class="code-keyword">public</span> class Person
+{
+    <span class="code-keyword">private</span> <span class="code-object">String</span> name;
+    <span class="code-keyword">public</span> <span class="code-object">String</span> getName()
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">this</span>.name;
+    }
+    <span class="code-keyword">public</span> void setName(<span class="code-object">String</span> name)
+    {
+        <span class="code-keyword">this</span>.name = name;
+    }
+}</pre>
+</div></div></td>
+</tr>
+</tbody></table>
+
+<h3><a name="PlatformInteroperabilityinGigaSpaces-GuidelinesandRestrictions"></a>Guidelines and Restrictions</h3>
+<p>The following guidelines and restrictions should be followed in order to enable platform interoperability:</p>
+<ul>
+	<li>The full class name (including package\namespace) in all platforms should be identical.
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Since java packages use a different naming convention than .Net namespaces, it is recommended to use the <tt>SpaceClass(AliasName="")</tt> feature to map a .Net class to the respective java class.
+<br clear="all" />
+<br clear="all" /></li>
+	<li>The properties/fields stored in the space in all platforms should be identical.
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In Java, only properties are serialized into the space. In .NET, both fields and properties are serialized, so you can mix and match them.
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Since java properties start with a lowercase letter, whereas .Net properties usually start with an uppercase letter, it is recommended to use the <tt>SpaceProperty(AliasName="")</tt> feature to map a property/field name from .Net to java.
+<br clear="all" />
+<br clear="all" /></li>
+	<li>Only the types listed in the table below are supported. If one of your fields uses a different type, you can use the class only in a homogeneous environment.
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Arrays of these types are supported as well.
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> You can also use .NET enumerations, which are treated as their underlying .NET type. Java enums are not supported.
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> If your class contains a field whose type is not in the table, you can use <tt>SpaceExclude</tt> to exclude it from the space.
+<br clear="all" /> <img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Some of the types have different charactaristics in .NET and Java (signed\unsigned, nullable\not nullable, precision, etc.) This can lead to runtime exceptions (e.g. trying to store <tt>null</tt> in a .NET structure) or unexpected results (e.g. copying values between signed and unsigned fields).</li>
+</ul>
+
+
+<h1><a name="PlatformInteroperabilityinGigaSpaces-SupportedTypesforMatchingandInteroperability"></a>Supported Types for Matching and Interoperability</h1>
+
+<p>The following types are supported by the space for matching and interoperability:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> CLS </th>
+<th class='confluenceTh'> C# </th>
+<th class='confluenceTh'> VB.Net </th>
+<th class='confluenceTh'> Java </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.byte.aspx">System.Byte</a> </td>
+<td class='confluenceTd'> <tt>byte</tt> </td>
+<td class='confluenceTd'> <tt>Byte</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/docs/books/tutorial/java/nutsandbolts/datatypes.html">byte</a> </td>
+<td class='confluenceTd'> 8-bit integer.<sup><b>1</b></sup> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Byte&gt;</a> </td>
+<td class='confluenceTd'> <tt>byte?</tt></td>
+<td class='confluenceTd'> <tt>Nullable(Of Byte)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Byte.html" target="_blank">java.lang.Byte</a> </td>
+<td class='confluenceTd'> Nullable wrapper for byte.<sup><b>1</b></sup> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.int16.aspx">System.Int16</a> </td>
+<td class='confluenceTd'> <tt>short</tt> </td>
+<td class='confluenceTd'> <tt>Short</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/docs/books/tutorial/java/nutsandbolts/datatypes.html">short</a> </td>
+<td class='confluenceTd'> 16-bit integer. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Int16&gt;</a> </td>
+<td class='confluenceTd'> <tt>short?</tt> </td>
+<td class='confluenceTd'> <tt>Nullable(Of Short)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Short.html" target="_blank">java.lang.Short</a> </td>
+<td class='confluenceTd'> Nullable wrapper for short. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.int32.aspx">System.Int32</a> </td>
+<td class='confluenceTd'> <tt>int</tt> </td>
+<td class='confluenceTd'> <tt>Integer</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/docs/books/tutorial/java/nutsandbolts/datatypes.html">int</a> </td>
+<td class='confluenceTd'> 32-bit integer. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Int32&gt;</a> </td>
+<td class='confluenceTd'> <tt>int?</tt> </td>
+<td class='confluenceTd'> <tt>Nullable(Of Integer)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Integer.html" target="_blank">java.lang.Integer</a> </td>
+<td class='confluenceTd'> Nullable wrapper for int. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.int64.aspx">System.Int64</a> </td>
+<td class='confluenceTd'> <tt>long</tt> </td>
+<td class='confluenceTd'> <tt>Long</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/docs/books/tutorial/java/nutsandbolts/datatypes.html">long</a> </td>
+<td class='confluenceTd'> 64-bit integer. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Int64&gt;</a> </td>
+<td class='confluenceTd'> <tt>long?</tt> </td>
+<td class='confluenceTd'> <tt>Nullable(Of Long)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Long.html" target="_blank">java.lang.Long</a> </td>
+<td class='confluenceTd'> Nullable wrapper for long. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.single.aspx">System.Single</a> </td>
+<td class='confluenceTd'> <tt>float</tt> </td>
+<td class='confluenceTd'> <tt>Single</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/docs/books/tutorial/java/nutsandbolts/datatypes.html">float</a> </td>
+<td class='confluenceTd'>  Single-precision floating-point number (32 bits). </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Single&gt;</a> </td>
+<td class='confluenceTd'> <tt>float?</tt> </td>
+<td class='confluenceTd'> <tt>Nullable(Of Single)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Float.html" target="_blank">java.lang.Float</a> </td>
+<td class='confluenceTd'> Nullable wrapper for float. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.double.aspx">System.Double</a> </td>
+<td class='confluenceTd'> <tt>double</tt> </td>
+<td class='confluenceTd'> <tt>Double</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/docs/books/tutorial/java/nutsandbolts/datatypes.html">double</a> </td>
+<td class='confluenceTd'>  Double-precision floating-point number (64 bits). </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Double&gt;</a> </td>
+<td class='confluenceTd'> <tt>double?</tt> </td>
+<td class='confluenceTd'> <tt>Nullable(Of Double)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Double.html" target="_blank">java.lang.Double</a> </td>
+<td class='confluenceTd'> Nullable wrapper for double. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.boolean.aspx">System.Boolean</a> </td>
+<td class='confluenceTd'> <tt>bool</tt> </td>
+<td class='confluenceTd'> <tt>Boolean</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/docs/books/tutorial/java/nutsandbolts/datatypes.html">boolean</a>   </td>
+<td class='confluenceTd'> Boolean value (true/false). </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Boolean&gt;</a> </td>
+<td class='confluenceTd'> <tt>bool?</tt> </td>
+<td class='confluenceTd'> <tt>Nullable(Of Boolean)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Boolean.html" target="_blank">java.lang.Boolean</a> </td>
+<td class='confluenceTd'> Nullable wrapper for boolean. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.char.aspx">System.Char</a> </td>
+<td class='confluenceTd'> <tt>char</tt> </td>
+<td class='confluenceTd'> <tt>Char</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/docs/books/tutorial/java/nutsandbolts/datatypes.html">char</a>   </td>
+<td class='confluenceTd'> A Unicode  character (16 bits). </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Char&gt;</a> </td>
+<td class='confluenceTd'> <tt>char?</tt> </td>
+<td class='confluenceTd'> <tt>Nullable(Of Char)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Character.html" target="_blank">java.lang.Character</a> </td>
+<td class='confluenceTd'> Nullable wrapper for char. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.string.aspx">System.String</a> </td>
+<td class='confluenceTd'> <tt>string</tt> </td>
+<td class='confluenceTd'> <tt>String</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/String.html" target="_blank">java.lang.String</a> </td>
+<td class='confluenceTd'> An immutable, fixed-length string of Unicode characters. </td>
+</tr>
+</tbody></table>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.datetime.aspx">System.DateTime</a><br clear="all" /> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;DateTime&gt;</a> </td>
+<td class='confluenceTd'> <tt>DateTime</tt><br clear="all" /> <tt>DateTime?</tt> </td>
+<td class='confluenceTd'> <tt>DateTime</tt><br clear="all" /> <tt>Nullable(Of DateTime)</tt></td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/util/Date.html" target="_blank">java.util.Date</a> </td>
+<td class='confluenceTd'> An instant in time, typically expressed as a date and time of day.<sup><b>2,3</b></sup> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.decimal.aspx">System.Decimal</a><br clear="all" /> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Decimal&gt;</a> </td>
+<td class='confluenceTd'> <tt>decimal</tt><br clear="all" /> <tt>decimal?</tt> </td>
+<td class='confluenceTd'> <tt>Decimal</tt><br clear="all" /> <tt>Nullable(Of Decimal)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/math/BigDecimal.html" target="_blank">java.math.BigDecimal</a> </td>
+<td class='confluenceTd'> A decimal number, used for high-precision calculations.<sup><b>2,4</b></sup> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.guid.aspx">System.Guid</a><br clear="all" /> <a href="http://msdn.microsoft.com/en-us/library/b3h38hb0.aspx">Nullable&lt;Guid&gt;</a> </td>
+<td class='confluenceTd'> <tt>Guid</tt><br clear="all" /> <tt>Guid?</tt> </td>
+<td class='confluenceTd'> <tt>Guid</tt><br clear="all" /> <tt>Nullable(Of Guid)</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/util/UUID.html" target="_blank">java.util.UUID</a> </td>
+<td class='confluenceTd'> A 128-bit integer representing a unique identifier.<sup><b>2</b></sup> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.object.aspx">System.Object</a> </td>
+<td class='confluenceTd'> <tt>object</tt> </td>
+<td class='confluenceTd'> <tt>Object</tt> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/lang/Object.html" target="_blank">java.lang.Object</a> </td>
+<td class='confluenceTd'> Any object </td>
+</tr>
+</tbody></table>
+<ol>
+	<li>In .Net a <tt>byte</tt> is unsigned, whereas in java a <tt>byte</tt> is signed.</li>
+	<li>These types can be either nullable or not nullable in .Net, whereas in java they are always nullable.</li>
+	<li>In .Net a <tt>DateTime</tt> is measured in ticks (=100 nanoseconds) since 1/1/0001, whereas in java a <tt>Date</tt> is a measured in milliseconds since 1/1/1970.</li>
+	<li>The types <tt>Decimal</tt> (.Net) and <tt>BigDecimal</tt> (java) have different precision and range (see .Net and java documentation for more details). In addition, be aware that serialization/deserialization of these types is relatively slow, compared to other numeric types. As a rule of thumb these types should not be used, unless the other numeric types presicion/range is not satisfactory.</li>
+</ol>
+
+
+<h1><a name="PlatformInteroperabilityinGigaSpaces-ArraysandCollectionssupport"></a>Arrays and Collections support</h1>
+
+<p>The following collections are mapped for interoperability:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> .Net </th>
+<th class='confluenceTh'> Java </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>T[]</tt> </td>
+<td class='confluenceTd'> <tt>E[]</tt> </td>
+<td class='confluenceTd'> Fixed-size arrays of elements. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/6sh2ey19.aspx">System.Collections.Generic.List&lt;T&gt;</a> <br clear="all" /> <a href="http://msdn2.microsoft.com/en-us/library/system.collections.arraylist.aspx">System.Collections.ArrayList</a> <br clear="all" /> <a href="http://msdn2.microsoft.com/en-us/library/system.collections.specialized.stringcollection.aspx">System.Collections.Specialized.StringCollection</a> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/util/ArrayList.html" target="_blank">java.util.ArrayList </a> </td>
+<td class='confluenceTd'> Ordered list of elements. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/xfhwa508.aspx">System.Collections.Generic.Dictionary&lt;K,V&gt;</a> <br clear="all" /> <a href="http://msdn2.microsoft.com/en-us/library/system.collections.hashtable.aspx">System.Collections.HashTable</a> <br clear="all" /> <a href="http://msdn2.microsoft.com/en-us/library/system.collections.specialized.hybriddictionary.aspx">System.Collections.Specialized.HybridDictionary</a> <br clear="all" /> <a href="http://msdn2.microsoft.com/en-us/library/system.collections.specialized.listdictionary.aspx">System.Collections.Specialized.ListDictionary</a> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/util/HashMap.html" target="_blank">java.util.HashMap</a> </td>
+<td class='confluenceTd'> Collection of key-value pairs. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn.microsoft.com/en-us/library/f7fta44c.aspx">System.Collections.Generic.SortedDictionary&lt;K,V&gt;</a><br clear="all" /> <a href="http://msdn2.microsoft.com/en-us/library/system.collections.specialized.ordereddictionary.aspx">System.Collections.Specialized.OrderedDictionary</a> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/util/LinkedHashMap.html" target="_blank">java.util.LinkedHashMap</a> </td>
+<td class='confluenceTd'> Ordered collection of key-value pairs. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <a href="http://msdn2.microsoft.com/en-us/library/system.collections.specialized.namevaluecollection.aspx">System.Collections.Specialized.NameValueCollection</a><br clear="all" /> <a href="http://msdn2.microsoft.com/en-us/library/system.collections.specialized.stringdictionary.aspx">System.Collections.Specialized.StringDictionary</a> </td>
+<td class='confluenceTd'> <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html?java/util/Properties.html" target="_blank">java.util.Properties</a> </td>
+<td class='confluenceTd'> Collection of key-value string pairs.<sup><b>1</b></sup> </td>
+</tr>
+</tbody></table>
+<ol>
+	<li>In java, the <tt>Properties</tt> type allows the user to store keys and values which are not strings.</li>
+</ol>
+
+
+<p>***Link required</p>
+
+
+<h5><a name="PlatformInteroperabilityinGigaSpaces-CodeGenerator"></a>Code Generator</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>The <tt>*gs.xml</tt> file and the <tt>gsxml2cpp</tt> utility allow you to use your C++ classes in the space without a need for mapping or special knowledge regarding other APIs. This file is in charge of generating the C++ class serialization code, allowing you to use your C++ classes in the space. It can also be used to generate the C++ class header file and POJO Java file.</p>
+
+<p><b>To define your classes in the space using the <tt></b>.gs.xml</tt> file, perform the following steps:</p>
+
+<ol>
+	<li>Write a <tt>*gs.xml</tt> file, defining its <a href="CPP API Mapping File.html" title="CPP API Mapping File">XML elements</a> as desired.</li>
+	<li>Run the <a href="gsxml2cpp Utility.html" title="gsxml2cpp Utility">gsxml2cpp</a> command &#8211; this command generates the serializer code, which includes the classes defined in your <tt>gs.xml</tt> file.</li>
+	<li>Compile the serializer code &#8211; this is done using the <tt>gsxml2cpp</tt> command <tt>cpp output</tt> parameter. For an example of how to do this, refer to the <a href="CPP API Hello World Example.html#CPPAPIHelloWorldExample-CodeWalkthrough">C++ Hello World Example</a>.</li>
+	<li>Compiling the serializer code generates a DLL file in the format of: <tt>serialize.dll</tt>. Copy the DLL file to the <tt>&lt;GigaSpaces Root&gt;\lib\serviceGrid\native</tt> directory.</li>
+</ol>
+
+
+<p>You can now use your C++ classes inside the space.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For an explanation of the different <tt>gs.xml</tt> elements, refer to the <a href="CPP API Mapping File.html" title="CPP API Mapping File">CPP API Mapping File</a> section.</p> 
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> To find out about the <b>supported C++ types</b>, refer to the <a href="CPP API Mapping File.html#CPPAPIMappingFile-typeSupportedTypes">Supported Types</a> section.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For an explanation of the <tt>gsxml2cpp</tt> command and how to use it, refer to the <a href="gsxml2cpp Utility.html" title="gsxml2cpp Utility">gsxml2cpp Utility</a> section.</p>
+</div></div>  
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Common Environment Variables</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Common Environment Variables</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Descriptions of the main environment variables set automatically by <tt>setenv.bat</tt>. </p>
+</div>
+<h1><a name="CommonEnvironmentVariables-Overview"></a>Overview</h1>
+<p>The GigaSpaces environment configuration is maintained by a configuration script file. This script is located in the <tt>&lt;GigaSpaces Root&gt;\bin</tt> directory:</p>
+
+<ul>
+	<li>Windows: <tt>setenv.bat</tt></li>
+	<li>UNIX: <tt>Setenv.sh</tt></li>
+</ul>
+
+
+<p>Below is a list of some of a selected list of commonly used variables that are defined in this script:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Name</th>
+<th class='confluenceTh'>Description</th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>JAVA_HOME</tt> </td>
+<td class='confluenceTd'>The directory in which Java is installed.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>JAVACCMD</tt> </td>
+<td class='confluenceTd'>The Java compile command variable.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>JAVAWCMD</tt> </td>
+<td class='confluenceTd'>The JavaW process.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>JSHOMEDIR</tt> </td>
+<td class='confluenceTd'>The GigaSpaces home directory.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>LOOKUPGROUPS</tt> </td>
+<td class='confluenceTd'>Jini Lookup Service group.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>LOOKUPLOCATORS</tt> </td>
+<td class='confluenceTd'> Jini Lookup Service Locators used for unicast discovery.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>NIC_ADDR</tt> </td>
+<td class='confluenceTd'> The NIC_ADDR represents the specific network interface card IP address or the default host name. When using Multi Network-Interface cards, explicitly set it with the NIC address (e.g. 192.168.0.2) as it is the value of the the java.rmi.server.hostname system property. (see RMI_OPTIONS).</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>GS_JARS</tt> </td>
+<td class='confluenceTd'> The GS_JARS contains the same list as defined in the Class-Path entry of the JSpaces.jar manifest file. These jars are required for client application and starting a Space from within your application.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>POLICY</tt> </td>
+<td class='confluenceTd'>The default policy file.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>PRODUCTION_MODE</tt> </td>
+<td class='confluenceTd'>Indicates if GigaSpaces Server will be started in Production mode (default to the production mode).</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>RMI_OPTIONS</tt> </td>
+<td class='confluenceTd'>Additional RMI optional properties such as GC. In a setup for Multi Network-Interface cards please append -Djava.rmi.server.hostname="%NIC_ADDR%" with proper network-interface IP address to the RMI_OPTIONS</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>JAVA_VENDOR</tt> </td>
+<td class='confluenceTd'>Vendor of the JVM (i.e. All, BEA, HP, IBM, Sun, etc.). Default is <tt>ALL</tt>, meaning general settings.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>ECLIPSE_REMOTE_DEBUG</tt> </td>
+<td class='confluenceTd'>For remote Eclipse debugging add the <tt>ECLIPSE_REMOTE_DEBUG</tt> variable to the application command line.</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>REMOTE_JMX</tt> </td>
+<td class='confluenceTd'>Enable monitoring and management from remote systems using JMX jconsole.</td>
+</tr>
+</tbody></table>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The default value of the <tt>LOOKUPGROUPS</tt> variable is the GigaSpaces version number, preceded by <tt>XAP</tt>. For example, in GigaSpaces XAP 6.0, the default lookup group is <tt>gigaspaces-6.0XAP</tt>. This is the lookup group which the space and Jini Transaction Manager register with, and which clients use by default to connect to the space.</p>
+
+<h1><a name="CommonEnvironmentVariables-UsingthesetenvUtility"></a>Using the setenv Utility</h1>
+<p>It is recommended to use the <tt>setenv</tt> utility to derive the commonly used GigaSpaces libraries and setup environment. To use this utility, you simply need to call it from your script file.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

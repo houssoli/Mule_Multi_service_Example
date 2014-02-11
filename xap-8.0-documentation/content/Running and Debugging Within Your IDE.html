@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Running and Debugging Within Your IDE</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Running and Debugging Within Your IDE</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903526";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903526";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Explains how to run your processing unit inside your IDE or in unit tests </p>
+</div>
+
+<h1><a name="RunningandDebuggingWithinYourIDE-Overview"></a>Overview</h1>
+
+<p>As part of your development process, you may want to run/debug your processing unit within your IDE, or create unit tests (with JUnit for example) to tests in isolation certain aspects of it.</p>
+
+<p>The Integrated processing unit container allows you to run a processing unit within such "embedded" environment. It's implementation class is <tt><a href="http://www.gigaspaces.com/docs/JavaDoc7.0/org/openspaces/pu/container/integrated/IntegratedProcessingUnitContainer.html">org.openspaces.pu.container.integrated.IntegratedProcessingUnitContainer</a></tt>.</p>
+
+<p>The Integrated Processing Unit Container is built around Spring's <tt>ApplicationContext</tt> with several extensions relevant to GigaSpaces, such as <tt><a href="Obtaining Cluster Information.html" title="Obtaining Cluster Information">ClusterInfo</a></tt>.</p>
+
+<p>The Integrated Processing Unit Container runs directly in your IDE using its <tt>main()</tt> method, or can be started by another class in your code by using the <tt>ProcessingUnitContainerProvider</tt> abstraction.</p>
+
+<h1><a name="RunningandDebuggingWithinYourIDE-ExecutableIntegratedProcessingUnitContainer"></a>Executable IntegratedProcessingUnitContainer</h1>
+
+<p>The <tt>IntegratedProcessingUnitContainer</tt> class provides an executable <tt>main()</tt> method, allowing the IDE to run it directly via a simple Java application configuration. The <tt>main()</tt> method uses the <tt>IntegratedProcessingUnitContainerProvider</tt> class and program arguments in order to create the <tt>IntegratedProcessingUnitContainer</tt>. The following is a list of all the possible program arguments that can be specified to the <tt>IntegratedProcessingUnitContainer</tt>:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Option </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>&#45;config [configLocation]</tt> </td>
+<td class='confluenceTd'> Allows you to set/add a processing unit deployment descriptor location. <br clear="all" />
+ Follows the Spring <a href="http://static.springframework.org/spring/docs/2.5.x/reference/resources.html#resources-resourceloader">Resource Loader</a> including <a href="http://static.springframework.org/spring/docs/2.5.x/reference/resources.html#resources-app-ctx-wildcards-in-resource-paths">ant style patterns</a>. This parameter can be specified multiple times. <br clear="all" />
+ The default is <tt>classpath*:/META-INF/spring/pu.xml</tt>. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>&#45;cluster [cluster options]</tt> </td>
+<td class='confluenceTd'> Allows you to control the <tt>ClusterInfo</tt> injected into the container and the runtime topology <br clear="all" />
+ of the processing unit (Note that the integrated processing unit container can run multiple processing <br clear="all" />
+ unit instances in the same JVM to more accurately emulate the behavior of the actual runtime environment). <br clear="all" />
+ The following options are available (they are used automatically by any embedded space included <br clear="all" />
+ in the processing unit):
+<ul>
+	<li><tt>schema</tt> &#45; the cluster schema used by the processing unit. Possible values are <tt>sync-replicated</tt>, <tt>async-replicated</tt> and <tt>partitioned-sync2backup</tt></li>
+	<li><tt>total_members</tt> &#45; Determines the total members in the emulated cluster. Format is <tt>numberOfInstances[,numberOfBackups]</tt>, e.g. <tt>total_members=2,1</tt></li>
+	<li><tt>id</tt> &#8211; If you want the container to run a single processing unit instance, use this parameter. It will force the container to run one instance and will determines the instance ID of that instance.</li>
+	<li><tt>backup_id</tt> &#8211; If you want the container to run a single processing unit instance, use this parameter in conjunction with the <tt>id</tt> parameter. It will force the container to run one instance and will determines the backup ID of that instance.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>&#45;properties [property file location]</tt> </td>
+<td class='confluenceTd'> Allows you to <a href="Deployment Properties.html" title="Deployment Properties">inject properties</a> to the processing unit at deployment time. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>&#45;properties embed://[property1 name]=[property1 value];[property2 name]=[property2 value]</tt> </td>
+<td class='confluenceTd'> Allows you to <a href="Deployment Properties.html" title="Deployment Properties">directly inject properties</a> to the processing unit at startup time. </td>
+</tr>
+</tbody></table>
+
+<h2><a name="RunningandDebuggingWithinYourIDE-Example"></a>Example</h2>
+<p>To run a clustered PU with an embedded space with 2 partitions and a backup for each partition , having a separate eclipse configuration (and a hosting JVM) for each cluster member , have 3 run configuration each have the following:  </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>Run Config Primary partition 1</b></div><div class="codeContent panelContent">
+<pre class="code-java">-cluster schema=partitioned-sync2backup total_members=2,1 id=1</pre>
+</div></div>
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>Run Config Primary partition 2</b></div><div class="codeContent panelContent">
+<pre class="code-java">-cluster schema=partitioned-sync2backup total_members=2,1 id=2</pre>
+</div></div>
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>Run Config Backup partition 1</b></div><div class="codeContent panelContent">
+<pre class="code-java">-cluster schema=partitioned-sync2backup total_members=2,1 backup_id=1 id=1</pre>
+</div></div>
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>Run Config Backup partition 2</b></div><div class="codeContent panelContent">
+<pre class="code-java">-cluster schema=partitioned-sync2backup total_members=2,1 backup_id=1 id=2</pre>
+</div></div>
+
+<p>Start these using the order above. The first 2 will be primary members and the other two will be backup members.<br/>
+You can terminate any of the primary instances to test failover scenario.</p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>You can run the Integrated Processing Unit Container without actually specifying the instance id (and backup id). In this case, the container will automatically start all the relevant instances that form a complete cluster based on the <em>total_members</em> parameter provided.</td></tr></table></div>
+
+<h1><a name="RunningandDebuggingWithinYourIDE-UsingIntegratedProcessingUnitContainerintheIDE"></a>Using IntegratedProcessingUnitContainer in the IDE</h1>
+
+<p>The main usage of the <tt>IntegratedProcessingUnitContainer</tt> is to execute processing units in your IDE. <br/>
+The following screenshot displays the <b>Create, manage, and run configurations</b> Eclipse dialog for executing the processor processing unit of the <a href="The OpenSpaces Data Example.html" title="The OpenSpaces Data Example">data example</a>:</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235236/IntegratedProcessingUnitContainer2.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>In the screenshot above, we run the data processor module using the integrated processing unit container from within the Eclipse IDE (we simply imported the Eclipse project provided with the example into our Eclipse workspace). There are no arguments provided in this example, which means that the integrated processing unit container will use its defaults. Since our project source includes a <tt>META-INF/spring/pu.xml</tt> file, it is automatically detected by the <tt>IntegratedProcessingUnitContainer</tt> class and used as the processing unit's deployment descriptor (since it's part of the processor module's classpath). The processor Eclipse project also has all the required libraries in its project definition. These include all the jars located under the <tt>GigaSpaces root&gt;/lib/required</tt> directory, namely <tt>gs-openspaces.jar</tt>, <tt>gs-runtime.jar</tt>, <tt>commons-logging.jar</tt> and the Spring framework jars (all start with <tt>com.spring*</tt>), so the integrated processing unit container is running with these libraries.</p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Classpath Settings of the IntegratedProcessingUnitContainer</b><br />The <tt>IntegratedProcessingUnitContainer</tt> is a simple class that wraps the processing unit with Spring application context and makes all the proper initializations around it. Note that as with any other code you run within your IDE, you will have to manually include the classes your processing unit code depends on in your project classpath. In contrast, when <a href="Deploying onto the Service Grid.html" title="Deploying onto the Service Grid">running your processing unit on the GigaSpaces service grid</a> or in <a href="Running in Standalone Mode.html" title="Running in Standalone Mode">standalone mode</a>, all of the jars located under the processing unit's <tt>lib</tt> directory are automatically added to the classpath and GigaSpaces specific jar files (<tt>gs-runtime.jar</tt> and <tt>gs-openspaces.jar</tt> are added automatically).</td></tr></table></div> 
+
+<p>The following screenshot shows how to run a data processor instance with a partitioned cluster schema and ID <tt>1</tt>, and the arguments that should provided in this configuration:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235236/IntegratedProcessingUnitContainer3.jpg" align="absmiddle" border="0"/></p></div>
+
+<h1><a name="RunningandDebuggingWithinYourIDE-StartinganIntegratedProcessingUnitContainerProgrammatically"></a>Starting an IntegratedProcessingUnitContainer Programmatically </h1>
+
+<p>The integrated processing unit container can be created programmatically using the <tt>IntegratedProcessingUnitContainerProvider</tt> class. This is very useful when writing unit and integration tests (though Spring's own mock library can also be used for testing using pure Spring application context).</p>
+
+<p>Here is an example of using a <tt>IntegratedProcessingUnitContainerProvider</tt> in order to create one:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IntegratedProcessingUnitContainerProvider provider = <span class="code-keyword">new</span> IntegratedProcessingUnitContainerProvider();
+<span class="code-comment">// provide cluster information <span class="code-keyword">for</span> the specific PU instance
+</span>ClusterInfo clusterInfo = <span class="code-keyword">new</span> ClusterInfo();
+clusterInfo.setSchema(<span class="code-quote">"partitioned-sync2backup"</span>);
+clusterInfo.setNumberOfInstances(2);
+clusterInfo.setInstanceId(1);
+provider.setClusterInfo(clusterInfo);
+
+<span class="code-comment">// set the config location (override the <span class="code-keyword">default</span> one - classpath:/META-INF/spring/pu.xml)
+</span>provider.addConfigLocation(<span class="code-quote">"classpath:/test/my-pu.xml"</span>);
+
+<span class="code-comment">// Build the Spring application context and <span class="code-quote">"start"</span> it
+</span>IntegratedProcessingUnitContainer container = provider.createContainer();
+
+<span class="code-comment">// ...
+</span>
+container.close();</pre>
+</div></div>
+
+<h1><a name="RunningandDebuggingWithinYourIDE-RemoteDebugging"></a>Remote Debugging</h1>
+<h2><a name="RunningandDebuggingWithinYourIDE-TheJavaDebugger"></a>The Java Debugger</h2>
+<p>The Java Debugger (jdb) is a dynamic, controlled, assignment-based debugging tool. It helps find and fix bugs in the Java language programs both locally and on the server. To use jdb in a Java application you must first launch it with debugging enabled and attach to the server from the debugger through a JPDA port (Default port is 1044).</p>
+
+<p>The default JPDA options for Java applications are as follows:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000</pre>
+</div></div>
+
+<p>The jdb parameters specify the way debugger will operate. For instance <tt>transport=dt_socket</tt> instructs the JVM that the debugger connections will be made through a socket while the <tt>address=1044</tt> parameter informs it that the port number will be 1044. Similarly, if you substitute <tt>suspend=y</tt> , the JVM starts in suspended mode and stays suspended until a debugger is attached to it. This may be helpful if you want to start debugging as soon as the JVM starts.</p>
+
+<h2><a name="RunningandDebuggingWithinYourIDE-DebuggingGigaSpacesRuntimecomponents"></a>Debugging GigaSpaces Runtime components</h2>
+
+<p>Debugging GigaSpaces runtime components (GSC/GSM/Lookup Service/GSA/Jini TX Manager) is no different than debugging any other Java remote application. You need to make sure to launch it with the required debugging arguments and attach a debugger. In the case of GigaSpaces, you need to add these arguments to the startup script. GigaSpaces comes with several launch scripts (*.sh and *.bat) under <tt>GigaSpaces root/bin</tt> folder.</p>
+
+<p>1. Add the following variable <tt>IDE_REMOTE_DEBUG</tt> and set the <tt>EXT_JAVA_OPTIONS</tt> to use it:</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="RunningandDebuggingWithinYourIDE-Linux"></a>Linux</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">export IDE_REMOTE_DEBUG=<span class="code-quote">"-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y"</span>
+export EXT_JAVA_OPTIONS=$IDE_REMOTE_DEBUG</pre>
+</div></div>
+
+
+<h5><a name="RunningandDebuggingWithinYourIDE-Windows"></a>Windows</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">set IDE_REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y
+set EXT_JAVA_OPTIONS=%IDE_REMOTE_DEBUG%</pre>
+</div></div>
+</div></div>
+
+<p>If you would like to specify a specific listening port, use the <tt>address</tt> parameter:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">set IDE_REMOTE_DEBUG=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000</pre>
+</div></div>
+
+<p>2. Next, run the relevant GigaSpaces runtime component:</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="RunningandDebuggingWithinYourIDE-Linux"></a>Linux</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">./gsc.sh</pre>
+</div></div>
+
+
+<h5><a name="RunningandDebuggingWithinYourIDE-Windows"></a>Windows</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gsc.bat</pre>
+</div></div>
+</div></div>
+
+<p>Make sure you see the <tt>Listening for transport dt_socket at address</tt> message:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">D:\gigaspaces-xap-premium-7.0.1-ga\bin&gt;gsc.bat
+
+Listening <span class="code-keyword">for</span> transport dt_socket at address: 8000</pre>
+</div></div>
+
+<p>3. Open your eclipse and setup a remote debug configuration:<br/>
+<img src="download/attachments/48235229/reomte_debugging.jpg" align="absmiddle" border="0"/></p>
+
+<p>Make sure you place the right host name and port.</p>
+
+<p>4. Click the Debug button.</p>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

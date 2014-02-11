@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Cluster-Aware Operations</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Cluster-Aware Operations</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903631";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903631";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Supported and non-supported operations, limitations, and considerations when working with a clustered space. </p>
+</div>
+
+<h1><a name="Cluster-AwareOperations-ClusterAwareOperations"></a>Cluster-Aware Operations</h1>
+
+<p>In general, the <a href="Terminology - Data Grid Topologies.html" title="Terminology - Data Grid Topologies">partitioned space</a> provides the ability to perform space operations against different spaces transparently. The primary goal of the partitioned space is to provide unlimited In-Memory space storage size and group objects into the same space to speed up the performance of batch operations. The initial intention is to write data into the partitioned space, and direct the read or take operation, based on the template data.</p>
+
+<p>With in such configuration, the different spaces defined as partitions are not aware of each other (Share Nothing). The client proxy is one that is aware of the partitioned spaces configuration. The client proxy routes each operation to the relevant partition when it is executed on the client side.</p>
+
+<p>When performing space operations (write, read, or take) and using the default hash-based load-balancing policy, GigaSpaces directs the operation based on <tt>Routing field</tt> value hash code. When using the <tt>writeMultiple</tt> and <tt>updateMultiple</tt> space operations, the proxy running at the client side groups space objects that are targeted into the same space, and then write/update these in batches into the relevant space.</p>
+
+<p>When using a template that has a <tt>null</tt> value as part of the <tt>Routing Field</tt> with <tt>takeMultiple</tt>, or <tt>readMultiple</tt>) with a partitioned space, a parallel query is executed against all partitions, and the result set accumulated from all partitions by the proxy. The result set might be large, since the matching population target can span all space objects across all partitions. In such a case you might consider using the <tt>GSIterator</tt>.</p>
+
+<p>The table below shows whether the operation is routed to all partitions (cluster-aware), or can work only with a specific partition and isn't routed to the other members.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Operation </th>
+<th class='confluenceTh'> Cluster-aware </th>
+</tr>
+<tr>
+<td class='confluenceTd'> take &#8211; <b>blocking take isn't supported, see <a href="#Cluster-AwareOperations-blocking">below</a></b> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>takeIfExist</tt> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> read &#8211; <b>blocking read isn't supported, see <a href="#Cluster-AwareOperations-blocking">below</a></b> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>readIfExist</tt> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>readMultiple</tt> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>takeMultiple</tt> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>readById</tt> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>takeById</tt> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>readByIds</tt> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>takeByIds</tt> </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> clear </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> notify </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> count </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> clean </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/error.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> snapshot </td>
+<td class='confluenceTd'> <img class="emoticon" src="images/icons/emoticons/error.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> </td>
+</tr>
+</tbody></table>
+
+<h1><a name="Cluster-AwareOperations-Considerations"></a>Considerations</h1>
+<ul>
+	<li>When initializing a partitioned space, it is possible to load only the data you need for a specific partition. For more details, see <a href="External Data Source Initial Load.html" title="External Data Source Initial Load">External Data Source Initial Load</a>.</li>
+</ul>
+
+
+<h1><a name="Cluster-AwareOperations-Considerations"></a>Considerations</h1>
+<p><a name="Cluster-AwareOperations-blocking"></a></p>
+<ul>
+	<li><b>Blocking read or take operations</b> (<tt>timeout &gt; 0</tt>) with <tt>broadcast_if_null_values</tt> or unconditional broadcast mode <b>is not supported</b> &#8211; attempting to execute a blocking read or take operation throws a <tt>RuntimeException</tt> with the error: <tt>NULL value in indexed field &gt; 'indexField' is not permitted</tt>. You should use the <a href="Polling Container.html#PollingContainer-NonBlockingReceiveHandler">Non-Blocking Receive Handler</a> to handle such situation.</li>
+	<li><b>Performing operations in FIFO mode across all partitions is not supported</b>. In case of notifications, you can overcome this by performing <a href="FIFO Support.html#FIFOSupport-CustomClientSideFIFOBasedNotifications">custom client-side FIFO-based notifications</a>.</li>
+	<li>When using a partitioned space and performing destructive operations (write, take, remove), <a href="Transaction Management.html#TransactionManagement-DistributedJiniTransactionManager">distributed transaction manager</a> should be used to coordinate the commit between all partitions (local transactions cannot be used in this case).</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

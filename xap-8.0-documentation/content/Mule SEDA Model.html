@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Mule SEDA Model</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Mule SEDA Model</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903424";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903424";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  OpenSpaces Mule SEDA model allows you to define services that are aware of the space mode they are working with; and to store SEDA queues in a virtualized space queue instead of Mule's default VM queues. </p>
+</div>
+
+<h1><a name="MuleSEDAModel-Overview"></a>Overview</h1>
+
+<p>A <a href="http://mule.mulesource.org/display/MULEUSER/Models">Mule model</a> manages the runtime behavior of the service components that a Mule instance hosts. The manner in which these components are invoked and treated is all encapsulated inside the Mule model.</p>
+
+<p>OpenSpaces Mule model integration comes with two main features. The first is the ability to define services that are aware of the "direct" Space mode they are working with (the direct cluster member) and only start when working against a primary cluster member (in an SBA topology). The second feature is the ability to store SEDA queues in a virtualized space queue instead of Mule's default VM queues.</p>
+
+<p>To use this model, we have to add <tt>os-seda</tt> to the namespaces.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">&lt; ...
+<span class="code-keyword">xmlns:os-seda</span>=<span class="code-quote">"http://www.openspaces.org/schema/mule/os-seda"</span>
+...
+xsi:schemaLocation="
+http://www.openspaces.org/schema/mule/os-seda http://www.openspaces.org/schema/mule/mule-os-seda.xsd&gt;</pre>
+</div></div>
+
+<h1><a name="MuleSEDAModel-SpaceModeAwareService"></a>Space Mode Aware Service</h1>
+
+<p>When working in an SBA architecture, where each Mule Processing Unit works with (and starts) an embedded Space cluster member, some cluster members are actually the backup members (in a primary-backup topology). In such a case, operations performed directly against the Space cluster member are not allowed (clustered operations are, of course, allowed). Many times, we want to start services that work directly against the cluster member only when they are working directly with a primary cluster member. For more details, see the <a href="The Space Component.html#TheSpaceComponent-OpenSpacesCoreComponentSpacePrimary%252FBackup">OpenSpaces Core Component - Space</a> section.</p>
+
+<p>This is easily achieved using OpenSpaces extensions to the Mule SEDA model. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;spring:beans&gt;</span>
+	<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>/&gt;</span>
+	<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> /&gt;</span>
+	<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"clusteredGigaSpace"</span> space=<span class="code-quote">"space"</span> clustered=<span class="code-quote">"true"</span> /&gt;</span>
+<span class="code-tag">&lt;/spring:beans&gt;</span>
+
+<span class="code-tag">&lt;os-seda:model name=<span class="code-quote">"sampleModel"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-seda:space-aware-service name=<span class="code-quote">"spaceAwareService"</span>&gt;</span>
+    
+        <span class="code-tag"><span class="code-comment">&lt;!-- service definition --&gt;</span></span>
+    
+    <span class="code-tag">&lt;/os-seda:space-aware-service&gt;</span>
+    
+    <span class="code-tag">&lt;service name=<span class="code-quote">"plainService"</span>&gt;</span>
+    
+        <span class="code-tag"><span class="code-comment">&lt;!-- service definition --&gt;</span></span>
+    
+    <span class="code-tag">&lt;/service&gt;</span>
+
+<span class="code-tag">&lt;/os-seda:model&gt;</span></pre>
+</div></div>
+
+<p>In the above example we have two services: <tt>spaceAwareService</tt> and <tt>plainService</tt>. <tt>spaceAwareService</tt> only starts if the Space it is working against is a primary cluster member. <tt>plainService</tt> works in any case (which is fine if it uses the <tt>clusteredGigaSpace</tt> bean).</p>
+
+<h1><a name="MuleSEDAModel-EnhancedSEDAModel"></a>Enhanced SEDA Model</h1>
+
+<p>OpenSpaces enhanced SEDA model allows storing of SEDA queues on top of the Space. This allows you to have a highly available and fault-tolerant SEDA implementation with the benefits of fast, in-memory, virtualized Space queue implementations.</p>
+
+<p>The enhanced SEDA queue model is mainly used when working in SBA mode. This means that each Mule Processing Unit instance starts a Space cluster member, and SEDA queues are stored directly in the cluster member this instance started. When working with a primary-backup topology, <tt>os-seda</tt> aware services of a Mule Processing Unit instance that started a backup cluster member are not started until the cluster member moves to primary mode. </p>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In such a topology, SEDA queue content is replicated from the primary cluster member to the backup, allowing you to continue the processing seamlessly in case of the primary failure.</p>
+
+<p>Here is an example of how it can be configured:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;spring:beans&gt;</span>
+	<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> lookup-groups=<span class="code-quote">"${user.name}"</span>/&gt;</span>
+	<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/spring:beans&gt;</span>
+
+<span class="code-tag">&lt;os-seda:model name=<span class="code-quote">"helloSample"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-seda:service name=<span class="code-quote">"Appender1"</span>&gt;</span>
+
+        <span class="code-tag">&lt;inbound-router&gt;</span>
+            <span class="code-tag">&lt;vm:inbound-endpoint path=<span class="code-quote">"test1"</span>/&gt;</span>
+        <span class="code-tag">&lt;/inbound-router&gt;</span>
+
+        <span class="code-tag">&lt;component class=<span class="code-quote">"org.mule.components.simple.EchoComponent"</span>/&gt;</span>
+
+        <span class="code-tag">&lt;outbound-router&gt;</span>
+            <span class="code-tag">&lt;outbound-pass-through-router&gt;</span>
+                <span class="code-tag">&lt;vm:outbound-endpoint path=<span class="code-quote">"test2"</span>/&gt;</span>
+            <span class="code-tag">&lt;/outbound-pass-through-router&gt;</span>
+        <span class="code-tag">&lt;/outbound-router&gt;</span>
+
+    <span class="code-tag">&lt;/os-seda:service&gt;</span>
+
+    <span class="code-tag">&lt;os-seda:service name=<span class="code-quote">"Appender2"</span>&gt;</span>
+
+        <span class="code-tag">&lt;inbound-router&gt;</span>
+            <span class="code-tag">&lt;vm:inbound-endpoint path=<span class="code-quote">"test2"</span>/&gt;</span>
+        <span class="code-tag">&lt;/inbound-router&gt;</span>
+
+        <span class="code-tag">&lt;component class=<span class="code-quote">"org.mule.components.simple.EchoComponent"</span>/&gt;</span>
+
+        <span class="code-tag">&lt;outbound-router&gt;</span>
+            <span class="code-tag">&lt;outbound-pass-through-router&gt;</span>
+                <span class="code-tag">&lt;vm:outbound-endpoint path=<span class="code-quote">"test3"</span>/&gt;</span>
+            <span class="code-tag">&lt;/outbound-pass-through-router&gt;</span>
+        <span class="code-tag">&lt;/outbound-router&gt;</span>
+
+    <span class="code-tag">&lt;/os-seda:service&gt;</span>
+
+<span class="code-tag">&lt;/model&gt;</span></pre>
+</div></div>
+
+<p>In the above example, the fact that we are using the <tt>os-seda:model</tt>, and in it <tt>os-seda:service</tt> means that the <tt>os-seda:service</tt> instance queue is a virtualized queue stored in the Space.</p>
+
+<h1><a name="MuleSEDAModel-TransactionSupport"></a>Transaction Support</h1>
+
+<p>The operations performed on the Space when working with the SEDA virtualized queue are all performed using the <tt>GigaSpace</tt> bean. <tt>GigaSpace</tt> supports <a href="The GigaSpace Interface.html#TheGigaSpaceInterface-penSpacesCoreComponentGigaSpaceDeclarativeTra...">declarative transactions</a> when working with Spring transaction managers. Mule can be configured to work with Spring transaction managers as its built-in transaction management strategy allows you to use OpenSpaces with <a href="Transaction Management.html" title="Transaction Management">different transaction managers</a>, including XA.</p>
+
+<p>Here is an example of how working with <tt>os-seda</tt> using the Space Local Transaction Manager can be configured:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;spring:beans&gt;</span>
+    <span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>/&gt;</span>
+
+    <span class="code-tag">&lt;os-core:local-tx-manager id=<span class="code-quote">"transactionManager"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+    <span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span>
+    
+    &lt;spring:bean id=<span class="code-quote">"transactionFactory"</span>
+                 class=<span class="code-quote">"org.mule.module.spring.transaction.SpringTransactionFactory"</span>&gt;
+        <span class="code-tag">&lt;spring:property name=<span class="code-quote">"manager"</span>&gt;</span>
+            <span class="code-tag">&lt;spring:ref bean=<span class="code-quote">"transactionManager"</span>/&gt;</span>
+        <span class="code-tag">&lt;/spring:property&gt;</span>
+    <span class="code-tag">&lt;/spring:bean&gt;</span>
+
+<span class="code-tag">&lt;/spring:beans&gt;</span>
+
+<span class="code-tag">&lt;os-seda:model name=<span class="code-quote">"helloSample"</span>&gt;</span>
+
+    <span class="code-tag">&lt;os-seda:service name=<span class="code-quote">"Appender1"</span>&gt;</span>
+
+        <span class="code-tag">&lt;inbound-router&gt;</span>
+            <span class="code-tag">&lt;vm:inbound-endpoint path=<span class="code-quote">"test1"</span>/&gt;</span>
+        <span class="code-tag">&lt;/inbound-router&gt;</span>
+
+        <span class="code-tag">&lt;component class=<span class="code-quote">"org.mule.components.simple.EchoComponent"</span>/&gt;</span>
+
+        <span class="code-tag">&lt;outbound-router&gt;</span>
+            <span class="code-tag">&lt;outbound-pass-through-router&gt;</span>
+                <span class="code-tag">&lt;vm:outbound-endpoint path=<span class="code-quote">"test2"</span>/&gt;</span>
+            <span class="code-tag">&lt;/outbound-pass-through-router&gt;</span>
+        <span class="code-tag">&lt;/outbound-router&gt;</span>
+
+    <span class="code-tag">&lt;/os-seda:service&gt;</span>
+<span class="code-tag">&lt;/os-seda:model&gt;</span></pre>
+</div></div>
+
+<p>The above example defines a Mule <tt>transactionFactory</tt>, which is used to handle transactions within Mule. Since the <tt>giga-space</tt> bean is aware of it, any operations performed on it using <tt>os-seda</tt> result in joining an existing transaction if one is in progress.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

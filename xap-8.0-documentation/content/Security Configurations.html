@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Security Configurations</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Security Configurations</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Configurations and defaults </p>
+</div>
+
+<h1><a name="SecurityConfigurations-Overview"></a>Overview</h1>
+
+<p>The security components (GSA, GSM, GSC and Processing Unit) can each have their own security configuration. As such, you can have different security behaviors even between Processing Units. But, all have one common concept: all configurations are declared using properties (either located in a properties file or part of the components properties).</p>
+
+<p>The security implementation dictates the properties needed for configuration. For example, if you consider the out-of-the-box file-based security implementation, you can either rely on the defaults or configure the file location, password encoders, etc. </p>
+
+<p>When a secured component is started, it looks for the security configuration properties in order to instantiate the security implementation.</p>
+
+<h1><a name="SecurityConfigurations-Logging"></a>Logging</h1>
+
+<p>Any configurations that are applied can be seen by setting the logging level to CONFIG (see <tt>gs_logging.properties</tt>):</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gigaspaces.security.level = CONFIG</pre>
+</div></div>
+
+<h1><a name="SecurityConfigurations-TheSecurityPropertiesFile"></a>The Security Properties File</h1>
+
+<p>The default <tt>security.properties</tt> file is looked for in the classpath or in the classpath under <tt>config/security</tt>.<br/>
+If all of the components will be requiring the same security configuration, then this is all you need.</p>
+
+<p>Commonly placed under:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;GigaSpaces root&gt;/config/security/security.properties</pre>
+</div></div>
+
+<h1><a name="SecurityConfigurations-ComponentSecurityPropertiesFile"></a>Component Security Properties File</h1>
+
+<p>If specific configurations are to be applied to a component, then the <ins>component's</ins> <tt>xxx-security.properties</tt> file is first located by using a direct path. If it doesn't exist, it is looked for in the classpath or in the classpath under <tt>config/security/</tt>. If the <ins>component's</ins> file isn't located, the default <tt>security.properties</tt> file is looked for in the classpath or in the classpath under <tt>config/security</tt>.</p>
+
+<h4><a name="SecurityConfigurations-GridSecurityConfigurationfile"></a>Grid - Security Configuration file</h4>
+
+<p>The default Grid components security configuration file is <tt>grid-security.properties</tt>. It can be located anywhere in the classpath or in the classpath under <tt>config/security</tt>. Here you can declare different configurations that will affect all the Grid components (such as GSA, GSM, GSC) together.</p>
+
+<h4><a name="SecurityConfigurations-ProcessingUnitSecurityConfigurationfile"></a>Processing Unit - Security Configuration file</h4>
+
+<p>The default Processing Unit (Space) security configuration file is <tt>/META-INF/spring/pu.properties</tt>. This is equivalent to custom properties being passed to the Space. This allows you to configure different configurations for different Processing Units. Thus, having a Processing Unit Cluster point to a specific security directory.</p>
+
+<p>It is possible to separate the security configurations from the Processing Unit configurations, by placing the configurations in <tt>/META-INF/spring/&lt;Space name&gt;-security.properties</tt> file.</p>
+
+<h4><a name="SecurityConfigurations-SpaceSecurityConfigurationfile"></a>Space - Security Configuration file</h4>
+
+<p>For a standalone space, the default Space security configuration file is <tt>&lt;Space-name&gt;-security.properties</tt>. Just like the <tt>pu.properties</tt>, you can include the security properties as part of the custom properties being passed to the space <tt>"/./space?properties=myCustomProps</tt>.</p>
+
+<h4><a name="SecurityConfigurations-ConfigureusingaSystemproperty"></a>Configure using a System property</h4>
+
+<p>An alternative to the <ins>component's</ins> security property file, is the System Property override. </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.security.properties-file = my-security.properties</pre>
+</div></div>
+
+<p>By setting <tt>-Dcom.gs.security.properties-file</tt> the property file will be located as a direct path, a resource in the classpath or in the classpath under <tt>config/security</tt>. </p>
+
+<p>Since System Properties are JVM level, any Processing Unit deployed within a GSC will also benefit from this configuration. But, if security configurations were provided as part of the <tt>pu.properties</tt> they will be used instead.</p>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

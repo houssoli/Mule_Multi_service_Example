@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : The Lookup Service</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>The Lookup Service</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903814";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903814";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  A registry of services (GSM, GSC, Space Instances, Processing Unit Instances) that can be lookup up using it. </p>
+</div>
+
+<h1><a name="TheLookupService-Overview"></a>Overview</h1>
+
+<p>The Lookup Service (LUS) provides a leased based registry holding Service Grid level services advertised on it. Some of the services exposed on the LUS are <a href="The GigaSpaces Agent.html" title="The GigaSpaces Agent">GigaSpaces Agent</a>, <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">GigaSpaces Manager</a>, <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GigaSpaces Container</a>, Space Instances (actual instances of a Space that form a topology), and Processing Unit Instances (actual instances of a deployed Processing Unit).</p>
+
+<p>A Lookup Service creates a virtualized isolated environment by utilizing lookup groups (when using multicast) or lookup locators (when using unicast). When starting the LUS and other runtime components <a href="The GigaSpaces Agent.html" title="The GigaSpaces Agent">GigaSpaces Agent</a>, <a href="The GigaSpaces Manager.html" title="The GigaSpaces Manager">GigaSpaces Manager</a> and <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GigaSpaces Container</a>, the lookup groups / lookup locators can be set in order to form an isolated environment.</p>
+
+<p>In a multicast enabled environment, the lookup groups can be set using either the <tt>LOOKUPGROUPS</tt> environment variable (when using scripts), or by setting <tt>-Dcom.gs.jini_lus.groups</tt> system property.</p>
+
+<p>In a unicast environment (where multicast is disabled), the lookup locators can be set using either <tt>LOOKUPLOCATORS</tt> environment variable (when using scripts), or by setting <tt>-Dcom.gs.jini_lus.locators</tt> system property. In a unicast environment, the LUS are started on specific machines (usually two LUS instances), and the lookup locators simply point to the two hosts the LUS instances are running on.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When a <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GigaSpaces Container</a> is started with a specific lookup groups / lookup locators, any Processing Unit instance running within it (and Space instances as well) will inherit the configuration and join the virtualized LUS environment.</p>
+
+<h1><a name="TheLookupService-StartingtheLUS"></a>Starting the LUS</h1>
+
+<p>The preferable way to start a LUS is using the <a href="The GigaSpaces Agent.html" title="The GigaSpaces Agent">GigaSpaces Agent</a>. A LUS can be started on its own using the <tt>[GSHOME]/bin/startJiniLUS.(bat/sh)</tt> script. Also note that by default, when using the <tt>[GSHOME]/bin/gsm.(bat/sh)</tt> script, a LUS is started embedded with the GSM.</p>
+
+<h1><a name="TheLookupService-ConfiguringtheLUS"></a>Configuring the LUS</h1>
+
+<p>Configuring the LUS (and possibly system level settings for other services, such as the communication layer) can be done using system properties.<br/>
+JVM parameters (system properties, heap settings etc.) that are shared between all components are best set using the <tt>EXT_JAVA_OPTIONS</tt> environment variable. However, starting from 7.1.1, specific LUS JVM parameters can be easily passed using <tt>LUS_JAVA_OPTIONS</tt> that will be appended to <tt>EXT_JAVA_OPTIONS</tt>. If <tt>LUS_JAVA_OPTIONS</tt> is not defined, the system will behave as in 7.1.0. Both <tt>EXT_JAVA_OPTIONS</tt> and <tt>LUS_JAVA_OPTIONS</tt> can be added within the LUS script, or in a wrapper script.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="TheLookupService-Linux"></a>Linux</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">#Wrapper Script
+export LUS_JAVA_OPTIONS=-Xmx1024m
+
+#call startJiniLUS.sh
+. ./startJiniLUS.sh</pre>
+</div></div>
+
+
+
+<h5><a name="TheLookupService-Windows"></a>Windows</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@rem Wrapper Script
+@set LUS_JAVA_OPTIONS=-Xmx1024m
+
+@rem call startJiniLUS.bat
+call startJiniLUS.bat</pre>
+</div></div>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> LUS specific configuration used to be done using the <a href="Configuring the Service Grid Using the services.config File.html" title="Configuring the Service Grid Using the services.config File">services.config</a> configuration file. In this version, the <tt>services.config</tt> no longer exists, and its settings can be set using system properties (follows the [component name].[\property name] notation). If the <tt>services.config</tt> is still needed to be used, the installation comes with <tt>services.config.template</tt> file, which can be renamed back to <tt>services.config</tt>. By renaming it, it will be taken into account.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

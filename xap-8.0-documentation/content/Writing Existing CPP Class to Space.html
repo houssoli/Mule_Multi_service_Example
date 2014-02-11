@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Writing Existing CPP Class to Space</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Writing Existing CPP Class to Space</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  How to use an existing C++ class and write it to the space. </p>
+</div>
+
+<h1><a name="WritingExistingCPPClasstoSpace-Overview"></a>Overview</h1>
+
+<p>This example shows you how to write your own C+&#43; class to the space (as opposed to writing a class that is generated from a XML file). The code for this example is located at <tt>&lt;GigaSpaces Root&gt;\cpp\examples\PocoFromExistingClass</tt>. This path will be referred to as <tt>&lt;Example Root&gt;</tt> in this page.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> This example can be built and run on <b>Windows OS</b> only. If you use <b>Visual Studio</b> open the solution <tt>PocoFromExistingClass.sln</tt> located in <tt>&lt;GigaSpaces Root&gt;\cpp\examples\PocoFromExistingClass</tt>. It is recommended to set your solution configuration to <tt>Release</tt> and do a rebuild that will generate all related files.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> It is assumed that you have read the <a href="CPP API Hello World Example.html" title="CPP API Hello World Example">GigaSpaces C++ Hello World example</a> which serves as a starting point.</p>
+
+<p>To write your C+&#43; class to the space, perform the following steps:</p>
+<ol>
+	<li>Create a <tt>gs.xml</tt> file that contains the class definition. For example, this is the file <tt>&lt;Example Root&gt;\PocoFromExistingClass.gs.xml</tt>:<br/>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+<span class="code-tag">&lt;!DOCTYPE gigaspaces-mapping SYSTEM <span class="code-quote">"../../config/cpp.dtd"</span>&gt;</span>
+<span class="code-tag">&lt;gigaspaces-mapping&gt;</span>
+  <span class="code-tag">&lt;include-header file=<span class="code-quote">"UserMessage.h"</span>/&gt;</span>
+  <span class="code-tag">&lt;class name=<span class="code-quote">"UserMessage"</span> persist=<span class="code-quote">"false"</span> replicate=<span class="code-quote">"false"</span> fifo=<span class="code-quote">"false"</span> &gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"id"</span> type=<span class="code-quote">"int"</span> null-value=<span class="code-quote">"-999"</span> index=<span class="code-quote">"true"</span>/&gt;</span>
+    <span class="code-tag">&lt;routing  name=<span class="code-quote">"id"</span>/&gt;</span>
+  
+    <span class="code-tag">&lt;property name=<span class="code-quote">"uid"</span> type=<span class="code-quote">"string"</span> null-value=<span class="code-quote">"" index="</span>false"/&gt;</span>
+    <span class="code-tag">&lt;id name=<span class="code-quote">"uid"</span> auto-generate=<span class="code-quote">"true"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"content"</span> type=<span class="code-quote">"string"</span> null-value=<span class="code-quote">"" index="</span>false"/&gt;</span>
+  <span class="code-tag">&lt;/class&gt;</span>
+<span class="code-tag">&lt;/gigaspaces-mapping&gt;</span></pre>
+</div></div> <br clear="all" />
+Note the line that informs <tt>gsxml2cpp</tt> about the file of your existing class:<br/>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;include-header file=<span class="code-quote">"UserMessage.h"</span>/&gt;</span></pre>
+</div></div> <br clear="all" /></li>
+	<li>Change the user class.
+<br clear="all" />
+<br clear="all" />  <img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> An example of an original class can be found at <tt>&lt;Example Root&gt;\UserMessage_original.h.txt</tt>; and an example of the same class with the changes listed below can be found at <tt>&lt;Example Root&gt;\UserMessage.h</tt>.
+<br clear="all" />
+<br clear="all" />
+	<ul>
+		<li>Add an include statement and namespace as shown below:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">#include <span class="code-quote">"IEntry.h"</span>
+using namespace OpenSpaces;</pre>
+</div></div></li>
+		<li>Inherit from <tt>IEntry</tt>:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">class UserMessage:  <span class="code-keyword">public</span> IEntry /* (GigaSpaces) need to inherit <span class="code-keyword">for</span> space operations */</pre>
+</div></div></li>
+		<li>Implement the the <tt>IEntry</tt> interface (one function):
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">virtual <span class="code-keyword">const</span> <span class="code-object">char</span>* GetSpaceClassName() <span class="code-keyword">const</span>
+{
+     <span class="code-keyword">return</span> <span class="code-quote">"UserMessage"</span>;
+}</pre>
+</div></div>
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The name of the class as returned by <tt>GetSpaceClassName</tt> should match the name of the class in the <tt>gs.xml</tt> file.</p></li>
+		<li>Make sure the class has a <b>default constructor</b>.</li>
+		<li>Optional &#8211; initialize with <tt>null values</tt> in the constructor:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UserMessage()
+{
+	<span class="code-comment">// (GigaSpaces) Optional - initialize with <span class="code-keyword">null</span> values in the class constructor
+</span>	content = "";
+	id = -999;
+	uid = "";
+}</pre>
+</div></div>
+<p>Note that these 3 fields are the ones specified in our <tt>gs.xml</tt> file.<br clear="all" /></p></li>
+		<li>Optional &#8211; add a smart pointer:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">typedef boost::shared_ptr&lt;UserMessage&gt;    UserMessagePtr;</pre>
+</div></div></li>
+	</ul>
+	</li>
+	<li>Handle the C+&#43; serializer code generation, build the shared library (DLL) from this code, and place the library in the appropiate directory (<tt>&lt;GigaSpaces Root&gt;\lib\serviceGrid\native</tt>).<br/>
+The following instructions show you how to do this in Visual Studio using the supplied makefile (<tt>&lt;Example Root&gt;/makefileSerializer.mk</tt>):
+	<ul>
+		<li>Create a custom build for <tt>PocoFromExistingClass.gs.xml</tt>:
+<br clear="all" />
+<br clear="all" />  <img src="download/attachments/53903772/xmlPropertiesSelect.PNG" align="absmiddle" border="0"/><br clear="all" />
+<br clear="all" />  <img src="download/attachments/53903772/xmlPropertiesCommandLine.PNG" align="absmiddle" border="0"/><br clear="all" />
+<br clear="all" /></li>
+		<li>Type the following lines in the <b>Command Line</b> text box:
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>"$(JSHOMEDIR)/cpp/bin/$(PLATFORM)\$(COMPILER)/gsxml2cpp" "$(InputPath)" NA "$(InputDir)\UserMessageSerializer.cpp" DummyHeaderFile
+nmake -f makefileSerializer.mk
+</pre>
+</div></div>
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> In Win64 use <tt>makefileSerializer_win64.mk</tt><br clear="all" /> <br clear="all" />
+The first line is responsible for C+&#43; code generation, and the second line is responsible for build and placement.<br clear="all" /> <br clear="all" />
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The makefile specifies the target name for the generated serializer <tt>.cpp</tt> file and the serializer DLL. If you wish to use your own name then edit the file and change the value for <tt>PROJNAME</tt>.<br clear="all" /></p></li>
+	</ul>
+	</li>
+	<li><b>Rebuild</b> the example.<br/>
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>
+<p>Compiling the file <tt>PocoFromExistingClass.gs.xml</tt> causes the following:</p>
+<ul>
+	<li>The file <tt>UserMessageSerializer.cpp</tt> is automatically generated in <tt>&lt;Example Root&gt;</tt>.</li>
+	<li>The DLL <tt>UserMessageSerializer.dll</tt> is created and placed in <tt>&lt;GigaSpaces Root&gt;\lib\ServiceGrid\native</tt>.</li>
+</ul>
+</td></tr></table></div><br clear="all" /></li>
+	<li>Run the example. The output should be as follows:
+<br clear="all" />
+<br clear="all" />  <img src="download/attachments/53903772/expectedOutput.png" align="absmiddle" border="0"/></li>
+</ol>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

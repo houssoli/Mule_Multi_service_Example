@@ -1,0 +1,349 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Hibernate External Data Source</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Hibernate External Data Source</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903380";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903380";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>   The default Hibernate implementation of the <a href="External Data Source.html" title="External Data Source">External Data Source</a>. </p>
+</div>
+
+<h1><a name="HibernateExternalDataSource-Overview"></a>Overview</h1>
+
+<p>GigaSpaces comes with a built in implementation of External Data Source, called the <tt>HibernateExternalDataSource</tt>. The HibernateExternalDataSource is a Hibernate implementation of the <a href="External Data Source API.html" title="External Data Source API">External Data Source interfaces</a>. It allows a custom objects persistency using Hibernate mappings. </p>
+
+<p>The HibernateExternalDataSource has 2 implemenations:</p>
+<ul class="alternate" type="square">
+	<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.0/org/openspaces/persistency/hibernate/DefaultHibernateExternalDataSource.html">DefaultHibernateExternalDataSource</a> - Based on <a href="http://docs.jboss.org/hibernate/stable/core/api/org/hibernate/Session.html">Hibernate Session</a>.</li>
+	<li><a href="http://www.gigaspaces.com/docs/JavaDoc7.0/org/openspaces/persistency/hibernate/StatelessHibernateExternalDataSource.html">StatelessHibernateExternalDataSource</a> - based on Hiberante <a href="http://docs.jboss.org/hibernate/stable/core/api/org/hibernate/StatelessSession.html">StatelessSession</a>. This implemenation is faster than the <tt>DefaultHibernateExternalDataSource</tt>, but it does not have first level cache, as well as does not performe any cascading operations (both in read operations as well as dirty operations).</li>
+</ul>
+
+
+<p>The <tt>HibernateExternalDataSource</tt> used both with the <a href="Direct Persistency.html" title="Direct Persistency">Synchronous</a> and the <a href="Asynchronous Persistency with the Mirror.html" title="Asynchronous Persistency with the Mirror">ASynchronous persistency</a> modes.</p>
+
+<h1><a name="HibernateExternalDataSource-Configuration"></a>Configuration</h1>
+
+<p>See below example for <tt>HibernateExternalDataSource</tt> that is configured having a Space connected to a central data source using Hibernate configuration files decorating the Space Classes:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="HibernateExternalDataSource-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"dataSource"</span> class=<span class="code-quote">"org.apache.commons.dbcp.BasicDataSource"</span> destroy-method=<span class="code-quote">"close"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"driverClassName"</span> value=<span class="code-quote">"org.hsqldb.jdbcDriver"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jdbc:hsqldb:hsql://localhost:9001"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"username"</span> value=<span class="code-quote">"sa"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"password"</span> value=""/&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"sessionFactory"</span> class=<span class="code-quote">"org.springframework.orm.hibernate3.LocalSessionFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataSource"</span> ref=<span class="code-quote">"dataSource"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"mappingResources"</span>&gt;</span>
+        <span class="code-tag">&lt;list&gt;</span>
+            <span class="code-tag">&lt;value&gt;</span>Person.hbm.xml<span class="code-tag">&lt;/value&gt;</span>
+        <span class="code-tag">&lt;/list&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"hibernateProperties"</span>&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.dialect"</span>&gt;</span>org.hibernate.dialect.HSQLDialect<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.cache.provider_class"</span>&gt;</span>org.hibernate.cache.NoCacheProvider<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.cache.use_second_level_cache"</span>&gt;</span>false<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.cache.use_query_cache"</span>&gt;</span>false<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.hbm2ddl.auto"</span>&gt;</span>update<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.jdbc.batch_size"</span>&gt;</span>50<span class="code-tag">&lt;/prop&gt;</span>            
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"hibernateDataSource"</span> class=<span class="code-quote">"org.openspaces.persistency.hibernate.DefaultHibernateExternalDataSource"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"sessionFactory"</span> ref=<span class="code-quote">"sessionFactory"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"initialLoadChunkSize"</span> value=<span class="code-quote">"2000"</span>/&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> schema=<span class="code-quote">"persistent"</span> external-data-source=<span class="code-quote">"hibernateDataSource"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:properties&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"cluster-config.cache-loader.external-data-source"</span>&gt;</span>true<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"cluster-config.cache-loader.central-data-source"</span>&gt;</span>true<span class="code-tag">&lt;/prop&gt;</span>
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/os-core:properties&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="HibernateExternalDataSource-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"dataSource"</span> class=<span class="code-quote">"org.apache.commons.dbcp.BasicDataSource"</span> destroy-method=<span class="code-quote">"close"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"driverClassName"</span> value=<span class="code-quote">"org.hsqldb.jdbcDriver"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jdbc:hsqldb:hsql://localhost:9001"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"username"</span> value=<span class="code-quote">"sa"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"password"</span> value=""/&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"sessionFactory"</span> class=<span class="code-quote">"org.springframework.orm.hibernate3.LocalSessionFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataSource"</span> ref=<span class="code-quote">"dataSource"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"mappingResources"</span>&gt;</span>
+        <span class="code-tag">&lt;list&gt;</span>
+            <span class="code-tag">&lt;value&gt;</span>Person.hbm.xml<span class="code-tag">&lt;/value&gt;</span>
+        <span class="code-tag">&lt;/list&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"hibernateProperties"</span>&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.dialect"</span>&gt;</span>org.hibernate.dialect.HSQLDialect<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.cache.provider_class"</span>&gt;</span>org.hibernate.cache.NoCacheProvider<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.cache.use_second_level_cache"</span>&gt;</span>false<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.cache.use_query_cache"</span>&gt;</span>false<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.hbm2ddl.auto"</span>&gt;</span>update<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"hibernate.jdbc.batch_size"</span>&gt;</span>50<span class="code-tag">&lt;/prop&gt;</span>
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"hibernateDataSource"</span> class=<span class="code-quote">"org.openspaces.persistency.hibernate.HibernateExternalDataSource"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"sessionFactory"</span> ref=<span class="code-quote">"sessionFactory"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"initialLoadChunkSize"</span> value=<span class="code-quote">"2000"</span>/&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"scheam"</span> value=<span class="code-quote">"persistent"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"externalDataSource"</span> ref=<span class="code-quote">"hibernateDataSource"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"properties"</span>&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"cluster-config.cache-loader.external-data-source"</span>&gt;</span>true<span class="code-tag">&lt;/prop&gt;</span>
+            <span class="code-tag">&lt;prop key=<span class="code-quote">"cluster-config.cache-loader.central-data-source"</span>&gt;</span>true<span class="code-tag">&lt;/prop&gt;</span>
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<p>When using annotations to decorate the Space Classes the <tt>sessionFactory</tt> would have the following:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"sessionFactory"</span> class=<span class="code-quote">"org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataSource"</span> ref=<span class="code-quote">"dataSource"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"annotatedClasses"</span>&gt;</span>
+        <span class="code-tag">&lt;list&gt;</span>
+            <span class="code-tag">&lt;value&gt;</span>com.mycompany.app.common.Data<span class="code-tag">&lt;/value&gt;</span>
+        <span class="code-tag">&lt;/list&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"hibernateProperties"</span>&gt;</span>
+        <span class="code-tag">&lt;props&gt;</span>
+			....
+        <span class="code-tag">&lt;/props&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>external-data-source</tt> element within the persistent schema allows for further configuration of the external data source. The values can be injected using the properties tag within the Space tag using the "xpath" notation.</p>
+
+<p>Here is an example for a Space Domain class with its Hibernate decorations. See the <tt>@SpaceId</tt> and the <tt>@SpaceRouting</tt> used to include the Space Class meta Data. </p>
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Make sure your POJO @SpaceId is defined on the same property as the Hibernate @Id. This is necessary for proper object mapping.</td></tr></table></div>
+<p>See the <a href="POJO Metadata.html" title="POJO Metadata">POJO Metadata</a> for details about these decorations.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> com.mycompany.app.common;
+
+<span class="code-keyword">import</span> com.gigaspaces.annotation.pojo.SpaceClass;
+<span class="code-keyword">import</span> com.gigaspaces.annotation.pojo.SpaceId;
+<span class="code-keyword">import</span> com.gigaspaces.annotation.pojo.SpaceRouting;
+
+<span class="code-keyword">import</span> javax.persistence.Entity;
+<span class="code-keyword">import</span> javax.persistence.Table;
+<span class="code-keyword">import</span> javax.persistence.Id;
+
+@Entity
+@Table(name=<span class="code-quote">"DATA"</span>)
+@SpaceClass
+<span class="code-keyword">public</span> class Data {
+    @Id
+    <span class="code-keyword">private</span> <span class="code-object">String</span> id;
+    <span class="code-keyword">private</span> <span class="code-object">Long</span> type;
+
+	<span class="code-comment">// need no arg constr
+</span>    <span class="code-keyword">public</span> Data() {}
+
+    @SpaceId(autoGenerate=<span class="code-keyword">false</span>)
+    <span class="code-keyword">public</span> <span class="code-object">String</span> getId() {<span class="code-keyword">return</span> id;}
+    <span class="code-keyword">public</span> void setId(<span class="code-object">String</span> id) {<span class="code-keyword">this</span>.id = id;}
+
+    @SpaceRouting
+    <span class="code-keyword">public</span> <span class="code-object">Long</span> getType() {<span class="code-keyword">return</span> type;}
+    <span class="code-keyword">public</span> void setType(<span class="code-object">Long</span> type) {<span class="code-keyword">this</span>.type = type;}
+	...
+    }
+}</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>
+<ul class="alternate" type="square">
+	<li>When mapping a Collection Data types or any other variable size field make sure the relevant database table column has a sufficient size that can accommodate the largest collection/variable size field you may have within your space object.</li>
+</ul>
+
+
+<ul class="alternate" type="square">
+	<li>When fetching collections use the <tt>@Fetch(FetchMode.SELECT)</tt> annotation. This is a result of <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-1751">hibernate bug HHH-1751</a>. The default <tt>@Fetch(FetchMode.JOIN)</tt> mode won't fetch all members.</li>
+</ul>
+</td></tr></table></div>
+
+<h1><a name="HibernateExternalDataSource-Properties"></a>Properties</h1>
+
+<p>The Hibernate External Data Source includes the following properties:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Property</th>
+<th class='confluenceTh'>Description</th>
+<th class='confluenceTh'>Default</th>
+</tr>
+<tr>
+<td class='confluenceTd'>fetchSize</td>
+<td class='confluenceTd'>Sets the fetch size that will be used when working with scrollable results. </td>
+<td class='confluenceTd'>100</td>
+</tr>
+<tr>
+<td class='confluenceTd'>initialLoadChunkSize</td>
+<td class='confluenceTd'>By default, the initial load process will chunk large tables and will iterate over the table (entity) per chunk (concurrently). This setting allows to control the chunk size to split the table by. Batching can be disabled by setting -1
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The <tt>initialLoadChunkSize</tt> property allows you to have multiple threads loading data from the same table into the space - each thread loading different rows from the same table. Having the <tt>initialLoadChunkSize</tt> as 100,000 will break a 1 million rows table into ten chunks. All the chunks, from all the tables, are processes by the amount of <tt>initialLoadThreadPoolSize</tt> configured.</td></tr></table></div></td>
+<td class='confluenceTd'>100,000</td>
+</tr>
+<tr>
+<td class='confluenceTd'>initialLoadEntries</td>
+<td class='confluenceTd'>Sets a list of entries that will be used to perform the <tt>ManagedDataSource.initialLoad()</tt> operation.</td>
+<td class='confluenceTd'> By default, will try and build a sensible list based on Hibernate meta data.</td>
+</tr>
+<tr>
+<td class='confluenceTd'>managedEntries</td>
+<td class='confluenceTd'>Sets all the entries this Hibernate data source will work with. By default, will use Hibernate meta data API in order to get the list of all the given entities it handles.  This list is used to filter out entities when performing all data source operations except for the <tt>ManagedDataSource.initialLoad()</tt> operation. Usually, there is no need to explicitly set this. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'>sessionFactory</td>
+<td class='confluenceTd'>Injects the Hibernate SessionFactory to be used with this external data source. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'>initialLoadThreadPoolSize</td>
+<td class='confluenceTd'>The initial load operation uses the <tt>ConcurrentMultiDataIterator</tt>. This property allows to control the thread pool size of the concurrent multi data iterator.Note, this usually will map one to one to the number of open connections / cursors against the database.</td>
+<td class='confluenceTd'>10</td>
+</tr>
+<tr>
+<td class='confluenceTd'>performOrderById</td>
+<td class='confluenceTd'>When performing initial load, this flag indicates if the generated query will order to results by the id. </td>
+<td class='confluenceTd'>true (as it most times results in better initial load performance).</td>
+</tr>
+<tr>
+<td class='confluenceTd'>useScrollableResultSet</td>
+<td class='confluenceTd'>Controls if scrollable resultsets will be used with inital load operation.</td>
+<td class='confluenceTd'>true</td>
+</tr>
+<tr>
+<td class='confluenceTd'>useMerge</td>
+<td class='confluenceTd'> If set to true, will use Hibernate merge to perform the create/update, and will merge before calling delete. <br/>
+This might be required for complex mappings (depends on Hibernate) at the expense of slower performance. Available only for the <tt>DefaultHibernateExternalDataSource</tt></td>
+<td class='confluenceTd'>false</td>
+</tr>
+<tr>
+<td class='confluenceTd'>deleteById</td>
+<td class='confluenceTd'> Since 7.1. If set to true, will delete objects by their id, otherwise the object itself will be used in delete. This is necessary for objects with not-nullable fields. Available only for the <tt>DefaultHibernateExternalDataSource</tt></td>
+<td class='confluenceTd'>true</td>
+</tr>
+</tbody></table>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Tuning the <tt>fetchSize</tt>, <tt>initialLoadChunkSize</tt>, <tt>initialLoadThreadPoolSize</tt> and <tt>performOrderById</tt> will allow you to control the initial load time. In addition, the <a href="http://www.gigaspaces.com/docs/JavaDoc7.0/org/openspaces/persistency/hibernate/StatelessHibernateExternalDataSource.html">StatelessHibernateExternalDataSource</a> should give you better performance on startup.</td></tr></table></div>
+
+<p>See example below:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"hibernateDataSource"</span> class=<span class="code-quote">"org.openspaces.persistency.hibernate.HibernateExternalDataSource"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"sessionFactory"</span> ref=<span class="code-quote">"sessionFactory"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"fetchSize"</span> value=<span class="code-quote">"100"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"initialLoadChunkSize"</span> value=<span class="code-quote">"2000"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"initialLoadEntries"</span> value=<span class="code-quote">"myClass1,myClass2"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"managedEntries"</span> value=<span class="code-quote">"myClass1,myClass2"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"initialLoadThreadPoolSize"</span> value=<span class="code-quote">"10"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"performOrderById"</span> value=<span class="code-quote">"true"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"useScrollableResultSet"</span> value=<span class="code-quote">"true"</span>/&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"useMerge"</span> value=<span class="code-quote">"true"</span>/&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

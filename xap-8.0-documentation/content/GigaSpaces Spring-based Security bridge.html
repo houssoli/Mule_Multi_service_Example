@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : GigaSpaces Spring-based Security bridge</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>GigaSpaces Spring-based Security bridge</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903757";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903757";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Introducing GigaSpaces Spring-based security bridge </p>
+</div>
+
+<h1><a name="GigaSpacesSpring-basedSecuritybridge-Introduction"></a>Introduction</h1>
+
+<p>You may have noticed that Spring's Security <tt>AuthenticationProvider</tt> and <tt>AuthenticationManager</tt>, aren't much different from the GigaSpaces <tt>com.gigaspaces.security.SecurityManager</tt>. In Fact, they share a similar <tt>authentication</tt> method that handles authentication.</p>
+
+<p>The <b><tt>org.openspaces.security.spring.SpringSecurityManager</tt></b> is a the GigaSpaces Spring Security bridge (between Spring Security and GigaSpaces Security Manager). It relies on the Spring Security XML configuration file for its context definitions. The Spring Security configuration resides in a standalone XML file.</p>
+
+<p><img src="download/attachments/48235229/SpringSecurityBridge.png" align="absmiddle" border="0"/></p>
+
+<h1><a name="GigaSpacesSpring-basedSecuritybridge-ConfiguringtheSecurityManager"></a>Configuring the Security Manager</h1>
+
+<p>The Spring security configurations are loaded using Spring's <tt>FileSystemXmlApplicationContext</tt> taking the context definition files from the file system or from URLs. The location of the configuration file is set using the <tt>spring-security-config-location</tt> property; if not set, a default <tt>security-config.xml</tt> is considered (if present).</p>
+
+<p>As with all GigaSpaces security configurations, they must be placed in a properties file. In order to configure the security manager to use the Spring Security bridge, we set the <tt>security-manager.class</tt> property along with the expected <tt>spring-security-config-location</tt> property.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>&lt;Gigaspaces root&gt;/config/security/security.properties</b></div><div class="codeContent panelContent">
+<pre class="code-java">com.gs.security.security-manager.class = org.openspaces.security.spring.SpringSecurityManager
+spring-security-config-location = ../config/security/security-config.xml</pre>
+</div></div>
+
+<p>This is all the configuration required to enable the use of the Spring-based security bridge. The rest is part of the Spring Security configuration XML file.</p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td> For convenience, the template properties <tt>config/security/spring-security.properties</tt> can be renamed to <tt>security.properties</tt> or referenced using a system property (see <a href="Security Configurations.html" title="Security Configurations">Security Configurations</a>). </td></tr></table></div>
+
+<h1><a name="GigaSpacesSpring-basedSecuritybridge-Logging"></a>Logging</h1>
+
+<p>Any configurations that are applied can be seen by setting the logging level to CONFIG (see gs_logging.properties):</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gigaspaces.security.level = CONFIG</pre>
+</div></div>
+
+<h1><a name="GigaSpacesSpring-basedSecuritybridge-TestingtheSpringbasedsecuritybridge"></a>Testing the Spring-based security bridge</h1>
+
+<p>Before launching up a whole full-blown application, you may want to test that the bridge is actually working to your satisfaction. For example, that the users, roles, and authorities are extracted correctly, etc. For this, you don't even need a GigaSpaces instance.</p>
+
+<p>Here is a sample code, which sets up a GigaSpaces <tt>SpringSecurityManager</tt> instance by passing it the <tt>spring-security-config-location</tt> as an explicit property. The security manager calls the <tt>authenticate</tt> method with "username"/"password" returning (if successful) an <tt>Authentication</tt> object. This result contains the user details and the populated authorities of this user (all authorities including those extracted from the groups (roles) the user is part of).</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">import</span> java.util.Arrays;
+<span class="code-keyword">import</span> java.util.Properties;
+
+<span class="code-keyword">import</span> com.gigaspaces.security.directory.User;
+<span class="code-keyword">import</span> com.gigaspaces.security.directory.UserDetails;
+<span class="code-keyword">import</span> org.openspaces.security.spring.SpringSecurityManager;
+
+<span class="code-keyword">public</span> class Main {
+
+	<span class="code-keyword">public</span> <span class="code-keyword">static</span> void main(<span class="code-object">String</span>[] args) {
+		Properties props = <span class="code-keyword">new</span> Properties();
+		props.setProperty(<span class="code-quote">"spring-security-config-location"</span>, <span class="code-quote">"my-security-config.xml"</span>);
+		SpringSecurityManager securityManager = <span class="code-keyword">new</span> SpringSecurityManager();
+		securityManager.init(props);
+
+		com.gigaspaces.security.Authentication authenticate = securityManager
+				.authenticate(<span class="code-keyword">new</span> User(<span class="code-quote">"username"</span>, <span class="code-quote">"password"</span>));
+		
+		UserDetails userDetails = authenticate.getUserDetails();
+		<span class="code-object">System</span>.out.println(<span class="code-quote">"user: "</span> + userDetails.getUsername() + <span class="code-quote">" password: "</span>
+				+ userDetails.getPassword() + <span class="code-quote">" authorities: "</span>
+				+ Arrays.toString(userDetails.getAuthorities()));
+	}
+}</pre>
+</div></div>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td> When running a standalone test, you will need to include the following jars in your classpath: &lt;GigaSpaces root&gt;/lib/optional/security/spring-security-core-&#42;.jar , &lt;GigaSpaces root&gt;/lib/optional/spring/&#42;.jar , &lt;GigaSpaces root&gt;/lib/required/&#42;.jar </td></tr></table></div>
+
+<h1><a name="GigaSpacesSpring-basedSecuritybridge-GigaSpacesSecurityAuthorities"></a>GigaSpaces Security Authorities</h1>
+
+<p>GigaSpaces provides a set of <a href="Security Authorities.html" title="Security Authorities">Security Authorities</a> which can be stored as a String in any external directory. Much like the Spring's Security <tt>GrantedAuthority</tt> s which translate to and from a String.</p>
+
+<p>Lets take for example a Box-Office employee which has <tt>READ</tt> privileges, for class "eg.cinema.Movie".<br/>
+We convert the class expression using the <tt>WildcardExpressionToFilterConverter</tt> methods. This converter takes in an expression, for example a regular expression expressing the permitted classes the employee can read.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-object">System</span>.out.println(<span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.READ,
+				WildcardExpressionToFilterConverter.convert(
+						<span class="code-quote">"eg.cinema.Movie"</span>, <span class="code-keyword">true</span>)));</pre>
+</div></div>
+
+<p>The output result is:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-quote">"SpacePrivilege READ ClassFilter eg.cinema.Movie"</span></pre>
+</div></div>
+
+<p>This String represents the authority which, for example, can be stored in a database.</p>
+
+<p>Spring's Security <tt>authenticate</tt> method returns an <tt>Authentication</tt> object holding all <tt>GrantedAuthority</tt> s. These authorities are String based, and should equal to the GigaSpaces authority String as above. Each authority is converted back (by <tt>SpringSecurityManager</tt>) into its object instance using the GigaSpaces <tt>AuthorityFactory</tt>. Of course, all this has already been done for you - all you need is to store the appropriate authority Strings.</p>
+
+
+<p>Not always would you need an expressions as a filter. If we would have wanted to grant full <tt>READ</tt> privileges, than the authority would be represented as:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-object">System</span>.out.println(<span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.READ));</pre>
+</div></div>
+
+<p>The output result is:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-quote">"SpacePrivilege READ"</span></pre>
+</div></div>
+
+<p>Similar, are the <tt>GridAuthority</tt>, <tt>MonitorAuthority</tt> and <tt>SystemAuthority</tt>. For example, the Gird authority <tt>Provision PU</tt> allows to deploy, un-deploy processing units, and is represented as:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-object">System</span>.out.println(<span class="code-keyword">new</span> GridAuthority(GridPrivilege.PROVISION_PU));</pre>
+</div></div>
+
+<p>The output result is:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-quote">"GridPrivilege PROVISION_PU"</span></pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Dump</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Dump</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903558";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903558";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Simple API to generate dump files of the runtime GigaSpaces environment. </p>
+</div>
+
+<h1><a name="Dump-Overview"></a>Overview</h1>
+
+<p>The dump feature of the Admin API allows to easily generate dump information out of GigaSpaces runtime environment. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Admin admin = <span class="code-keyword">new</span> AdminFactory().addGroup(<span class="code-quote">"myGroup"</span>).createAdmin();
+
+<span class="code-comment">// wait a bit <span class="code-keyword">for</span> components to be discovered (or use waitFor) ...
+</span>
+DumpResult dumpResult = admin.dump(<span class="code-quote">"reason comes here"</span>, <span class="code-keyword">null</span>, 
+                                <span class="code-quote">"summary"</span>, <span class="code-quote">"thread"</span>, <span class="code-quote">"log"</span>, <span class="code-quote">"processingUnits"</span>);
+dumpResult.download(<span class="code-keyword">new</span> File(<span class="code-quote">"target/dump.zip"</span>, <span class="code-keyword">null</span>);</pre>
+</div></div>
+
+<p>The above example will go over all the currently discovered runtime elements in GigaSpaces (GSA, GSM, GSC, LUS) and generate a dump of them (stored locally to each runtime component). Then, the <tt>DumpResult</tt> can be used to download all the dump information, from all the different runtime components, into a file.</p>
+
+<p>The above example generates dump that will include a simple "summary" information (JVM information and stats, for example), a thread dump, all the logs associated with the given runtime component, and all the processing unit instances running (applied to a GSC).</p>
+
+<h1><a name="Dump-DumpProvider"></a>Dump Provider</h1>
+
+<p>Most of the elements within the Admin API implement the <tt>DumpProvider</tt> interface, allowing to generate dump information. This include discrete elements such as <tt>GridServiceContainer</tt>, or <tt>GridServiceManager</tt>, but also includes compound elements such as <tt>GridServiceManagers</tt> and even <tt>Admin</tt>. This means that quite easily, a dump for a one or more runtime components already grouped by the Admin API can be easily performed. Here are some examples:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Admin admin = <span class="code-keyword">new</span> AdminFactory().addGroup(<span class="code-quote">"myGroup"</span>).createAdmin();
+
+<span class="code-comment">// wait a bit <span class="code-keyword">for</span> components to be discovered (or use waitFor) ...
+</span>
+<span class="code-comment">// dump all the GSMs
+</span>DumpResult dumpResult = admin.getGridServiceManagers().dump(<span class="code-quote">"reason comes here"</span>, <span class="code-keyword">null</span>, 
+                                <span class="code-quote">"summary"</span>, <span class="code-quote">"thread"</span>, <span class="code-quote">"log"</span>, <span class="code-quote">"processingUnits"</span>);
+dumpResult.download(<span class="code-keyword">new</span> File(<span class="code-quote">"target/gsms.zip"</span>, <span class="code-keyword">null</span>);
+
+<span class="code-comment">// dump all the GSCs
+</span>dumpResult = admin.getGridServiceContainers().dump(<span class="code-quote">"reason comes here"</span>, <span class="code-keyword">null</span>, 
+                                <span class="code-quote">"summary"</span>, <span class="code-quote">"thread"</span>, <span class="code-quote">"log"</span>, <span class="code-quote">"processingUnits"</span>);
+dumpResult.download(<span class="code-keyword">new</span> File(<span class="code-quote">"target/gscs.zip"</span>, <span class="code-keyword">null</span>);
+
+dumpResult = admin.getZones().getByName(<span class="code-quote">"zoneA"</span>).dump(<span class="code-quote">"reason comes here"</span>, <span class="code-keyword">null</span>, 
+                                <span class="code-quote">"summary"</span>, <span class="code-quote">"thread"</span>, <span class="code-quote">"log"</span>, <span class="code-quote">"processingUnits"</span>);
+dumpResult.download(<span class="code-keyword">new</span> File(<span class="code-quote">"target/zoneA.zip"</span>, <span class="code-keyword">null</span>);</pre>
+</div></div>
+
+<p>If the natural grouping provided by the admin API is not enough, then the <tt>CompoundDumpResult</tt> can be used in order to accumulate dump results. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">CompoundDumpResult dumpResult = <span class="code-keyword">new</span> CompoundDumpResult();
+dumpResult.add(gridServiceContainer1.dump(...));
+dumpResult.add(gridServiceManager2.dump(...));
+dumpResult.add(gridServiceAgent3.dump(...));
+
+dumpResult.download(<span class="code-keyword">new</span> File(<span class="code-quote">"target/compound.zip"</span>, <span class="code-keyword">null</span>);</pre>
+</div></div>
+
+<h1><a name="Dump-DumpProcessors"></a>Dump Processors</h1>
+
+<p>The dump process occurs in stages within the runtime component. Each stage is called a processor and the following is a list of all the different processors:</p>
+
+<ul>
+	<li><b>summary</b>: General summary information of the process.</li>
+	<li><b>network</b>: Information on the network layer of the process and the OS network stats.</li>
+	<li><b>thread</b>: Thread dump of the process.</li>
+	<li><b>heap</b>: Heap dump of the process. <b>Note, this is a heavy operation and can produce very large dump files</b>.</li>
+	<li><b>log</b>: Adds all the log files of the process to the dump file.</li>
+	<li><b>processingUnits</b>: Dump of all the processing units (applicable only for GSCs) information.</li>
+</ul>
+
+
+<p>The <b>log</b> process is the only processor that takes into account the context (Map&lt;String, Object&gt;) that can be passed as part of the dump command. It tries to find under the <tt>logEntryMatcher</tt> key a <tt>LogEntryMatcher</tt> that will be used to filter out just relevant parts of the log files to be returned. If no matcher is provided, all the log files will be retuned. Here is an example of specifying a log entry matcher:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Map&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt; context = <span class="code-keyword">new</span> HashMap&lt;<span class="code-object">String</span>, <span class="code-object">Object</span>&gt;();
+context.put(<span class="code-quote">"logEntryMatcher"</span>, lastN(200));
+DumpResult dumpResult = admin.generateDump(<span class="code-quote">"test"</span>, context, <span class="code-quote">"summary"</span>, <span class="code-quote">"log"</span>);</pre>
+</div></div>
+
+<p>The above code will generate a dump, including the just the last 200 log entries which the log dump processor will process.</p>
+
+<h1><a name="Dump-DumpUI"></a>Dump UI</h1>
+<p>You may use the <a href="GigaSpaces Management Center.html" title="GigaSpaces Management Center">GigaSpaces Management Center</a> to generate a dump file that includes information about the runtime GigaSpaces environment for a specific GSC or across the entire environment.<br/>
+Start the GS-UI , move into the Hosts tab and select the relevant option:<br/>
+Full environment dump:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/dump0.jpg" align="absmiddle" border="0"/></p></div>
+<p>Specific machine dump:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/dump1.jpg" align="absmiddle" border="0"/></p></div>
+<p>Specific GSC dump:</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/dump3.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>Any of the above will display the following dialog. Place the location of the dump file , select the desired options and click the <b>Generate</b> button.</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/dump2.jpg" align="absmiddle" border="0"/></p></div>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Make sure the user that started the GS-UI has write permissions to the location of the dump file.</td></tr></table></div>
+
+<h1><a name="Dump-DumpFileStructure"></a>Dump File Structure</h1>
+<p>The dump file structure would look like this:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">dump_file.zip
+
+    gsa-10.10.10.249-23610--1284928573201
+        network.txt
+        summary.txt
+        threads.txt
+        logs
+            2010-09-19~08.22-gigaspaces-gsa-10.10.10.249-23610.log
+ 
+    gsc-10.10.10.249-23739--1284928573169
+        network.txt
+        summary.txt
+        threads.txt
+        logs
+            2010-09-19~08.22-gigaspaces-gsc_1-10.10.10.249-23739.log     
+        processing-units
+            space
+                1
+                    pu.xml
+                    spaces
+                        space
+                            summary.txt
+ 
+    gsc-10.10.10.249-23766--1284928573079
+        network.txt
+        summary.txt
+        threads.txt     
+        logs
+            2010-09-19~08.22-gigaspaces-gsc_2-10.10.10.249-23766.log
+        processing-units
+            mirror
+                1
+                    pu.xml                 
+                    spaces
+                        mirror
+                            summary.txt
+            space
+                1_1
+                    pu.xml                 
+                    spaces
+                        space
+                            summary.txt
+ 
+    gsm-10.10.10.249-24112--1284928573193
+        network.txt
+        summary.txt
+        threads.txt
+        logs
+            2010-09-19~08.22-gigaspaces-gsm_3-10.10.10.249-24112.log 
+    lus-10.10.10.249-24127--1284928573201
+        network.txt
+        summary.txt
+        threads.txt
+        logs
+            2010-09-19~08.22-gigaspaces-lus_4-10.10.10.249-24127.log</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

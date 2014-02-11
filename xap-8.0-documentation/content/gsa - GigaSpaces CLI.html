@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : gsa - GigaSpaces CLI</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>gsa - GigaSpaces CLI</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Invoke gsa CLI command. </p>
+</div>
+
+<h1><a name="gsa-GigaSpacesCLI-Syntax"></a>Syntax</h1>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; gsa &lt;command&gt; [-host&lt;host name/ip address&gt;]
+</pre>
+</div></div>
+
+<h1><a name="gsa-GigaSpacesCLI-Description"></a>Description</h1>
+<p>The following gsa CLI commands are available:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Command </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> shutdown </td>
+<td class='confluenceTd'> shutdown gsa </td>
+</tr>
+<tr>
+<td class='confluenceTd'> start-gsc </td>
+<td class='confluenceTd'> starts gsc agent within specific gsa service </td>
+</tr>
+<tr>
+<td class='confluenceTd'> start-gsm </td>
+<td class='confluenceTd'> starts gsm agent within specific gsa service </td>
+</tr>
+<tr>
+<td class='confluenceTd'> start-lookup </td>
+<td class='confluenceTd'> starts lus agent within specific gsa service </td>
+</tr>
+</tbody></table>
+
+
+<h1><a name="gsa-GigaSpacesCLI-Options"></a>Options</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Option </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Value Format </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>help</tt> / <tt>h</tt> </td>
+<td class='confluenceTd'> Prints help &#8211; the command's usage and options. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>host</tt> / <tt>h</tt> </td>
+<td class='confluenceTd'> Host name, optional parameter, allows to locate gsa that is running on specific machine. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+</tbody></table>
+
+<h1><a name="gsa-GigaSpacesCLI-Example"></a>Example</h1>
+
+<p>The following prints a numbered list of GSA services, and you can choose a GSA service to create gsc within it:</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; gsa start-gsc
+total 5
+[1]  10278  Grid Service Agent  gigaspaces-8.0.0-XAPPremium...  pc-lab43@192.xxx.x.xx
+[2]  20157  Grid Service Agent  gigaspaces-8.0.0-XAPPremium...  pc-lab37@192.xxx.x.xx
+[3]  26850  Grid Service Agent  gigaspaces-8.0.0-XAPPremium...  pc-lab38@192.xxx.x.xx
+[4]  11752  Grid Service Agent  gigaspaces-8.0.0-XAPPremium...  Evgeny@192.xxx.xx.xxx
+[5]  1608   Grid Service Agent  gigaspaces-8.0.0-XAPPremium...  pc-lab42@192.xxx.x.xx
+
+Enter a number of service to gsa start-gsc or "c" to cancel :</pre>
+</div></div>
+
+
+<p>Example fo gsa shutdown when specific host name provided:</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; gsa shutdown -host pc-lab43
+total 1
+[1]  10278  Grid Service Agent  gigaspaces-8.0.0-XAPPremium...  pc-lab43@192.xxx.x.xx
+[2]  all
+
+Enter a comma-separated list to gsa shutdown or "c" to cancel :</pre>
+</div></div>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

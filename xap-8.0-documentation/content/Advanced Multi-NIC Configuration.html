@@ -1,0 +1,384 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Advanced Multi-NIC Configuration</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Advanced Multi-NIC Configuration</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  How to configure GigaSpaces for Multiple Network Interface Cards. </p>
+</div>
+
+<p><a name="AdvancedMulti-NICConfiguration-1"></a></p>
+<h1><a name="AdvancedMulti-NICConfiguration-1.ViewingNetworkInterfaceInformation"></a>1. Viewing Network Interface Information </h1>
+<p>When loading GigaSpaces space (or when using the <tt>&lt;GigaSpaces Root&gt;\bin\PlatformInfo</tt> script), the Network Interface information is displayed. Each network card is identified by its Network Interface name and IP.</p>
+
+<p>For example, the following information describes 3 network cards: <tt>(eth0/192.168.80.145, eth1/212.143.27.76, ipoib0/192.168.60.145)</tt></p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>Network Interfaces Information:
+                 Host Name: [Lab15.gigaspaces.com]	
+                 Network Interface Name: ipoib0 / ipoib0
+                 IP Address: fe80:0:0:0:202:c9ff:fe3c:ff80%5
+                 IP Address: 192.168.60.145	
+                 Network Interface Name: eth1 / eth1
+                 IP Address: fe80:0:0:0:204:23ff:feb7:9f3b%3
+                 IP Address: 212.143.27.76	
+                 Network Interface Name: eth0 / eth0
+                 IP Address: fe80:0:0:0:204:23ff:feb7:9f3a%2
+                 IP Address: 192.168.80.145	
+                 Network Interface Name: lo / lo
+                 IP Address: 0:0:0:0:0:0:0:1%1	
+                 IP Address: 127.0.0.1</pre>
+</div></div>
+
+<p>For the purpose of this section, the default is set to <tt>ipoib0/192.168.60.145</tt> and the required configuration is to use the internal connection specified by <tt>eth0/192.168.80.145</tt></p>
+
+<h1><a name="AdvancedMulti-NICConfiguration-NICADDR"></a>NIC_ADDR</h1>
+
+<p>There is only one environment variable that needs to be configured when limiting the discovery to a specific Network Interface Card. The <tt>NIC_ADDR</tt> should specify the interface card IP address or name. <tt>NIC_ADDR</tt> is the value of <tt>java.rmi.server.hostname</tt> system property, which needs to be appended to <tt>RMI_OPTIONS</tt> in the <tt>setenv.sh(bat)</tt> script. By default, <tt>RMI_OPTIONS</tt> omits this variable &#8211; the <tt>java.rmi.server.hostname</tt> system property is used to resolve the NIC address for all services, which bind to a specific network interface; for example, Jini unicast discovery lookup host, Webster, etc. More specifically, multicast and unicast discovery both use this property to limit and set the desired network interface card.</p>
+
+<p>There are multiple ways to specify the <tt>NIC_ADDR</tt>: </p>
+
+<ol>
+	<li>Specifying an explicit IP address. For example:</li>
+</ol>
+
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">NIC_ADDR=192.168.80.145</pre>
+</div></div>
+
+<ol>
+	<li>Specifying a network interface name. For example:</li>
+</ol>
+
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">NIC_ADDR=<span class="code-quote">"#eth0:ip#"</span></pre>
+</div></div>
+
+<p>In the above example, <tt>eth0</tt> is the interface name and the <tt>ip</tt> indicates that the registered ip of the interface will be used. It is recommended to use the ip address, however, the host name can also be used by replacing the <tt>ip</tt> with <tt>host</tt>.</p>
+
+<ol>
+	<li>Specifying the "local" network interface. For example:</li>
+</ol>
+
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">NIC_ADDR=<span class="code-quote">"#local:ip#"</span></pre>
+</div></div>
+
+<p>This is equivalent to <tt>InteAddress.getLocalHost().getHostAddress()</tt>.</p>
+
+<p><a name="AdvancedMulti-NICConfiguration-2"></a> </p>
+<h1><a name="AdvancedMulti-NICConfiguration-SpecifyingaNetworkCardtoBindtheJiniLookupService%28ReggieorMahalo%29"></a>Specifying a Network Card to Bind the Jini Lookup Service (Reggie or Mahalo)</h1>
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+
+<h2><a name="AdvancedMulti-NICConfiguration-ConfiguringLookupService"></a>Configuring Lookup Service</h2>
+
+<p>The lookup service should be configured to run against a specific Network IP Address (for more details, see <a href="Lookup Service Configuration.html" title="Lookup Service Configuration">Jini Lookup Discovery Service Interface</a>). The <tt>NIC_ADDR</tt> is used to control it. </p>
+
+<h2><a name="AdvancedMulti-NICConfiguration-ConfiguringServerHostname"></a>Configuring Server Hostname</h2>
+
+<p>The server hostname should be configured to use the <tt>NIC_ADDR</tt> variable. By default The <tt>NIC_ADDR</tt> environment variable (exposed as part of the <tt>&lt;GigaSpaces Installation&gt;\bin\setenv</tt> script) omits the system property <tt>java.rmi.server.hostname</tt>. <b>Append the property to the <tt>RMI_OPTIONS</tt></b>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">RMI_OPTIONS="-Djava.rmi.server.hostname=${NIC_ADDR}
+-Djava.rmi.server.logCalls=<span class="code-keyword">false</span> ..."</pre>
+</div></div>
+
+<p><b>On Windows-based machines</b>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">RMI_OPTIONS="-Djava.rmi.server.hostname=%NIC_ADDR%	
+-Djava.rmi.server.logCalls=<span class="code-keyword">false</span> ..."</pre>
+</div></div>
+
+<p>The <tt>java.rmi.server.hostname</tt> system property is used to resolve the NIC address for all services, which bind to a specific network interface, e.g. Jini unicast discovery lookup host, Webster, etc.</p>
+
+<p>More specifically, multicast and unicast discovery both use this property to limit and set to the desired network interface card.</p>
+</div>
+<p><a name="AdvancedMulti-NICConfiguration-3"></a></p>
+<h1><a name="AdvancedMulti-NICConfiguration-LimitingUsetoaSpecificNetworkInterface%28MulticastOnly%29"></a>Limiting Use to a Specific Network Interface (Multicast Only)</h1>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> By default, Jini is configured to support multicast over multiple (all) interface cards. The only time you need to change this, is if you want to limit these interface cards.</p>
+
+<p>Jini clients perform lookup discovery by either unicast and/or multicast. By default, the configuration is set to multicast. Multicast discovery is configured to use all the network interfaces. To limit the use to a specific network interface, the relevant Jini service configuration file needs to be changed. </p>
+
+<p>The service configuration files are located under <tt>&lt;GigaSpaces Root&gt;\config\services</tt>. By default, <tt>&lt;GigaSpaces Root&gt;\config\services\services.config</tt> is used to configure Reggie, Mahalo and other services.</p>
+
+<p>The multicast network interface specifies the network interfaces that send and receive multicast request and announcement packets as part of multicast discovery. </p>
+
+<p>If no value is specified for this Entry, then all network interfaces of the host are used (default). If the Entry value is <tt>null</tt>, then the interface to which the operating system defaults is used. If the Entry value is a zero-length array, then <b>multicast discovery is disabled</b>.</p>
+
+<p>To limit the network interface to a specific set of network cards, the <tt>multicastInterfaces</tt> value should be an array of <tt>NetworkInterface</tt> instances. </p>
+
+<p>The following modification sets the network interface to <tt><b>eth0</b></tt>.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">multicastInterfaces=<span class="code-keyword">new</span>
+java.net.NetworkInterface[]{java.net.NetworkInterface.getByName(<span class="code-quote">"eth0"</span>)};</pre>
+</div></div> 
+
+<p>By default, this line is commented out with the network interface argument as the <tt>java.rmi.server.hostname</tt> property value. Uncomment this line to limit the multicast to the <tt>NIC_ADDR</tt> chosen.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">multicastInterfaces=<span class="code-keyword">new</span> java.net.NetworkInterface[]
+{java.net.NetworkInterface.getByName(<span class="code-quote">"${java.rmi.server.hostname}"</span>)};</pre>
+</div></div>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details, see <a href="http://www.gigaspaces.com/docs/JiniApi/com/sun/jini/reggie/package-summary.html">Sun Javadoc</a>.</p>
+
+<p><a name="AdvancedMulti-NICConfiguration-4"></a></p>
+<h1><a name="AdvancedMulti-NICConfiguration-UnicastDiscovery"></a>Unicast Discovery</h1>
+
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+
+<p>Unicast discovery can be either used with or without multicast.</p>
+
+<h2><a name="AdvancedMulti-NICConfiguration-UsingUnicasttoRegisterWithaLookupService"></a>Using Unicast to Register With a Lookup Service</h2>
+
+<p>By default, the cluster member URLs are configured to use <tt>jini://&#42;/container_name/space_name</tt>, which performs lookup using the multicast protocol. To enable unicast in a clustered environment, specify the exact machine network interface card accessible for discovery.</p>
+
+<p>When using unicast to register with a lookup service, the lookup host should be set to where the lookup service is running.</p>
+
+<p>The unicast discovery property is part of your <tt>xxx-container-schema.xml</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;unicast_discovery&gt;</span>
+  <span class="code-tag"><span class="code-comment">&lt;!-- Default value: false (unless start-embedded-lus is enabled) --&gt;</span></span>
+  <span class="code-tag">&lt;enabled&gt;</span>${com.gs.jini_lus.unicast_discovery.enabled}<span class="code-tag">&lt;/enabled&gt;</span>
+  &lt;!-- Is a list of unicast hosts separated by comma: 
+  localhost:4160 (default value, unless start-embedded-lus is enabled), 
+  host1:4160, host2:4160, host3:4184 --&gt;
+ <span class="code-tag">&lt;lus_host&gt;</span>${com.gs.jini_lus.locators}<span class="code-tag">&lt;/lus_host&gt;</span>	
+ <span class="code-tag">&lt;/unicast_discovery&gt;</span></pre>
+</div></div>
+
+<p>In order to use <tt>eth0/192.169.80.145</tt> as the unicast discovery channel, set the two as follows:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;unicast_discovery&gt;</span>	
+      <span class="code-tag">&lt;enabled&gt;</span>true<span class="code-tag">&lt;/enabled&gt;</span>
+      <span class="code-tag">&lt;lus_host&gt;</span>eth0<span class="code-tag">&lt;/lus_host&gt;</span>
+<span class="code-tag">&lt;/unicast_discovery&gt;</span></pre>
+</div></div>
+
+<p>By default, these values are exposed as system properties:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;unicast_discovery&gt;</span>
+      <span class="code-tag">&lt;enabled&gt;</span>${com.gs.jini_lus.unicast_discovery.enabled}<span class="code-tag">&lt;/enabled&gt;</span>	      
+      <span class="code-tag">&lt;lus_host&gt;</span>${com.gs.jini_lus.locators}<span class="code-tag">&lt;/lus_host&gt;</span>
+<span class="code-tag">&lt;/unicast_discovery&gt;</span></pre>
+</div></div>
+
+<p>By default, unicast discovery is disabled, unless:</p>
+<ul>
+	<li>You are running an embedded lookup service, or</li>
+	<li>the <tt>SpaceURL</tt> locators attribute is used.</li>
+</ul>
+
+
+<p>The lookup host is overridden by merely setting the <tt>NIC_ADDR</tt> (steps 1 and 2)<br/>
+Otherwise, to use <tt><b>eth0/192.169.80.145</b></tt> as the unicast discovery channel, set the two system properties accordingly.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.jini_lus.unicast_discovery.enabled=<span class="code-keyword">true</span>	
+-Dcom.gs.jini_lus.locators=${NIC_ADDR}</pre>
+</div></div>	
+
+<p>Or, on Windows-based machines:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.jini_lus.locators=%NIC_ADDR%</pre>
+</div></div>
+
+<p>You might choose to hardcode the values in the XML configuration, but it is highly recommended to either pass system properties or use a properties file (<tt>gs.properties</tt> file) for overriding default values.</p>
+
+<p>Another simple way to set the unicast discovery is using <tt>SpaceURL</tt> locators attribute, e.g:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>/./mySpace?locators=123.123.123.111:8877</pre>
+</div></div>
+
+<p>The comma-separated list of <tt>IP:ports</tt> pairs specify the exact machine network interface card by which the Jini lookup service performs discovery.</p>
+
+<h2><a name="AdvancedMulti-NICConfiguration-UsingUnicasttoLocateOtherClusterMembers"></a>Using Unicast to Locate Other Cluster Members</h2>
+
+<p>By default the cluster member URLs are configured to use <tt>jini://&#42;/container_name/space_name</tt> which performs lookup using the multicast protocol.  </p>
+
+<p>To use unicast, specify the exact machine network interface card by which the Jini lookup service performs discovery.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;member&gt;</span>
+   <span class="code-tag">&lt;member-name&gt;</span>container1:space1<span class="code-tag">&lt;/member-name&gt;</span>	
+   <span class="code-tag">&lt;member-url&gt;</span>jini://192.168.80.145/container1/space1<span class="code-tag">&lt;/member-url&gt;</span>	
+<span class="code-tag">&lt;/member&gt;</span></pre>
+</div></div>
+
+<p>When loading a cluster using a cluster schema XSL configuration file, the cluster members' information is built during runtime. To specify the protocol for the member-url, set the following system property accordingly:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.cluster.url-protocol-prefix=jini:<span class="code-comment">//${NIC_ADDR}/</span></pre>
+</div></div> 
+
+<p>Or, on a Windows-based machine:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dcom.gs.cluster.url-protocol-prefix=jini:<span class="code-comment">//%NIC_ADDR%/</span></pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> You can set the <tt>jini://</tt> and/or <tt>rmi://</tt> protocols in the <tt>com.gs.cluster.url-protocol-prefix</tt> system property.</p>
+</div>
+
+<p><a name="AdvancedMulti-NICConfiguration-5"></a></p>
+<h1><a name="AdvancedMulti-NICConfiguration-TestingYourConfiguration"></a>Testing Your Configuration</h1>
+
+<p>The replicated example, located under <tt>&lt;GigaSpaces Root&gt;\examples\Advanced\Data_Grid\replicated</tt>, can be used to test the above configuration. The example interacts using the <tt>setenv</tt> and <tt>gsInstance</tt> scripts.</p>
+
+<p>The <tt>NIC_ADDR</tt> should be set corresponding at each machine's network interface card.</p>
+
+<p>For the purpose of the example, <tt>node1</tt> and <tt>node2</tt> are loaded at <tt><b>Lab16</b>.gigaspaces.com</tt> and <tt><b>Lab17</b>.gigaspaces.com</tt> respectively. Both have a network card configured for <tt><b>eth0</b></tt> (spanning IPs <tt>192.168.80.145...147</tt>). Both nodes should be configured with the corresponding <tt>NIC_ADDR</tt> property of their own network interface IP address for <tt>eth0</tt>.</p>
+
+<p><img src="download/attachments/48235229/IMG911.jpg" align="absmiddle" border="0"/></p>
+
+<p>To apply this configuration easily, the <tt>NIC_ADDR</tt> can be passed at the <b>script level</b> of each node, before the call to <tt>setenv</tt>, thus overriding the default value set for this property in the <tt>setenv</tt> script.</p>
+
+<p>For example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">bin/start-node1 script should set NIC_ADDR with 192.168.80.146	
+bin/start-node2 script should set NIC_ADDR with 192.168.80.147</pre>
+</div></div>
+
+<p>On unix:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">NIC_ADDR=192.168.80.146; export NIC_ADDR	
+. setExampleEnv.sh</pre>
+</div></div>
+
+<p>On windows:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@set NIC_ADDR=192.168.80.146	
+@call setExampleEnv.bat</pre>
+</div></div>
+
+<p>The example attempts to locate the cluster members, and once communication has been established with each, the cluster is announced as active.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Replicator: Connection established with target space	
+[ source space: rep_cache_container1:rep_cache  ]	
+[ target space: rep_cache_container2:rep_cache   ]</pre>
+</div></div>
+
+<h2><a name="AdvancedMulti-NICConfiguration-DiscoverybyUnicast"></a>Discovery by Unicast</h2>
+
+<p>The configuration for unicast can be added to the <tt>setenv</tt> script, and should be appended to the <tt>gsInstance</tt> script loading an instance of each node.</p>
+
+<p>Additionally, you can set the <tt>SpaceURL</tt> <tt>locators</tt> attribute.</p>
+
+<p>setenv:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UNIX_ENABLED=-Dcom.gs.jini_lus.unicast_discovery.enabled=<span class="code-keyword">true</span>
+URL_PREFIX=-Dcom.gs.cluster.url-protocol-prefix=jini:<span class="code-comment">//${NIC_ADDR}/</span></pre>
+</div></div>	
+
+<p>gsInstance:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">${JAVACMD} ${UNIX_ENABLED} ${URL_PREFIX} ${RMI_OPTIONS} ${JAVA_OPTIONS} -Dcom.gs.home=${JSHOMEDIR}
+-classpath "${APPEND_TO_CLASSPATH_ARG}${CPS}$
+{JSHOMEDIR}${CPS}${JSHOMEDIR}/lib/JSpaces.jar<span class="code-quote">" com.j_spaces.core.client.SpaceFinder "</span>${SPACE_URL}"</pre>
+</div></div>
+
+<p>The <tt>&lt;GigaSpaces Root&gt;\bin\start-node1</tt> and the <tt>&lt;GigaSpaces Root&gt;\bin\start-node2</tt> scripts should set <tt>NIC_ADDR</tt> as mentioned above.</p>
+
+<p>Remember that the <tt>NIC_ADDR</tt> variable is set prior to the call to <tt>setExampleEnv</tt>, thus overriding the <tt>NIC_ADDR</tt> set in the <tt>setenv</tt> script.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">NIC_ADDR=192.168.80.146; export NIC_ADDR
+. setExampleEnv.sh</pre>
+</div></div>
+
+<p><a name="AdvancedMulti-NICConfiguration-6"></a> </p>
+<h1><a name="AdvancedMulti-NICConfiguration-TroubleshootingYourConfiguration"></a>Troubleshooting Your Configuration </h1>
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> 
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For details on viewing the exact configuration in which the system is currently running, refer to the <a href="Container Maintenance - GigaSpaces Browser.html#ContainerMaintenance-GigaSpacesBrowser-RuntimeConfigurationReport">Container Maintenance</a> section.</p>
+
+<h2><a name="AdvancedMulti-NICConfiguration-LoggingwithRMIOPTIONS"></a>Logging with RMI_OPTIONS</h2>
+
+<p>The <tt>RMI_OPTIONS</tt> environment variable specifies a system property used for logging calls:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">java.rmi.server.logCalls=<span class="code-keyword">false</span></pre>
+</div></div>
+
+<p>This property can be set to <tt>true</tt>, enabling log output to the screen. Both lookup service and lookup registrars can be configured to show which network IP address they are trying to communicate with.</p>
+
+<h2><a name="AdvancedMulti-NICConfiguration-IdentifyingWrongConfiguration"></a>Identifying Wrong Configuration </h2>
+
+<p>Something similar to the following can indicate a wrong configuration:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Sep 12, 2005 8:00:13 PM sun.rmi.server.UnicastServerRef logCall
+FINER: RMI TCP Connection(6)-192.168.80.145: [192.168.80.145:
+sun.rmi.transport.DGCImpl[0:0:0, 2]: java.rmi.dgc.Lease	
+dirty(java.rmi.server.ObjID[], <span class="code-object">long</span>, java.rmi.dgc.Lease)]</pre>
+</div></div>
+
+<h2><a name="AdvancedMulti-NICConfiguration-BindException"></a>Bind Exception</h2>
+
+<p>A bind exception could be the cause of a machine trying to bind to a lookup service not on the correctly configured network interface. For example, if <tt>node2</tt> had its <tt>${NIC_ADDR</tt>} configured to <b><tt>192.168.80.145</tt></b>, while its own network interface for <tt>eth0</tt> is <b><tt>192.168.80.147</tt></b>.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">9/13/05 12:13:45 AM | rep_cache_container2 | main | Cannot initialize JoinManager Exception:
+java.rmi.RemoteException: Failed to init. Protocol Registry: java.rmi.RemoteException:
+Failed initialization of LRMI over NIO Protocol Adapter: Cannot assign requested address; nested exception is:	
+        java.net.BindException: Cannot assign requested address	
+...</pre>
+</div></div>
+</div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

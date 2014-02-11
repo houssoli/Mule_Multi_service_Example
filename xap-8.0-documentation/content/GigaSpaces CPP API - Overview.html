@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : GigaSpaces CPP API - Overview</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>GigaSpaces CPP API - Overview</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  GigaSpaces C++ API explained: About POCOs; space class metadata; using existing C++ classes with the space; dynamic scalability; deployment &#8211; standalone and grid-based; configuration; compatibility and packaging. </p>
+</div>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-Overview"></a>Overview</h1>
+<p>The GigaSpaces C+&#43; API has been designed to address the following:</p>
+<ul>
+	<li><b>Being C+&#43; friendly</b> &#8211; allowing C+&#43; engineers to use standard tools.</li>
+	<li><b>Ease of use</b> &#8211; the ability to build C++-based applications in a matter of minutes.</li>
+	<li><b>Platform Support</b> &#8211; to run on 32 and 64-bit platforms.</li>
+	<li><b>Better performance</b> &#8211; to have similar or better performance than the Java-based clients.</li>
+	<li><b>Better Interoperability</b> &#8211; to cope with space classes that contain nested classes.</li>
+	<li><b>Common development flow</b>, <b>configuration</b> and <b>deployment based on OpenSpaces</b> &#8211; <b>one</b> common space runtime for all applications: Java, .NET and C++.</li>
+	<li><b>Using an alternative approach</b> for <b>internal JNI calls</b> &#8211; based on lightweight command pattern protocol.</li>
+</ul>
+
+
+<h2><a name="GigaSpacesCPPAPI-Overview-Features"></a>Features</h2>
+
+<p>GigaSpaces C+&#43; API offers a very straightforward API that directly accepts the developers C+&#43; objects. No additional serialization or marshalling code needs to be developed and maintained.</p>
+
+<p>The GigaSpaces C+&#43; API provides the following:</p>
+<ul>
+	<li><b>Single space operations and batch space operations</b>.</li>
+	<li><b>Space transactions support</b>.</li>
+	<li><b>Space notifications support</b>.</li>
+	<li><b>Reduced Space lease support</b> (without the ability to renew or cancel).</li>
+	<li><b>Interoperability support</b> &#8211; POJO and PONO data-sharing and exchanging of data with C++ IEntry objects via the space.</li>
+	<li><b>Support for portable serialization of non-primitive C++ IEntry attributes</b> &#8211; passing Java objects to C+&#43; business logic having objects with nested classes and complex graphs(without loops and duplicated references) as C++ IEntry attributes.</li>
+	<li><b>Space statistics support</b>.</li>
+	<li><b>SQL query support</b> for read, take, and notify operations(SQL blocking take not supported).</li>
+	<li><b>Space administration API support (count, clean, start, stop)</b>.</li>
+	<li><b>Space C+&#43; Worker/bean support</b> &#8211; allows a C+&#43; developer to embed C+&#43; business logic, so it can run in the same memory address as the SLA container and the space. This allows C+&#43; business logic to have in and out of process scalability capabilities.</li>
+	<li><b>Collection API</b> (<tt>stl::vector</tt>).</li>
+	<li><tt><b>gs.xml</b></tt> <b>support and</b> <tt><b>gsxml2cpp</b></tt> <b>code generator</b> &#8211; generate C++ IEntry, POJO, PONO using one XML file enabling fast Interoperability process.</li>
+	<li><b>Dynamic casting</b> &#8211; no need to cast returned objects to relevant types.</li>
+	<li><b>Optimized and efficient JNI calls</b>.</li>
+	<li><b>Out of the box examples</b>.</li>
+	<li><b>Boost Smart pointer interface - Alternative interface for C++ developers that uses only boost smart pointers</b>.</li>
+</ul>
+
+
+<h2><a name="GigaSpacesCPPAPI-Overview-HowitWorks"></a>How it Works</h2>
+
+<p>C+&#43; business logic can run as a standalone application or can be deployed into the Grid accessing the space in any of the supported runtime topologies: single space, clustered space, remote, or embedded.</p>
+
+<p>When the C+&#43; application interacts with the space, all relevant space components: space filter, replication filter, space data provider (known also as the <a href="External Data Source.html" title="External Data Source">External Data Source</a> or read/write through), and the mirror service (known also as write-behind) are active and available. In order to access space data originated by CPP business logic and POCOs, these interfaces should be implemented using Java code and relevant POJO classes.</p>
+
+<p>Data written into the space can be monitored and viewed using the standard GUI and CLI tools provided by GigaSpaces. These same tools can be used to monitor and view data stored in the space with Java or .NET applications.</p>
+
+<p>Running C+&#43; classes in a SBA (Space Based Architecture) environment is just as easy as it is in a pure Java environment &#8211; the developer provides the Processing Unit configuration with the relevant SLA, and deploys it into the Grid.</p>
+
+<p>Throughout the SBA lifecycle, the C+&#43; worker might either explicitly receive command tasks from other areas of the SBA; or it might go looking for work to perform from within the space.</p>
+
+<p>The POCO API is a micro version of the GigaSpaces JavaSpace API; it supports the read, write, and take paradigm of SBA.</p>
+
+<p>In order to allow interoperability of POCO objects with both POJO and PONO counterparts error-free, the solution is delivered with some tooling that automates code-generation, allowing you to perform the essential transformations into the lightweight GigaSpaces PBS protocol.</p>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-Architecture"></a>Architecture</h1>
+<h2><a name="GigaSpacesCPPAPI-Overview-StandaloneC%5CApplication"></a>Standalone C+&#43; Application</h2>
+
+<p>When the C+&#43; application is running as a standalone application, the C+&#43; business logic interacts with the space via remote calls. All space operations are conducted using C+&#43; objects, where the actual interaction is performed via native PBS objects. The C+&#43; objects are transformed to PBS objects in runtime, and sent to the space via the C+/&#43; and Java runtime layers.</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/cpp_image004.jpg" align="absmiddle" border="0"/></p></div>
+
+<h2><a name="GigaSpacesCPPAPI-Overview-C%5CWorker"></a>C+&#43; Worker</h2>
+
+<p>When the C+&#43; business logic runs as a worker, collocated with the space; no remote calls are involved when interacting with the space. Interactions with the space are done using C+&#43; objects, similar to the standalone C+&#43; application configuration.</p>
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/cpp_image006.jpg" align="absmiddle" border="0"/></p></div>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-AboutPOCOs"></a>About POCOs</h1>
+
+<p>The POCO is a wordplay on the famous POJO acronym and it stands for Plain Old C+&#43; Object.</p>
+
+<p>It is essentially a C+&#43; class that includes attributes and business logic, where its instances (their data) can be manipulated by the space. With such C+&#43; objects, data can be stored within the space, updated, removed or can trigger notifications. There is no need to re-write your domain classes or to build marshaling/de-marshaling code (which was required in previous versions of GigaSpaces C+&#43; API) so that they can communicate with the space.</p>
+
+<p>In general, you need to simply introduce your C+&#43; class to the space using a standard XML file (that can be created manually or automatically in some cases), and call the relevant API explicitly or cal your business logic implicitly (this will be further explained below).</p>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-SpaceClassMetadata"></a>Space Class Metadata</h1>
+
+<p>On top of the C+&#43; class itself, which includes the attribute names and types, additional information is required for the space class. This information can include the indexed fields, FIFO mode, versioned mode, replicable mode, etc.</p>
+
+<p>To introduce this additional metadata to the space, the C+&#43; engineer provides a simple XML-based configuration file (the <tt>gs.xml</tt>). This file is parsed at pre-compile time and allows a code generator facility to create a piece of code that "glues" between the C+&#43; runtime and the space runtime (the marshaling code).</p>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details, refer to the <a href="CPP API Code Generator.html" title="CPP API Code Generator">CPP API Code Generator</a> section.</p>
+<p>Here is a simple example of the <tt>gs.xml</tt> content:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+<span class="code-tag">&lt;gigaspaces-mapping&gt;</span>
+  <span class="code-tag">&lt;class name=<span class="code-quote">"Message"</span> persist=<span class="code-quote">"false"</span> replicate=<span class="code-quote">"false"</span> fifo=<span class="code-quote">"false"</span> &gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"id"</span> type=<span class="code-quote">"int"</span> null-value=<span class="code-quote">"-999"</span> index=<span class="code-quote">"true"</span>/&gt;</span>
+    <span class="code-tag">&lt;routing  name=<span class="code-quote">"id"</span>/&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"uid"</span> type=<span class="code-quote">"string"</span> null-value=<span class="code-quote">"" index="</span>false"/&gt;</span>
+    <span class="code-tag">&lt;id name=<span class="code-quote">"uid"</span> auto-generate=<span class="code-quote">"true"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"content"</span> type=<span class="code-quote">"string"</span> null-value=<span class="code-quote">"" index="</span>false"/&gt;</span>
+  <span class="code-tag">&lt;/class&gt;</span>
+<span class="code-tag">&lt;/gigaspaces-mapping&gt;</span></pre>
+</div></div>
+<p>The same metadata decoration file is used across all languages &#8211; the same <tt>gs.xml</tt> file can be used to introduce your language's independent class to the space.</p>
+
+<p>Here is the C+&#43; <tt>h</tt> file that is generated or should be used with the above <tt>gs.xml</tt> file:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">class Message: <span class="code-keyword">public</span> IEntry
+{
+<span class="code-keyword">public</span>:
+    Message() {
+        content = "";
+        id = -999;
+
+        uid = "";
+    }
+                std::string                              content;
+                <span class="code-object">int</span>                                           id;
+                std::string                              uid;
+                virtual <span class="code-keyword">const</span> <span class="code-object">char</span>* GetSpaceClassName() <span class="code-keyword">const</span>
+                {
+                   <span class="code-keyword">return</span> <span class="code-quote">"Message"</span>;
+                  }
+};
+typedef boost::shared_ptr&lt;Message&gt;    Message_ptr;</pre>
+</div></div>
+<p>Here is the C+&#43; code using the above class:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">SpaceProxyPtr space ( finder.find(<span class="code-quote">"jini:<span class="code-comment">//*/*/mySpace"</span>) );
+</span>Message_ptr msg( <span class="code-keyword">new</span> Message() );
+msg-&gt;id = 1;
+msg-&gt;content = <span class="code-quote">"Hello World"</span>;
+space-&gt;write(msg, NULL_TX, 5000000);
+
+Message messageTemplate;
+Message_ptr result (space-&gt;take(&amp;messageTemplate, NULL_TX, 0 ));
+
+The SpaceProxyPtr includes all the familiar Space operations such as
+write , read , take , update <span class="code-keyword">for</span> single and batch operations , SQL Query , Event Notifications, Transactions etc.</pre>
+</div></div>
+<p>As you can see, the example above uses <tt>boost::shared_ptr</tt>. If you are not familiar with boost, see: <a href="http://www.boost.org/">http://www.boost.org/</a>.</p>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-UsingExistingC%5CClasseswiththeSpace"></a>Using Existing C+&#43; Classes with the Space</h1>
+
+<p>To use existing C+&#43; classes with the space, you need to perform minor changes to your existing C+&#43; classes (such as inheriting from the <tt>IEntry</tt> base class). This allows you to implement your own serialization and data transport protocol to gain total control of the byte stream content sent through the wire when the client interacts with the space process.</p>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details, see the <a href="Writing Existing CPP Class to Space.html" title="Writing Existing CPP Class to Space">Writing Existing C++ Class to Space</a> section.</p>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-InteroperabilitySharingDataacrossJava%2C.NETandC%5CApplications"></a>Interoperability &#8211; Sharing Data across Java, .NET and C+&#43; Applications</h1>
+
+<p>The most complex part of interoperability is the ability for every class structure to digest each development language, and to include one common denominator that is understood by the space runtime.</p>
+
+<p>There are several ways to achieve this, for example, using XML to store data and convert it to native language objects. However, we have found this option irrelevant for real-time SBA applications our users are building. They need fast data conversion and transportation services that are able to handle objects from all supported languages on all platforms in an optimized and efficient manner &#8211; meaning, micro-second latency. GigaSpaces has achieved this goal and has named it Portable Binary Serialization (PBS).</p>
+
+<p>The PBS mechanism efficiently scans, reduces, and serializes complex objects from different languages; and translates them into a format known by all supported runtimes: .NET, C++, and Java.</p>
+
+<p>With the PBS approach, a POCO class (that is a graph object) holds references to other objects or arrays of objects. This object can be stored in the space in a way that a Java application using a matching POJO can read the data and materialize it into a pure Java object. The same is true with .NET.</p>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-DynamicScalability"></a>Dynamic Scalability</h1>
+
+<p>The main problem with Grid-based applications and such heterogeneous, complex environments is the inability to forecast how many machines need to store the data or run the business logic. Without a smart container for the data and business logic that can handle the application objects (and not only network processes), it's almost impossible to scale your application efficiently. You need a nervous system with sensors that instruct data and business logic instances to started, shut down, or move to another machine to scale dynamically. In a sense, you have 2 dimensions to scale: in-proc and out-of-proc. In-proc means multiple threads of your business logic running within the same process. Out-of-proc means starting new instances of your business logic across multiple Grid nodes (on the same machine or different machines). In both cases, you need the ability to increase/decrease the amount of business logic instances in runtime, based on some SLA of dynamic external business logic.</p>
+
+<p>The space has already introduced Java based-business logic &#8211; scaling your application by adding more containers on the fly to increase space cluster capacity. Java-based in/out-of-proc scalability is supported via Jini service beans and expanded also to Spring beans. This is one of the main capabilities of the <a href="Product Architecture.html#ProductArchitecture-ProductArchitectureOpenSpacesAPIandComponents">OpenSpaces</a> framework. The new C+&#43; framework allows you to do the same with C+&#43; business logic.</p>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-DeploymentStandaloneandGridBased"></a>Deployment &#8211; Standalone and Grid-Based</h1>
+
+<p>Deploying a C+&#43; SBA application involves the standard C+&#43; runtime libraries, the <tt>gs.xml</tt> files, and the GigaSpaces runtime libraries (C++, Java, and JDK libraries).</p>
+
+<p>These can be packaged using an installer that simplifies the deployment routine. You can place the runtime libraries in a shared folder, so you won't need to distribute the files to every machine running an application that accesses the space. Another option is to can encapsulate the business logic as a <a href="CPP Processing Unit.html" title="CPP Processing Unit">Processing Unit</a> to be managed, deployed and executed across the Grid nodes by the SLA-driven container. This allows you to control the different C+&#43; business logic instances to access remote spaces or collocated spaces (C+&#43; business logic running in the same memory address as the space, allowing you to avoid remote calls).</p>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-Configuration"></a>Configuration</h1>
+
+<p>Beyond the <tt>gs.xml</tt> file creation and the serializer library compilation (compile the generated code as a custom build event as part of your Visual Studio project), there is very little to do in order to run your C+&#43; application and start working with the space.</p>
+
+<p>You can run the C+&#43; application in remote mode &#8211; access a clustered space running across the Grid, or start the space instance within your C+&#43; process.</p>
+
+<h1><a name="GigaSpacesCPPAPI-Overview-Compatibility"></a>Compatibility</h1>
+
+<p>GigaSpaces C+&#43; API is compatible with other important GigaSpaces components and tools:</p>
+<ul>
+	<li>The GigaSpaces Management Center, which is being significantly improved to support large clusters, displays your C+&#43; classes metadata, and allows you to query C+&#43; objects.</li>
+	<li>Write/read-through and write-behind (Mirror Service) are supported. POCO objects can be delegated into your database using your existing database schema.</li>
+	<li>Relevant Java-based interceptors such as replication and space filters can be used for events generated by C+&#43; API activities.</li>
+</ul>
+
+
+<h1><a name="GigaSpacesCPPAPI-Overview-Packaging"></a>Packaging</h1>
+
+<p>The GigaSpaces C+&#43; package includes the following components:</p>
+<ul>
+	<li><b>Examples</b> &#8211; this is in fact most of the package. It includes a simple hello world example, C+&#43; benchmark, and a full C+&#43; SBA example. For more details, see the <a href="XAP CPP.html" title="XAP CPP">C+&#43; homepage</a>.</li>
+	<li><b>Documentation</b> &#8211; Doxygen (<a href="http://www.stack.nl/~dimitri/doxygen">http://www.stack.nl/~dimitri/doxygen</a>) and CHM-based API reference documentaion.</li>
+	<li>Open-source and GigaSpaces API <tt>h</tt> files.</li>
+	<li><b>Runtime libraries</b> &#8211; core C+&#43; API, memory allocator library, and a dynamic loader library used when deploying your C+&#43; application into the Grid.</li>
+	<li><b>Compile scripts and source code</b> &#8211; the GigaSpaces C+&#43; package is provided out-of-the-box for Windows and Linux 32 and 64-bit platforms. If you are using other platforms, such as MaxOS, HP, AIX, etc., it is possible to build the C+&#43; libraries on your own. Full source code and compile scripts can be provided.</li>
+	<li><b>Regression tests framework</b> &#8211; open-source code of GigaSpaces C+&#43; framework tests, based on <a href="http://cunit.sourceforge.net/">CUnit </a>, allows you to run regression tests to make sure the libraries provided work as expected.</li>
+</ul>
+
+
+<h2><a name="GigaSpacesCPPAPI-Overview-Libraries"></a>Libraries</h2>
+
+<p>GigaSpaces C+&#43; API uses <a href="http://www.cs.wustl.edu/~schmidt/ACE-overview.html">ACE</a> and <a href="http://www.boost.org/">Boost</a> platform independent libraries.</p>
+
+<p>These provide out of the box smart pointers, threading, singletons, collections, and many more capabilities provided for all platforms.</p>
+
+<h2><a name="GigaSpacesCPPAPI-Overview-InternalLibraryArchitecture"></a>Internal Library Architecture</h2>
+
+<p>The GigaSpaces C+&#43; libraries are constructed in several layers:</p>
+<ul>
+	<li><b>Space API access layer</b> &#8211; the C+&#43; proxy implementation.</li>
+	<li><b>C+&#43; object materialization layer</b> &#8211; this involves generation of PBS objects and the ingoing and outgoing activity with the space runtime.</li>
+	<li><b>Runtime layer</b> &#8211; the client's C+&#43; proxy handles client-side activities, such as transaction handlers, space proxy handlers, etc.</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

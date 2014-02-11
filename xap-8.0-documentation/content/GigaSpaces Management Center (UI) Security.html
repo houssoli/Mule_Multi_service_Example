@@ -1,0 +1,258 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : GigaSpaces Management Center (UI) Security</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>GigaSpaces Management Center (UI) Security</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Security Administration using the GigaSpaces Management Center (UI) </p>
+</div>
+
+<h1><a name="GigaSpacesManagementCenter%28UI%29Security-Overview"></a>Overview</h1>
+
+<p>GigaSpaces Management Center (UI) allows to manage the Grid services and Processing Units running within the Grid containers. When security is enabled, the UI will restrict access to these services for non-privileged users.</p>
+
+<p>Administrators can use the UI to manage users and roles, and allow them to Login and operate based on their granted privileges.</p>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> This section assumes familiarity with the <a href="Security Basics.html" title="Security Basics">Security Basics</a> section.</p>
+
+<h1><a name="GigaSpacesManagementCenter%28UI%29Security-ManagingUsersandRoles"></a>Managing Users and Roles</h1>
+
+<p>Managing the directory can be done directly through the <tt>DirectoryManager</tt> API. GigaSpaces Management Center utilizes this API and exposes a convenient administration interface for managing the users and roles supported by the backed directory implementation.</p>
+
+<p>Our default file-based implementation allows the directory to be administered only if the user has <b>Manage Users</b> or <b>Manage Roles</b> privileges. When the directory is first created (i.e. directory file doesn't exist), only an <b><tt>admin/admin</tt></b> user may be allowed to access and administer the directory. By default, the <tt>admin</tt> holds both privileges which allows declaring of new roles, adding users and assigning of roles. The <tt>admin</tt> user can be deleted, as long as you provide another user with management capabilities.</p>
+
+<h2><a name="GigaSpacesManagementCenter%28UI%29Security-SecurityManagementdialog"></a>Security Management dialog</h2>
+
+<p>There is no need for any service to be up and running. Just choose from the title menu bar <b><font color="blue"><tt>Security -&gt; Manage Security</tt></font></b> and the management dialog will open.</p>
+
+<p><img src="download/attachments/53903534/manage-security.png" align="absmiddle" border="0"/></p>
+
+<ul>
+	<li><b><tt>Use Default Configuration</tt></b> - The defaults of the underlying implementation.<br/>
+For example, the file-based implementation's defaults are to access/create a file located under <b><tt>&lt;GigaSpaces root&gt;/security/gs-directory.fsm</tt></b>.</li>
+</ul>
+
+
+<ul>
+	<li><b><tt>Security Properties File</tt></b> - Choose your configuration properties file that will configure the underlying implementation.<br/>
+For example, to configure a different <b><tt>file-path</tt></b> for the file-based implementation.</li>
+</ul>
+
+
+<ul>
+	<li><b><tt>Administrator username and password</tt></b> - A user with <b>Manage Roles</b> or <b>Manage Users</b> privileges.<br/>
+For first time usage of the file-based implementation, use <b><tt>admin/admin</tt></b> - This will create a new file with the <tt>admin</tt> user which only has directory management privileges.</li>
+</ul>
+
+
+<h2><a name="GigaSpacesManagementCenter%28UI%29Security-ManagingUsers%2FRoles"></a>Managing Users/Roles</h2>
+
+<p>This view is split into two tabs - <tt>Users</tt> and <tt>Roles</tt>. If you only have partial management roles, then only read-only actions are allowed.</p>
+
+<h3><a name="GigaSpacesManagementCenter%28UI%29Security-ManagingUsers"></a>Managing Users</h3>
+<p>The <tt>Users</tt> tab, displays a summary of all the users, their assigned roles, and user-specific privileges.<br/>
+Double-click on the user to <b>Edit</b> it, or select a user and press one of the action buttons <b>Edit</b>, <b>Duplicate</b>, <b>Delete</b>.</p>
+
+<p><img src="download/attachments/53903534/manage-user-tab.png" align="absmiddle" border="0"/></p>
+
+<h4><a name="GigaSpacesManagementCenter%28UI%29Security-Creatinganewuser"></a>Creating a new user</h4>
+
+<p>A user can be associated with predefined roles and be granted with user-specific privileges.</p>
+
+<h5><a name="GigaSpacesManagementCenter%28UI%29Security-Associatingarole"></a>Associating a role</h5>
+<p>To associate a user with roles, choose the roles from the list of roles. Each associated <b>role</b> will appear in its own tab,<br/>
+and the <b><tt>Aggregated</tt></b> view will show the aggregation of all the privileges (user-specific and roles).</p>
+
+<p><img src="download/attachments/53903534/create-new-user.png" align="absmiddle" border="0"/></p>
+
+<h5><a name="GigaSpacesManagementCenter%28UI%29Security-Userspecificprivileges"></a>User-specific privileges</h5>
+
+<p>To assign a <b><tt>Monitor Privilege</tt></b>, <b><tt>System Privilege</tt></b>, or <b><tt>Grid Privilege</tt></b> select the privilege check-box.</p>
+
+<p>To assign <b><tt>Space Privilege</tt></b> rules, use the <b><tt>+</tt></b> button to add a row to the <tt>Space Operations</tt> table. This grants the user the privilege to perform a space operation on the specified Class/Package name. The <tt>Space Operation</tt> can be one of <b><tt>Write</tt></b>, <b><tt>Read</tt></b>, <b><tt>Take</tt></b>, <b><tt>Alter</tt></b>, or <b><tt>Execute</tt></b> which can be chosen from the drop-down. To restrict the operation to a certain class, specify a <b>Class/Package name</b> (wild-card) filter and choose <b>Allow</b> or <b>Deny</b>.</p>
+
+<p>The following snapshot shows that the user has:</p>
+<ol>
+	<li><b>Read</b> privileges for all classes <ins>except</ins> for class <b>eg.Stock</b></li>
+	<li><b>Write</b> privileges <ins>only</ins> for class <b>eg.Trade</b></li>
+</ol>
+
+
+<p><img src="download/attachments/53903534/user-specific.png" align="absmiddle" border="0"/></p>
+
+
+<h3><a name="GigaSpacesManagementCenter%28UI%29Security-ManagingRoles"></a>Managing Roles</h3>
+
+<p>The <tt>Roles</tt> tab, displays a summary of all the roles, its permissions and any assigned users to each role.<br/>
+Double-click on the role to <b>Edit</b> it, or select a role and press one of the action buttons <b>Edit</b>, <b>Duplicate</b>, <b>Delete</b>.</p>
+
+<p><img src="download/attachments/53903534/manage-roles-tab.png" align="absmiddle" border="0"/></p>
+
+<h4><a name="GigaSpacesManagementCenter%28UI%29Security-Creatinganewrole"></a>Creating a new role</h4>
+
+<p>Creating a role is the same as creating a user with user-specific privileges. Except that these privileges can be associated by role-name to users.</p>
+
+<p>The following role is set to have <b><tt>Monitor PU</tt></b>, <b><tt>Manage Grid</tt></b>, <b><tt>Provision PU</tt></b>, <b><tt>Manage PU</tt></b>, and a <tt>Space Operation</tt> rule allowing a <b><tt>Write</tt></b> of any class matching <tt>eg.Account*</tt>.</p>
+
+<p><img src="download/attachments/53903534/create-new-role.png" align="absmiddle" border="0"/></p>
+
+<h1><a name="GigaSpacesManagementCenter%28UI%29Security-Login%2FLogout"></a>Login/Logout</h1>
+
+<p>There are two options to perform UI login - directly from the command line or from within the UI.</p>
+
+<p>You may find the command line option convenient when using pre-defined scripts. Use the command line arguments <b><tt>-user</tt></b> and <b><tt>-password</tt></b> with the user credentials.<br/>
+Usage:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gs-ui(.sh/.bat) -user user -password password</pre>
+</div></div>
+
+<h2><a name="GigaSpacesManagementCenter%28UI%29Security-Logindialog"></a>Login dialog</h2>
+<p>To login from within the UI, choose from the title menu bar <b><font color="blue"><tt>Security -&gt; Login</tt></font></b> and the login dialog  will open.<br/>
+<img src="download/attachments/53903534/login-dialog.png" align="absmiddle" border="0"/></p>
+
+<p>In distributed systems, the login credentials are authenticated with each service. Thus, the indication of success or failure is specific to each.<br/>
+The <b><tt>Authentication Monitor</tt></b> dialog appears when you press the <b>OK</b> button, but can also be viewed when pressing the <img src="download/attachments/53903534/logged-in-as.png" align="absmiddle" border="0"/> icon in the bottom-right corner of the screen (appears after Login).</p>
+
+<p><img src="download/attachments/53903534/authentication-monitor.png" align="absmiddle" border="0"/></p>
+
+<ul>
+	<li>A service which has yet been logged into, or login has failed for, will appear as locked <img src="download/attachments/53903534/locked.png" align="absmiddle" border="0"/>.</li>
+	<li>A service for which authentication was successful will be indicated as un-locked <img src="download/attachments/53903534/un-locked.png" align="absmiddle" border="0"/>.</li>
+</ul>
+
+
+<h2><a name="GigaSpacesManagementCenter%28UI%29Security-Logout"></a>Logout</h2>
+<p>To logout, choose from the title menu bar <b><font color="blue"><tt>Security -&gt; Logout</tt></font></b>, which will cause a refresh of all discovered services.</p>
+
+<h1><a name="GigaSpacesManagementCenter%28UI%29Security-ActionsandPrivilegerestrictions"></a>Actions and Privilege restrictions</h1>
+
+<p>If the user lacks sufficient privileges, the UI displays a similar message to the following:<br/>
+<img src="download/attachments/53903534/actions-privileges.png" align="absmiddle" border="0"/></p>
+
+<p>The following table represents some of the actions that the UI disables when there are insufficient privileges.</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Privileges </th>
+<th class='confluenceTh'> Actions </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <b><tt>Provision PU</tt></b> </td>
+<td class='confluenceTd'> Deploy, Undeploy  </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b><tt>Manage PU</tt></b> </td>
+<td class='confluenceTd'> Relocate, Restart PU, Add PU instance, Decrease PU Instance</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b><tt>Manage Grid</tt></b> </td>
+<td class='confluenceTd'> Start/Restart/Terminate GSA agents, Open Administration UI for GSM/GSC</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b><tt>Monitor PU</tt></b> </td>
+<td class='confluenceTd'> Viewing: Event Containers, Remote Services, Classes, Transactions, Statistics, Connections, PU details; <br/>
+Space View: Statistics, Objects and Templates count; Objects count in Cluster Graph View; <br/>
+Administration UI for PU Instance, Runtime Configuration Report</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b><tt>Monitor JVM</tt></b> </td>
+<td class='confluenceTd'> Used memory in Spaces View, Launch JConsole</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b><tt>Alter</tt></b> </td>
+<td class='confluenceTd'> Clean Space, Clean Cluster, Delete objects from Space</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b><tt>Take</tt></b> </td>
+<td class='confluenceTd'> Clear objects from space </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>any Space privilege</tt> </td>
+<td class='confluenceTd'> Query on space, Run benchmark</td>
+</tr>
+</tbody></table>
+
+<h1><a name="GigaSpacesManagementCenter%28UI%29Security-DeploymentWizard"></a>Deployment Wizard</h1>
+
+<p>The Deployment Wizard allows the deployment of a data-grid or a processing unit. In both cases, a GSM needs to be selected from the available list of GSMs. If the GSM is locked, you will be requested to <b>Login</b>. </p>
+
+<p><img src="download/attachments/53903534/select-gsm.png" align="absmiddle" border="0"/></p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> It is important to understand the difference between the credentials supplied to the <b>login</b> dialog and the supplied credentials provided when deploying. The first, is used to authenticate the user against the services discovered by the UI, and allow actions to be performed. One of the actions is to <b>deploy</b>. When you are authorized to deploy, the credentials passed in the deployment dialog are propagated to the Processing Unit.</p>
+
+<h2><a name="GigaSpacesManagementCenter%28UI%29Security-DeployingaSecureddatagrid"></a>Deploying a Secured data-grid</h2>
+
+<p>To deploy a secured data-grid, select the <b><tt>Secured Space</tt></b> checkbox. Supplying credentials is optional. If no credentials are supplied, a secured Space will be instantiated. If credentials are supplied, a secured Space will be instantiated, propagating the credentials to internal services (i.e. Space Filters).</p>
+
+<p><img src="download/attachments/53903534/deployment-wizard.png" align="absmiddle" border="0"/></p>
+
+<h3><a name="GigaSpacesManagementCenter%28UI%29Security-Supplyingcustomproperties"></a>Supplying custom properties</h3>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Security Configurations.html" title="Security Configurations">Security Configurations</a></p>
+<p>Security configuration properties can be supplied, during deployment of a Space, as custom properties; Either from a file or added through the dialog.<br/>
+The custom properties can hold both space configurations and security configurations.</p>
+
+<p><img src="download/attachments/53903534/custom-properties.png" align="absmiddle" border="0"/></p>
+
+<h2><a name="GigaSpacesManagementCenter%28UI%29Security-DeployingaSecuredProcessingUnit"></a>Deploying a Secured Processing Unit</h2>
+
+<p>To deploy a secured processing unit, select the <b><tt>Secured Space</tt></b> checkbox. As with a secured data-grid, supplying credentials is optional. The supplied credentials will be passed to the processing unit, to be propagated to the beans relying on the Space proxy.</p>
+
+<p><em>For example, the <tt>data-processor</tt> has a polling container - when deployed, the credentials supplied need to meet the permissions required by the embedded processing units. In this case, a <b>Take</b> privilege. The <tt>data-feeder</tt> on the other hand, when deployed, needs <b>Write</b> privileges to write into the <tt>data-processor</tt> cluster.</em></p>
+
+<p><img src="download/attachments/53903534/deployment-wizard-pu.png" align="absmiddle" border="0"/></p>
+
+<h3><a name="GigaSpacesManagementCenter%28UI%29Security-Supplyingbeanlevelproperties"></a>Supplying bean level properties</h3>
+
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Security Configurations.html" title="Security Configurations">Security Configurations</a></p>
+<p>Security configuration properties can be supplied, during deployment of a ProcessingUnit, as context bean level properties; Either from a file or added through the dialog.</p>
+
+<p><img src="download/attachments/53903534/bean-level-properties.png" align="absmiddle" border="0"/></p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

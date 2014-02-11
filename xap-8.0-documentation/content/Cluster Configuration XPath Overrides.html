@@ -1,0 +1,280 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Cluster Configuration XPath Overrides</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Cluster Configuration XPath Overrides</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903411";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903411";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Full list of XPath-like keys required to override cluster configuration using a properties file or the <tt>Properties</tt> Java object. </p>
+</div>
+
+<h1><a name="ClusterConfigurationXPathOverrides-Overview"></a>Overview</h1>
+
+<p>You can either use a standard XPath syntax (<tt>/</tt> &#8211; slash notation) or use the GigaSpaces custom syntax (that uses an XPath-like navigation as the name value &#8211; dot notation). GigaSpaces supports the use of standard XPath syntax, using the slash syntax.</p>
+
+<p>Every cluster configuration override must begin with <b><tt>cluster-config</tt></b> (same as with <tt>space-config</tt> for the space schema and <tt>com.j_spaces.core.container</tt> for the space container).</p>
+
+<p>For example, if you are working with a <tt>partitioned-sync2backup</tt> cluster with 2 primaries and 1 backup for each primary, and you want to set other space URLs in the <tt>member-url</tt> element for each cluster member; set the following for each occurrence of <tt>member-url</tt>:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="ClusterConfigurationXPathOverrides-Member1"></a>Member 1</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">/cluster-config/cluster-members/member[1]/member-url=rmi:<span class="code-comment">//some_host1:10081/mySpace_container1/mySpace</span></pre>
+</div></div>
+
+
+<h5><a name="ClusterConfigurationXPathOverrides-Member2"></a>Member 2</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">/cluster-config/cluster-members/member[2]/member-url=rmi:<span class="code-comment">//some_host2:10082/mySpace_container1_1/mySpace</span></pre>
+</div></div>
+
+
+<h5><a name="ClusterConfigurationXPathOverrides-Member3"></a>Member 3</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">/cluster-config/cluster-members/member[3]/member-url=rmi:<span class="code-comment">//some_host3:10083/mySpace_container2/mySpace</span></pre>
+</div></div>
+
+
+<h5><a name="ClusterConfigurationXPathOverrides-Member4"></a>Member 4</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">/cluster-config/cluster-members/member[4]/member-url=rmi:<span class="code-comment">//some_host4:10084/mySpace_container2_1/mySpace</span></pre>
+</div></div>
+</div></div>
+
+<p>To override the load-balancer minimum thread-pool size:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">cluster-config.groups.group.load-bal-policy.proxy-broadcast-threadpool-min-size=33</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>You may find details about each property at the <a href="Failover.html" title="Failover">Failover</a>, <a href="Data-Partitioning.html" title="Data-Partitioning">Data&#45;Partitioning</a> and <a href="Replication.html" title="Replication">Replication</a> sections.</td></tr></table></div>
+
+<h1><a name="ClusterConfigurationXPathOverrides-XPathLikeKeysRequiredtoOverrideClusterConfiguration"></a>XPath-Like Keys Required to Override Cluster Configuration</h1>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">cluster-config.cluster-name
+cluster-config.dist-cache.config-name
+cluster-config.jms.config-name
+cluster-config.description
+cluster-config.notify-recovery
+cluster-config.cache-loader.external-data-source
+cluster-config.cache-loader.central-data-source
+cluster-config.mirror-service.enabled
+cluster-config.mirror-service.url
+cluster-config.mirror-service.bulk-size
+cluster-config.mirror-service.interval-millis
+cluster-config.mirror-service.interval-opers
+cluster-config.cluster-members.member.member-name
+cluster-config.cluster-members.member.member-url
+cluster-config.cluster-members.member.param
+cluster-config.cluster-members.member.param.param-name
+cluster-config.cluster-members.member.param.param-value
+cluster-config.groups.group.group-name
+cluster-config.groups.group.group-members.member
+cluster-config.groups.group.group-members.member.member-name
+cluster-config.groups.group.group-members.member.member-url
+cluster-config.groups.group.group-members.member.repl-transmission-policy.disable-transmission
+cluster-config.groups.group.group-members.member.repl-transmission-policy.target-member
+cluster-config.groups.group.group-members.member.repl-transmission-policy.transmission-operations
+cluster-config.groups.group.group-members.member.repl-transmission-policy.sync-on-commit
+cluster-config.groups.group.group-members.member.repl-transmission-policy.replication-mode
+cluster-config.groups.group.group-members.member.repl-transmission-policy.communication-mode
+cluster-config.groups.group.group-members.member.repl-filters.input-filter-className
+cluster-config.groups.group.group-members.member.repl-filters.input-filter-paramUrl
+cluster-config.groups.group.group-members.member.repl-filters.output-filter-className
+cluster-config.groups.group.group-members.member.repl-filters.output-filter-paramUrl
+cluster-config.groups.group.group-members.member.repl-filters.active-when-backup
+cluster-config.groups.group.group-members.member.repl-filters.shutdown-space-on-init-failure
+cluster-config.groups.group.group-members.member.repl-recovery.enabled
+cluster-config.groups.group.group-members.member.repl-recovery.source-member-name
+cluster-config.groups.group.repl-policy.replication-mode
+cluster-config.groups.group.repl-policy.permitted-operations
+cluster-config.groups.group.repl-policy.policy-type
+cluster-config.groups.group.repl-policy.recovery
+cluster-config.groups.group.repl-policy.replicate-notify-templates
+cluster-config.groups.group.repl-policy.trigger-notify-templates
+cluster-config.groups.group.repl-policy.repl-find-timeout
+cluster-config.groups.group.repl-policy.repl-find-report-interval
+cluster-config.groups.group.repl-policy.repl-original-state
+cluster-config.groups.group.repl-policy.communication-mode
+cluster-config.groups.group.repl-policy.redo-log-capacity
+cluster-config.groups.group.repl-policy.recovery-chunk-size
+cluster-config.groups.group.repl-policy.async-replication.repl-original-state
+cluster-config.groups.group.repl-policy.async-replication.sync-on-commit
+cluster-config.groups.group.repl-policy.async-replication.sync-on-commit-timeout
+cluster-config.groups.group.repl-policy.async-replication.repl-chunk-size
+cluster-config.groups.group.repl-policy.async-replication.repl-interval-millis
+cluster-config.groups.group.repl-policy.async-replication.repl-interval-opers
+cluster-config.groups.group.repl-policy.async-replication.reliable
+cluster-config.groups.group.repl-policy.sync-replication.todo-queue-timeout
+cluster-config.groups.group.repl-policy.sync-replication.hold-txn-lock
+cluster-config.groups.group.repl-policy.sync-replication.multiple-opers-chunk-size
+cluster-config.groups.group.repl-policy.sync-replication.unicast.min-work-threads
+cluster-config.groups.group.repl-policy.sync-replication.unicast.max-work-threads
+cluster-config.groups.group.repl-policy.sync-replication.multicast.adaptive
+cluster-config.groups.group.repl-policy.sync-replication.multicast.ip-group
+cluster-config.groups.group.repl-policy.sync-replication.multicast.port
+cluster-config.groups.group.repl-policy.sync-replication.multicast.ttl
+cluster-config.groups.group.repl-policy.sync-replication.multicast.ack-interval
+cluster-config.groups.group.repl-policy.sync-replication.multicast.response-timeout
+cluster-config.groups.group.repl-policy.sync-replication.multicast.min-work-threads
+cluster-config.groups.group.repl-policy.sync-replication.multicast.max-work-threads
+cluster-config.groups.group.load-bal-policy.load-bal-impl-class
+cluster-config.groups.group.load-bal-policy.apply-ownership
+cluster-config.groups.group.load-bal-policy.disable-parallel-scattering
+cluster-config.groups.group.load-bal-policy.proxy-broadcast-threadpool-min-size
+cluster-config.groups.group.load-bal-policy.proxy-broadcast-threadpool-max-size
+cluster-config.groups.group.load-bal-policy.write.policy-type
+cluster-config.groups.group.load-bal-policy.write.param.param-name
+cluster-config.groups.group.load-bal-policy.write.param.param-value
+cluster-config.groups.group.load-bal-policy.write.broadcast-condition
+cluster-config.groups.group.load-bal-policy.read.policy-type
+cluster-config.groups.group.load-bal-policy.read.param.param-name
+cluster-config.groups.group.load-bal-policy.read.param.param-value
+cluster-config.groups.group.load-bal-policy.read.broadcast-condition
+cluster-config.groups.group.load-bal-policy.take.policy-type
+cluster-config.groups.group.load-bal-policy.take.param.param-name
+cluster-config.groups.group.load-bal-policy.take.param.param-value
+cluster-config.groups.group.load-bal-policy.take.broadcast-condition
+cluster-config.groups.group.load-bal-policy.notify.policy-type
+cluster-config.groups.group.load-bal-policy.notify.param.param-name
+cluster-config.groups.group.load-bal-policy.notify.param.param-value
+cluster-config.groups.group.load-bal-policy.notify.broadcast-condition
+cluster-config.groups.group.load-bal-policy.default.policy-type
+cluster-config.groups.group.load-bal-policy.default.param.param-name
+cluster-config.groups.group.load-bal-policy.default.param.param-value
+cluster-config.groups.group.load-bal-policy.default.broadcast-condition
+cluster-config.groups.group.fail-over-policy.fail-back
+cluster-config.groups.group.fail-over-policy.fail-over-find-timeout
+cluster-config.groups.group.fail-over-policy.write.policy-type
+cluster-config.groups.group.fail-over-policy.write.disable-alternate-group
+cluster-config.groups.group.fail-over-policy.write.backup-members.member
+cluster-config.groups.group.fail-over-policy.write.backup-members.member.source-member
+cluster-config.groups.group.fail-over-policy.write.backup-members.member.backup-member
+cluster-config.groups.group.fail-over-policy.write.backup-members-only
+cluster-config.groups.group.fail-over-policy.write.backup-members-only.backup-member-only
+cluster-config.groups.group.fail-over-policy.read.policy-type
+cluster-config.groups.group.fail-over-policy.read.disable-alternate-group
+cluster-config.groups.group.fail-over-policy.read.backup-members.member.source-member
+cluster-config.groups.group.fail-over-policy.read.backup-members.member.backup-member
+cluster-config.groups.group.fail-over-policy.read.backup-members-only.backup-member-only
+cluster-config.groups.group.fail-over-policy.take.policy-type
+cluster-config.groups.group.fail-over-policy.take.disable-alternate-group
+cluster-config.groups.group.fail-over-policy.take.backup-members.member
+cluster-config.groups.group.fail-over-policy.take.backup-members.member.source-member
+cluster-config.groups.group.fail-over-policy.take.backup-members.member.backup-member
+cluster-config.groups.group.fail-over-policy.take.backup-members-only.backup-member-only
+cluster-config.groups.group.fail-over-policy.notify.policy-type
+cluster-config.groups.group.fail-over-policy.notify.disable-alternate-group
+cluster-config.groups.group.fail-over-policy.notify.backup-members.member
+cluster-config.groups.group.fail-over-policy.notify.backup-members.member.source-member
+cluster-config.groups.group.fail-over-policy.notify.backup-members.member.backup-member
+cluster-config.groups.group.fail-over-policy.notify.backup-members-only
+cluster-config.groups.group.fail-over-policy.notify.backup-members-only.backup-member-only
+cluster-config.groups.group.fail-over-policy.default.policy-type
+cluster-config.groups.group.fail-over-policy.default.disable-alternate-group
+cluster-config.groups.group.fail-over-policy.default.backup-members.member
+cluster-config.groups.group.fail-over-policy.default.backup-members.member.source-member
+cluster-config.groups.group.fail-over-policy.default.backup-members.member.backup-member
+cluster-config.groups.group.fail-over-policy.default.backup-members-only
+cluster-config.groups.group.fail-over-policy.default.backup-members-only.backup-member-only
+cluster-config.groups.group.fail-over-policy.alternate-groups.group
+cluster-config.groups.group.fail-over-policy.active-election.connection-retries
+cluster-config.groups.group.fail-over-policy.active-election.yield-time
+cluster-config.groups.group.fail-over-policy.active-election.fault-detector.invocation-delay
+cluster-config.groups.group.fail-over-policy.active-election.fault-detector.retry-count
+cluster-config.groups.group.fail-over-policy.active-election.fault-detector.retry-timeout</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

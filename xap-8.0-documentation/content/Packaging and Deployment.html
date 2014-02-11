@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Packaging and Deployment</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Packaging and Deployment</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  This section deals with the internals of the GigaSpaces XAP packaging and deployment unit, namely the processing unit. It explains how to create it and how to run it in the various runtime modes. </p>
+</div>
+
+<h1><a name="PackagingandDeployment-Overview"></a>Overview </h1>
+<p>The processing unit is the unit of packaging and deployment in the GigaSpaces XAP platform.</p>
+
+<p>This section details the anatomy and details of the processing unit. It describes the various processing unit types,  explains its directory structure, deployment descriptor, SLA attributes and how you can debug, run and deploy it on to the GigaSpaces XAP runtime environment. </p>
+
+<h1><a name="PackagingandDeployment-ProcessingUnitsThePackaging%26DeploymentUnit"></a>Processing Units - The Packaging &amp; Deployment Unit </h1>
+
+<p>GigaSpaces applications are composed of one or more processing units. Generally speaking, a processing unit is simply a .jar file which contains your application classes, any jars it depends on, and a <a href="Configuring Processing Unit Elements.html" title="Configuring Processing Unit Elements">deployment descriptor</a>. </p>
+
+<p>GigaSpaces XAP deployment configuration utilizes the <a href="http://www.springframework.org">Spring Framework</a>. A processing unit configuration is actually a Spring framework XML configuration with GigaSpaces-specific namespace bindings to reflect the GigaSpaces specific attributes of the processing unit. Unlike a plain Spring application, a processing unit defines its <b>Service Level Agreement</b> (SLA). </p>
+
+<p>The SLA can determine the amount of processing unit instances, the deployment constraints for it (e.g. specific IP range), the topology of the data grid contained in it (see below) and more. </p>
+
+<p>When a processing unit is deployed to <a href="The Runtime Environment.html" title="The Runtime Environment">the GigaSpaces runtime environment</a>, one or more <b>processing unit instances</b> are created and provisioned to the running <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GigaSpaces containers</a>. The amount of processing unit instances depends on the configuration of the processing unit. </p>
+
+<p>In general, there are 3 types of processing units: Data only, business-logic only and mixed processing units (which contain both data and business logic). The data container for processing units is GigaSpaces' in memory data grid (IMDG) implementation, which is called the <b>Space</b>. </p>
+
+<p>The space can be accessed via various APIs, and can be deployed in multiple <a href="Space Topologies.html" title="Space Topologies">topologies</a> (which determine how the data is distributed across the cluster). It can be replicated (in which case the objects written to it are replicated across the cluster) or partitioned (in which case objects are distributed across multiple instances). If it's partitioned, it may also have backups for each partition. </p>
+
+<p><img src="download/attachments/53903718/topologies.jpg" align="absmiddle" border="0"/></p>
+
+<h3><a name="PackagingandDeployment-Dataonlyprocessingunits"></a>Data only processing units</h3>
+
+<p>This type of processing units does not include any business logic, only a Space. The processing unit simply defines the runtime characteristics of the space, i.e. its runtime topology, the number of space replicas/partitions, etc. </p>
+
+<h3><a name="PackagingandDeployment-Businesslogiconlyprocessingunits"></a>Business-logic only processing units</h3>
+
+<p>This type of processing units include only your application's code. Typically, your code interacts with a remote Space (defined by another processing unit), but that's not mandatory. It can even be a plain Spring application context definition.</p>
+
+<h3><a name="PackagingandDeployment-Mixedprocessingunits"></a>Mixed processing units</h3>
+
+<p>This type of processing units includes both business logic and a space. Typically, the business logic interacts with a local space instance (i.e. an data grid instance running within the same processing unit instance) to achieve lowest possible latency and best performance. </p>
+
+<p>In such processing units, the processing unit state is directly related to that of the space instance it contains. If the space instance is in backup mode, the entire processing unit is in backup mode, which means that the business logic services which access the local space are not active. Upon failover, when the backup becomes primary, the business logic services also kick in and start working. </p>
+
+<p><img src="download/attachments/53903718/putypes.jpg" align="absmiddle" border="0"/></p>
+
+<p>In recent versions (since XAP 6.6), the processing unit concept has been expanded to include <a href="Web Application Support.html" title="Web Application Support">web applications</a> and <a href="Mule ESB.html" title="Mule ESB">Mule ESB applications</a>, so you can deploy these types of applications onto the GigaSpaces runtime environment and assign SLA attributes to them. </p>
+
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903718";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903718";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="PackagingandDeployment-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="The Processing Unit Structure and Configuration.html" title="The Processing Unit Structure and Configuration">The Processing Unit Structure and Configuration</a> &mdash; <span class="smalltext">This page describes the processing unit directory structure</span><ul><li><a href="Configuring Processing Unit Elements.html" title="Configuring Processing Unit Elements">Configuring Processing Unit Elements</a> &mdash; <span class="smalltext">This page describes the processing unit deployment configuration file (<tt>pu.xml</tt>)</span></li><li><a href="Configuring the Processing Unit SLA.html" title="Configuring the Processing Unit SLA">Configuring the Processing Unit SLA</a> &mdash; <span class="smalltext">The GigaSpaces runtime environment, aka Service Grid, provides SLA-driven capabilities when deploying and running processing units by using the available <a href="The GigaSpaces Container.html" title="The GigaSpaces Container">GSCs</a> as a dynamic pool of processes which can host the processing unit</span></li><li><a href="Deployment Properties.html" title="Deployment Properties">Deployment Properties</a> &mdash; <span class="smalltext">The processing unit can be injected with dynamic property values at deployment time. The mechanism leverages Spring's <a href="http://static.springframework.org/spring/docs/2.5.x/reference/beans.html#beans-factory-placeholderconfigurer"><tt>PropertyPlaceholderConfigurer</tt></a> to provide powerful and simple properties-based injection.</span></li></ul></li><li><a href="Deploying and Running the Processing Unit.html" title="Deploying and Running the Processing Unit">Deploying and Running the Processing Unit</a> &mdash; <span class="smalltext">This section describes the various options to debug and run your processing units</span><ul><li><a href="Deploying onto the Service Grid.html" title="Deploying onto the Service Grid">Deploying onto the Service Grid</a> &mdash; <span class="smalltext">Explains how to deploy your processing unit onto the GigaSpaces <a href="The Runtime Environment.html" title="The Runtime Environment">Service Grid</a> to get automated SLA management and self-healing capabilities</span></li><li><a href="Running and Debugging Within Your IDE.html" title="Running and Debugging Within Your IDE">Running and Debugging Within Your IDE</a> &mdash; <span class="smalltext">Explains how to run your processing unit inside your IDE or in unit tests</span></li><li><a href="Running in Standalone Mode.html" title="Running in Standalone Mode">Running in Standalone Mode</a> &mdash; <span class="smalltext">Explains how to run your processing unit in standalone mode, which means that the processing unit is run under its own self-constructed classloader, based on the processing unit's directory  structure.</span></li></ul></li><li><a href="Obtaining Cluster Information.html" title="Obtaining Cluster Information">Obtaining Cluster Information</a> &mdash; <span class="smalltext">Obtaining information about the clustering topology, member id and other cluster related information can be useful in many cases. Cluster information can be provided to the processing unit instances at deployment time via the class <tt>org.openspaces.core.cluster.ClusterInfo</tt>, which can be injected into the processing unit components</span></li></ul>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

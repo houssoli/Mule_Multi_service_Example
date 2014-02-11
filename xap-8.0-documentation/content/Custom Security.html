@@ -1,0 +1,495 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Custom Security</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Custom Security</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903521";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903521";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Customize the security based on your application requirements </p>
+</div>
+
+<h1><a name="CustomSecurity-Introduction"></a>Introduction</h1>
+<p>This section introduces the architecture and customizable API that can be leveraged to implement your own security requirements, or integrate with already existing standards (i.e. <a href="Spring Security Bridge.html" title="Spring Security Bridge">Spring Security</a>).</p>
+
+<p>Before you start, consider the extensions of our default file-based implementation which allow you to replace the encoding and to reference a security file on an HTTP server. <br/>
+This section assumes that you are familiar with the configuration concepts presented in <a href="Security Configurations.html" title="Security Configurations">Security Configurations</a> and <a href="Default File-Based Security Implementation.html" title="Default File-Based Security Implementation">Default File&#45;Based Security Implementation</a>.</p>
+
+<h1><a name="CustomSecurity-Customizableinterfaces"></a>Customizable interfaces</h1>
+<p>There are two main interfaces from which customization begins. Usually you would need to implement both as they are the protocol for establishing authentication. The <b><tt>SecurityManager</tt></b> is the main interface which includes an authentication manager running at the server-side (GSM, GSC, Space).</p>
+
+<p>The <b><tt>UserDetails</tt></b> interface provides core security credentials (username and password) for authentication. Custom security implementations may require different credentials to complete an authentication. The <tt>UserDetails</tt> are the authentication details passed to the <tt>SecurityManager</tt> upon the call to <tt>authenticate</tt>.</p>
+
+<p>An <em>optional</em> interface is the <b><tt>DirectoryManager</tt></b> which is used to access users and roles stored in some external directory - specifically used for tooling. In our default implementation, it is possible to manage the users and roles stored in a local file using the UI.</p>
+
+<h1><a name="CustomSecurity-PackagingandClasspath"></a>Packaging and Classpath</h1>
+
+<p>Your custom implementation class jars should be located under the <tt>lib/optional/security</tt> directory.<br/>
+This directory acts as a common directory for all services using the <b>same</b> custom security.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;GigaSpaces root&gt;/lib/optional/security/my-custom-security.jar</pre>
+</div></div>
+
+
+<p>Processing units may share a custom security implementation that may <ins>differ</ins> from that of the GSM and GSCs. In this case, the custom security jar can be placed under <tt>pu-common</tt>.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;GigaSpaces root&gt;/lib/optional/pu-common/my-pu-custom-security.jar</pre>
+</div></div>
+
+
+<p>If each processing unit has its <b>own</b> custom security implementation, the custom security jar can be part of the processing unit distribution.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;GigaSpaces root&gt;/deploy/hello-processor/lib/my-processor-custom-security.jar</pre>
+</div></div>
+
+<p><br clear="all" /></p>
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The custom security jar should only contain the relevant security classes</td></tr></table></div>
+
+<h1><a name="CustomSecurity-Custom%7B%7BSecurityManager%7D%7D"></a>Custom <tt>SecurityManager</tt></h1>
+
+<p>The <tt>SecurityManager</tt> Interface has the following methods:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-object">SecurityManager</span> {
+    void init(Properties properties) <span class="code-keyword">throws</span> SecurityException;
+    Authentication authenticate(UserDetails userDetails) <span class="code-keyword">throws</span> AuthenticationException;
+    DirectoryManager createDirectoryManager(UserDetails userDetails) <span class="code-keyword">throws</span> AuthenticationException, AccessDeniedException;
+    void close();
+}</pre>
+</div></div>
+
+<p>The <tt>SecurityManager</tt> can be configured (via init method) by custom properties supplied as part of the security properties file.</p>
+
+<h2><a name="CustomSecurity-Configuration"></a>Configuration</h2>
+
+<p>The property key <tt>com.gs.security.security-manager.class</tt> defines the <tt>SecurityManager</tt> class to instantiate. This property key is located either in the security.properties file, component xxx-security.properties file, or as part of the pu.properties (see <a href="Security Configurations.html" title="Security Configurations">Security Configurations</a>).</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.gs.security.security-manager.class = eg.security.MyCustomSecurity
+eg.security.my-property-key = my-property-value</pre>
+</div></div>
+
+<h2><a name="CustomSecurity-Custom%7B%7BSecurityManager%7D%7DImplementationExample%3A"></a>Custom <tt>SecurityManager</tt> Implementation Example:</h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">package</span> eg.security;
+
+<span class="code-keyword">import</span>...
+
+<span class="code-keyword">public</span> class MyCustomSecurity <span class="code-keyword">implements</span> <span class="code-object">SecurityManager</span> {
+
+    <span class="code-keyword">public</span> void init(Properties properties) <span class="code-keyword">throws</span> SecurityException {
+        <span class="code-object">System</span>.out.println(<span class="code-quote">"\n *** MyCustomSecurity initialized \n"</span>);
+    }
+	
+    <span class="code-keyword">public</span> void close() {
+    }
+	
+    <span class="code-keyword">public</span> Authentication authenticate(UserDetails userDetails) <span class="code-keyword">throws</span> AuthenticationException {
+        <span class="code-keyword">if</span> (!userDetails <span class="code-keyword">instanceof</span> MyUserDetails) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> AuthenticationException(<span class="code-quote">"Unsupported credentials"</span>);
+        }
+
+        MyUserDetails customUserDetails = (MyUserDetails)userDetails;
+        <span class="code-object">String</span> kerberosId = customUserDetails.getKerberosId();
+
+        <span class="code-comment">//authenticate using kerberosId
+</span>        <span class="code-comment">//<span class="code-keyword">if</span> not authenticated, <span class="code-keyword">throw</span> AuthenticationException
+</span>        ... 
+
+        <span class="code-comment">//Extract privileges and populate a <span class="code-keyword">new</span> UserDetails instance
+</span>        <span class="code-comment">//usually these will be taken from some repository
+</span>        <span class="code-comment">//--
+</span>        <span class="code-comment">//<span class="code-keyword">for</span> <span class="code-keyword">this</span> example - we give them full grid privileges and full space privileges once authenticated
+</span>        MyUserDetails populatedUserDetails = <span class="code-keyword">new</span> MyUserDetails(kerberosId);
+        populatedUserDetails.setAuthorities(<span class="code-keyword">new</span> Authority[] { 
+                        <span class="code-keyword">new</span> GridAuthority(GridPrivilege.MANAGE_GRID),
+                        <span class="code-keyword">new</span> GridAuthority(GridPrivilege.MANAGE_PU),
+                        <span class="code-keyword">new</span> GridAuthority(GridPrivilege.PROVISION_PU),
+                        <span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.WRITE),
+                        <span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.READ),
+                        <span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.TAKE)});
+ 
+        Authentication a = <span class="code-keyword">new</span> Authentication( populatedUserDetails );
+        <span class="code-keyword">return</span> a;
+    }
+
+    <span class="code-keyword">public</span> DirectoryManager createDirectoryManager(UserDetails userDetails) 
+                                <span class="code-keyword">throws</span> AuthenticationException, AccessDeniedException {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> DirectoryAccessDeniedException(<span class="code-quote">"Not supported, only an example"</span>);
+    }
+}</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Note that in the example we use a custom implementation of <tt>UserDetails</tt>, instead of, the default <tt>User</tt> as the <tt>UserDetails</tt> implementation.</p>
+
+<h1><a name="CustomSecurity-Custom%7B%7BUserDetails%7D%7D"></a>Custom <tt>UserDetails</tt></h1>
+
+<p>The <tt>UserDetails</tt> interface provides core user information. The username and password are accessed by the default security implementation, but can otherwise be ignored.</p>
+
+<p>The only requirement is for the <tt>SecurityManager.authenticate</tt> method to return an <tt>Authentication</tt> object, which is fully populated with authorities extracted from the <tt>UserDetails</tt>.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> com.gigaspaces.security.directory.UserDetails <span class="code-keyword">extends</span> java.io.Serializable {
+  <span class="code-keyword">public</span> <span class="code-keyword">abstract</span> com.gigaspaces.security.Authority[] getAuthorities();
+  <span class="code-keyword">public</span> <span class="code-keyword">abstract</span> java.lang.<span class="code-object">String</span> getPassword();
+  <span class="code-keyword">public</span> <span class="code-keyword">abstract</span> java.lang.<span class="code-object">String</span> getUsername();
+}</pre>
+</div></div>
+
+<h2><a name="CustomSecurity-Custom%7B%7BUserDetails%7D%7DImplementationExample%3A"></a>Custom <tt>UserDetails</tt> Implementation Example:</h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyUserDetails <span class="code-keyword">implements</span> UserDetails {
+
+	<span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">final</span> <span class="code-object">long</span> serialVersionUID = 1L;
+	<span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-object">String</span> kerberosId;
+	<span class="code-keyword">private</span> Authority[] authorities;
+
+	<span class="code-keyword">public</span> MyUserDetails(<span class="code-object">String</span> kerberosId) {
+		<span class="code-keyword">this</span>.kerberosId = kerberosId;
+	}
+	
+	<span class="code-keyword">public</span> <span class="code-object">String</span> getKerberosId() {
+		<span class="code-keyword">return</span> kerberosId;
+	}
+	
+	<span class="code-keyword">public</span> Authority[] getAuthorities() {
+		<span class="code-keyword">return</span> authorities;
+	}
+	
+	<span class="code-keyword">public</span> void setAuthorities(Authority[] authorities) {
+		<span class="code-keyword">this</span>.authorities = authorities;
+	}
+
+	<span class="code-keyword">public</span> <span class="code-object">String</span> getPassword() {
+		<span class="code-keyword">return</span> <span class="code-keyword">null</span>; <span class="code-comment">//none
+</span>	}
+
+	<span class="code-keyword">public</span> <span class="code-object">String</span> getUsername() {
+		<span class="code-keyword">return</span> <span class="code-keyword">null</span>; <span class="code-comment">//none
+</span>	}
+}</pre>
+</div></div>
+
+<p>Custom <tt>UserDetails</tt> can be provided in several ways, as follows:</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="CustomSecurity-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>When creating an embedded secured Space:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"myUserDetails"</span> class=<span class="code-quote">"eg.MyUserDetails"</span>&gt;</span>
+    <span class="code-tag">&lt;constructor-arg&gt;</span>
+        <span class="code-tag">&lt;value&gt;</span>88f343f63c2bf646<span class="code-tag">&lt;/value&gt;</span>
+    <span class="code-tag">&lt;/constructor-arg&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./mySpace"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:security user-details=<span class="code-quote">"myUserDetails"</span> /&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div>
+
+<p>When looking up a secured Space:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">...
+&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini:<span class="code-comment">//*/*/mySpace"</span>&gt;
+</span>    &lt;os-core:security user-details=<span class="code-quote">"myUserDetails"</span> /&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+
+<h5><a name="CustomSecurity-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>When creating an embedded secured Space:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"myUserDetails"</span> class=<span class="code-quote">"eg.MyUserDetails"</span>&gt;</span>
+    <span class="code-tag">&lt;constructor-arg&gt;</span>
+        <span class="code-tag">&lt;value&gt;</span>88f343f63c2bf646<span class="code-tag">&lt;/value&gt;</span>
+    <span class="code-tag">&lt;/constructor-arg&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span>&gt;</span><span class="code-tag">&lt;value&gt;</span><span class="code-quote">"/./mySpace"</span><span class="code-tag">&lt;/value&gt;</span><span class="code-tag">&lt;/property&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"userDetails"</span>&gt;</span><span class="code-tag">&lt;ref local=<span class="code-quote">"myUserDetails"</span>/&gt;</span><span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+<p>When looking up a secured Space:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">...
+<span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span>&gt;</span><span class="code-tag">&lt;value&gt;</span><span class="code-quote">"jini://*/*/mySpace"</span><span class="code-tag">&lt;/value&gt;</span><span class="code-tag">&lt;/property&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"userDetails"</span>&gt;</span><span class="code-tag">&lt;ref local=<span class="code-quote">"myUserDetails"</span>/&gt;</span><span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="CustomSecurity-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">UrlSpaceConfigurer urlSpaceConfigurer = new UrlSpaceConfigurer(<span class="code-quote">"/./mySpace"</span>).userDetails( new MyUserDetails(<span class="code-quote">"88f343f63c2bf646"</span>) );
+GigaSpace gigaSpace = new GigaSpaceConfigurer(urlSpaceConfigurer).gigaSpace();</pre>
+</div></div>
+
+
+<h5><a name="CustomSecurity-ConstructinganAdmininstance"></a>Constructing an Admin instance</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Admin admin = <span class="code-keyword">new</span> AdminFactory().userDetails( <span class="code-keyword">new</span> MyUserDetails(<span class="code-quote">"88f343f63c2bf646"</span>) ).createAdmin();</pre>
+</div></div>
+
+
+<h5><a name="CustomSecurity-SpaceDeployment"></a>Space Deployment</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">...
+admin.getGridServiceManagers().deploy(<span class="code-keyword">new</span> SpaceDeployment(<span class="code-quote">"mySpace"</span>).userDetails( <span class="code-keyword">new</span> MyUserDetails(<span class="code-quote">"88f343f63c2bf646"</span>) ));</pre>
+</div></div>
+
+
+<h5><a name="CustomSecurity-ProcessingUnitDeployment"></a>Processing Unit Deployment</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">...
+admin.getGridServiceManagers().deploy(<span class="code-keyword">new</span> ProcessingUnitDeployment(<span class="code-quote">"myPu"</span>).userDetails( <span class="code-keyword">new</span> MyUserDetails(<span class="code-quote">"88f343f63c2bf646"</span>) ));</pre>
+</div></div>
+</div></div>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> At this time the UI and CLI do not provide means for instantiating your custom <tt>UserDetails</tt>.</p>
+
+<h2><a name="CustomSecurity-Custom%7B%7BUserDetails%7D%7DloginusingtheUI"></a>Custom <tt>UserDetails</tt> login using the UI <span class="" style="background-color: orange;">(Since 8.0.1)</span>
+</h2>
+
+<p>The "Custom Login" option can be accessed using the drop-down menu of the "Security" menu.</p>
+
+<p><img src="download/attachments/53903521/customlogin-option.png" align="absmiddle" border="0"/></p>
+
+<p>The "Custom Login" dialog allows to input the class name of the <tt>UserDetailsProvider</tt> implementation and the required properties.<br/>
+The implementation class can be placed in a JAR under <tt>Gigaspaces\lib\platform\ext</tt> or anywhere in the classpath of the UI.</p>
+
+<p><img src="download/attachments/53903521/customlogin-properties.png" align="absmiddle" border="0"/></p>
+
+<p>The <tt>UserDetailsProvider</tt> interface takes a properties object and returns a <tt>UserDetails</tt> instance. </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> UserDetailsProvider {
+    UserDetails create( Properties properties ) <span class="code-keyword">throws</span> Exception;
+}</pre>
+</div></div>
+
+<p>An example implementation may be as follows:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class MyUserDetailsProvider <span class="code-keyword">implements</span> UserDetailsProvider {
+    <span class="code-keyword">public</span> UserDetails create( Properties properties ) <span class="code-keyword">throws</span> Exception {
+        <span class="code-object">String</span> kerberosId = properties.getProperty(<span class="code-quote">"kerberos-id"</span>);
+        <span class="code-keyword">if</span> (kerberosId == <span class="code-keyword">null</span>)
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> IllegalArgumentException(<span class="code-quote">"Missing kerberos-id property"</span>);
+
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> MyUserDetails(kerberosId);
+    }
+}</pre>
+</div></div>
+
+<h4><a name="CustomSecurity-SettingaCustomUserDetailsProvider"></a>Setting a Custom UserDetailsProvider</h4>
+
+<p>It might be convenient if you only have one provider, to set it prior to launching the UI. This will automatically set it as the "user details provider class".</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gs-ui(.sh/.bat) -user-details-provider com.mycompany.security.custom.MyUserDetailsProvider</pre>
+</div></div>
+
+<h2><a name="CustomSecurity-Custom%7B%7BUserDetails%7D%7DloginusingtheCLI"></a>Custom <tt>UserDetails</tt> login using the CLI <span class="" style="background-color: orange;">(Since 8.0.1)</span>
+</h2>
+
+<p>For a full list of command usage, please refer to: <a href="Command Line Interface (CLI) Security.html" title="Command Line Interface (CLI) Security">Command Line Interface &#40;CLI&#41; Security</a></p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="CustomSecurity-Interactive"></a>Interactive</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>Run the <tt>gs</tt> script and use the command line arguments <b><tt>-user-details-provider</tt></b> and <b><tt>-user-details-properties</tt></b> with the user credentials.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gs(.sh/bat) -user-details-provider com.mycompany.security.custom.MyUserDetailsProvider -user-details-properties prop1=value1;prop2=value2</pre>
+</div></div>
+
+<p>or, run the <tt>gs</tt> script, and then use the <b><tt>login</tt></b> command</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gs(.sh/bat)
+gs&gt; login -user-details-provider com.mycompany.security.custom.MyUserDetailsProvider -user-details-properties prop1=value1;prop2=value2
+gs&gt; ...</pre>
+</div></div>
+
+
+<h5><a name="CustomSecurity-NonInteractive"></a>Non-Interactive</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>Run the <tt>gs</tt> script, and prefix <b>any</b> command with the command line arguments <b><tt>-user-details-provider</tt></b> and <b><tt>-user-details-properties</tt></b>.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gs(.sh/.bat) -user-details-provider com.mycompany.security.custom.MyUserDetailsProvider -user-details-properties prop1=value1;prop2=value2 [command]</pre>
+</div></div>
+</div></div>
+
+
+<h1><a name="CustomSecurity-Theauthenticationprocess"></a>The authentication process</h1>
+
+<p>The authentication process of a <em>principal</em> is done at the server side. The <tt>SecurityManager#authenticate</tt> method is responsible for authenticating the <tt>UserDetails</tt> supplied as part of the authentication request.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Authentication authenticate(UserDetails userDetails) <span class="code-keyword">throws</span> AuthenticationException;</pre>
+</div></div>
+
+<p>The <tt>UserDetails</tt> are encrypted at the proxy and decrypted at the server. This encryption is internal to GigaSpaces. This should not be confused with the encryption used by your custom implementation to encrypt the user details/password. For example, our default file-based security implementation hashes the user password, and encrypts the file contents.</p>
+
+<h2><a name="CustomSecurity-TheAuthenticationObject"></a>The Authentication Object</h2>
+
+<p>The <tt>Authentication</tt> object returned by the <tt>authenticate</tt> method receives a <tt>UserDetails</tt> from which it extracts the authorities. After confirming the authenticity, the implementation must populate the <tt>UserDetails</tt> with the authorities extracted from some storage. The <tt>Authority</tt> can be constructed using an <tt>AuthorityFactory</tt> if it has been kept in its String representation.</p>
+
+<h3><a name="CustomSecurity-Populatingwithauthorities"></a>Populating with authorities</h3>
+
+<p>The authorities returned are a flat representation of all the authorities this user has been granted. This means that if the user has been granted a <em>role</em> then the flat representation would be all the authorities this role represents.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> You may find it convenient using our constructs. GigaSpaces security represents roles as an <tt>Authority</tt>. The <tt>RoleAuthority</tt> is a place holder for the role name. When populating a <tt>UserDetails</tt> a <tt>PopulatedRoleAuthority</tt> can be used to store the role-name and all the authorities it represents.</p>
+
+<p>You can implement roles as you wish. As long as the authorities returned by <tt>UserDetails#getAuthorities()</tt> are a flat representation of all the authorities granted to this user.</p>
+
+<h1><a name="CustomSecurity-User%2FRolemanagement"></a>User/Role management</h1>
+
+<p>The <tt>DirectoryManager</tt> interface provides an API for managing users and roles. Implementing this interface is <b>optional</b> - and is usually the case if you have an external tool that manages it for you.</p>
+
+<p>From the <tt>DirectoryManager</tt> you can gain a <tt>UserManager</tt> interface and a <tt>RoleManager</tt> interface. Use the <tt>UserManager</tt> interface to create, delete, update <tt>UserDetails</tt> and the <tt>RoleManager</tt> interface to create, delete, update <tt>RoleDetails</tt>. This is just a logical separation - in reality you can choose how you want your users to be stored, and how you structure the one-to-many role to user relationship.</p>
+
+<p>GigaSpaces security is not aware of the directory at all. As long as the authentication process manages to access the user storage, authenticate the user and return all its authorities.</p>
+
+<h2><a name="CustomSecurity-Exampleusageofthe%7B%7BDirectoryManager%7D%7DAPI"></a>Example usage of the <tt>DirectoryManager</tt> API</h2>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Securing the HelloWorld example.html" title="Securing the HelloWorld example">Securing the HelloWorld example</a></p>
+
+<p>In the Hello World example, we presented a way to declare the users using the UI. It can also be done using the <tt>DirectoryManager</tt> API. </p>
+
+<p>Using the API we would like to declare the following:</p>
+<blockquote>
+<p>The "helloProcessor" user will be granted <b><tt>Take</tt></b> access for <tt>HelloObject</tt> and <b><tt>Write</tt></b> access for <tt>ProcessedHelloObject</tt>.<br/>
+The "helloFeeder" user will be granted <b><tt>Write</tt></b> access for <tt>HelloObject</tt> and <b><tt>Read</tt></b> access for <tt>ProcessedHelloObject</tt>.</p></blockquote>
+
+<p>The GigaSpaces <tt>User</tt> is the default implementation of <tt>UserDetails</tt>. It accepts an array or a sequence of <tt>Authority</tt>-ies (<tt>varargs</tt>). Here we added the <tt>ClassFilter</tt> to restrict access to this specific class.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Properties securityProperties = <span class="code-keyword">new</span> Properties();
+<span class="code-object">SecurityManager</span> securityManager = SecurityFactory.createSecurityManager(securityProperties);
+
+DirectoryManager directoryManager = securityManager.createDirectoryManager(<span class="code-keyword">new</span> User(<span class="code-quote">"admin"</span>, <span class="code-quote">"admin"</span>));
+UserManager userManager = directoryManager.getUserManager();
+
+userManager.createUser(<span class="code-keyword">new</span> User(<span class="code-quote">"helloProcessor"</span>, <span class="code-quote">"helloWorld"</span>,
+        <span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.TAKE, <span class="code-keyword">new</span> ClassFilter(<span class="code-quote">"org.openspaces.example.helloworld.common.HelloObject"</span>)),
+        <span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.WRITE, <span class="code-keyword">new</span> ClassFilter(<span class="code-quote">"org.openspaces.example.helloworld.common.HelloObject"</span>))
+));
+
+userManager.createUser(<span class="code-keyword">new</span> User(<span class="code-quote">"helloFeeder"</span>, <span class="code-quote">"feedTheWorld"</span>,
+        <span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.WRITE, <span class="code-keyword">new</span> ClassFilter(<span class="code-quote">"org.openspaces.example.helloworld.common.HelloObject"</span>)),
+        <span class="code-keyword">new</span> SpaceAuthority(SpacePrivilege.READ, <span class="code-keyword">new</span> ClassFilter(<span class="code-quote">"org.openspaces.example.helloworld.common.HelloObject"</span>))
+));
+
+directoryManager.close();
+securityManager.close();</pre>
+</div></div>
+
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

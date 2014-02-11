@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Defining Failover Policy in Static Cluster - GigaSpaces Browser</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Defining Failover Policy in Static Cluster - GigaSpaces Browser</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  How to define the failover policy in a static cluster. </p>
+</div>
+<h1><a name="DefiningFailoverPolicyinStaticCluster-GigaSpacesBrowser-Overview"></a>Overview</h1>
+<p>Failover allows one space to act as a backup for another. The following procedure explains how to define a failover policy for a group.<br/>
+Defining a failover policy:</p>
+<ol>
+	<li>Continue from step 8 in <a href="Defining Cluster Name and Spaces - GigaSpaces Browser.html" title="Defining Cluster Name and Spaces - GigaSpaces Browser">Defining cluster name and spaces</a>.</li>
+	<li>In the Cluster Options area, select the <b>Fail Over</b> check-box. Observe that the <b>Fail Over</b> tab is enabled at the bottom portion of the dialog box.<br/>
+<img src="download/attachments/53903736/IMG501.jpg" align="absmiddle" border="0"/></li>
+	<li>The <b>Policy Description</b> tab allows you to define under which circumstances failover within the group should take place.</li>
+	<li>In the table, select the <b>Enable</b> check-box adjacent to an operation's name, to turn on failover for that operation. For example, if you select the check-box for <b>Write</b>, all write operations made on a failed space are transparently routed to a live space in the group. If you do not select this check-box, write operations made on a failed space will not be routed.</li>
+	<li>Select the <b>Enable</b> check-box adjacent to <b>Default</b> to enable operations you did not explicitly enable. These operations assume the failover policy defined under <b>Default</b> (instead of having no failover policy at all).</li>
+	<li>In the <b>Policy Type</b> column, select a failover policy for each operation you enable. The cells in this column are drop-down lists; click one and select from the following options:
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Policy Type</th>
+<th class='confluenceTh'>Description</th>
+</tr>
+<tr>
+<td class='confluenceTd'><b>Fail to Available</b></td>
+<td class='confluenceTd'>Specifies that if a space is down, the operation should be routed to a live space in the group, according to the load-balancing policy (see the previous section).</td>
+</tr>
+<tr>
+<td class='confluenceTd'><b>Fail to Backup</b></td>
+<td class='confluenceTd'>Specifies that if a space is down, the operation should be routed to one of the spaces listed in the internal tab <b>Backup Members</b> below.</td>
+</tr>
+</tbody></table>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>There is a separate <b>Backup Members</b> tab for each operation - <b>Write, Read, Take</b> and <b>Notify</b> (and <b>Default</b>, which applies to operations you did not explicitly define). </td></tr></table></div>
+<p><b>Immediately Fail to Alternate</b> - specifies that if a space is down, the operation should be routed to an available space in one of the alternate groups, defined in the <b>Alternate Groups</b> tab (described in step 17 onwards).<br/>
+<img src="download/attachments/53903736/IMG502.jpg" align="absmiddle" border="0"/></p>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>If you choose the <b>Fail To Available</b> option from the <b>Policy Type</b> drop-down, the backup tabs are available but not operational.</td></tr></table></div></li>
+	<li>For the relevant operations, select the <b>Backup Members</b> tab, and define a set of spaces that should be used for failover. The group shown in the <b>Edit Cluster Group</b> dialog above has three spaces: sp1, sp2and sp3. The <b>Backup Members</b> tab for the write operation has sp2defined as a backup member of sp1. This means that if sp1fails, operations are routed to sp2and not to sp3.
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This partial failover configuration is useful if you want to guarantee high performance for spaces with a high workload. The opposite configuration is also possible - you can designate spaces dedicated to failover, to guarantee performance in case of a space's failure. This is done using the <b>Backup Only</b> tab, which is also defined per operation, as an internal tab of the operation tab.</td></tr></table></div></li>
+	<li>Make sure the operation you want to work on is enabled, and that its policy is set to <b>Fail To Backup</b>. Click on its tab within <b>Policy Description</b>.</li>
+	<li>Click the <b>Backup Members</b> tab, and press <b>Add</b>. A new row is created in the members table.</li>
+	<li>Click the <b>Member Name</b> column to open the drop-down list, and select the name of the space for which you want to define backup members. If this space fails, connections are routed to the backup members.</li>
+	<li>Click the <b>Backup Members</b> column. The <b>Define</b> backup members dialog opens, allowing you to select backup members from the spaces in the group. Do not select all the spaces in the group, because this is the same as not defining backup members at all.</li>
+	<li>If you add more than one space, you can prioritize backup members by selecting them and clicking the up/down arrows at the right of the dialog. The higher a space appears in the list of backup members, the higher its priority. If the focal space fails, and more than one backup member is available, the operation is routed to the member with the highest priority.</li>
+	<li>Click the <b>OK</b> button when you are done selecting and prioritizing backup members in the <b>Define Backup Members</b> dialog.</li>
+	<li>Repeat steps 9-13 to define backup members for other spaces in the group. You do not have to define backup members for all spaces - keep in mind that the default action is failover to all spaces.</li>
+	<li>Click the <b>Backup Only</b> tab. This tab allows you to specify that a space, which serves as a backup member, be dedicated to this function. "Backup only" spaces are not used for anything other than routed failover operations.<br/>
+<img src="download/attachments/53903736/IMG503.jpg" align="absmiddle" border="0"/></li>
+	<li>The spaces shown here are all the backup members defined previously, but excluding the spaces for which backup members were defined. Select the <b>Enabled</b> check-box next to a space's name to specify that this space should only be used for routed failover operations.
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Before setting a space as "backup only," make sure that it is not needed in the cluster's normal operations. Once you set a space to "backup only," the cluster proxy stops routing operations to it (until another space fails).</td></tr></table></div></li>
+	<li>Click the <b>Alternate Groups</b> tab to define one or more alternate groups. These groups serve as backups for the local group (the group you are defining in the <b>Edit Cluster Group</b> dialog). In other words, if all spaces in the focal group fail, the cluster proxy routes the operation to an available space in one of the alternate groups.<br/>
+<img src="download/attachments/53903736/IMG504.jpg" align="absmiddle" border="0"/></li>
+	<li>Select a group from the <b>Available Items</b> list and click <img src="download/attachments/53903736/IMG505.jpg" align="absmiddle" border="0"/> or move it in to the <b>Selected Items</b> list. This specifies that it should backup the group being edited.
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>If you add more than one alternate group, you can prioritize it using the up/down arrows at the right of the dialog. The higher a group appears in the list, the higher its priority. If all space in the local group fail, and more than one alternate group is available, the operation is routed to an available space in the group that has the highest priority.</td></tr></table></div></li>
+	<li>Type the amount of time the cluster proxy waits, after receiving no reply from an alternate group, before deciding it is unavailable and trying another one (or giving up, if there are no more alternate groups) in the <b>Find Timeout Msec</b> field.
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The alternate groups defined here are relevant not only in the case that the entire local group's spaces fail. They are also used if you specify a policy type of Immediately Fail to Alternate for a certain operation. Use the internal tab <b>Policy Description</b> to set policy types for specific operations.</td></tr></table></div></li>
+	<li>Click the <b>Create</b> button and go back to <a href="Defining Groups in Static Cluster - GigaSpaces Browser.html" title="Defining Groups in Static Cluster - GigaSpaces Browser">Creating groups</a>.</li>
+</ol>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

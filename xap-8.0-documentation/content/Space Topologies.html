@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Space Topologies</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Space Topologies</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903646";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903646";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Explains the topologies and clustering mechanism of the GigaSpaces in-memory data grid (the Space) </p>
+</div>
+
+<h1><a name="SpaceTopologies-Overview"></a>Overview</h1>
+
+<p>Different applications might have different caching requirements. Some applications require on-demand loading from an external, slower data source, due to limited memory; others use the cache for read-mostly purposes; transactional applications need a cache that handles both write and read operations, maintains consistency and serves as the application's system of record. </p>
+
+<p>In order to address these different requirements, GigaSpaces provides an in-memory data grid that is policy-driven. Most of the policies do not affect the actual application code, but rather affect the way each data grid instance interacts with other instances. The policies allow the data grid to be configured in almost any topology; In most cases you will find the common topologies that are provided out of the box sufficient for your requirements, but these can also be overridden to provide custom behaviors. </p>
+
+<p>This section explains the most common topologies - replicated, partitioned and master-local. </p>
+
+<h1><a name="SpaceTopologies-GigaSpacesDataGridBasicTerms"></a>GigaSpaces Data Grid - Basic Terms</h1>
+
+<ul>
+	<li><b>Space (data grid) instance</b> &#45; an independent data storage unit. The Space is comprised of all the space instances running on the network.<br clear="all" /> <div align="center"><img src="download/attachments/17301573/DGA-DataGrid.jpg" border="0"/></div><br clear="all" /></li>
+	<li><b>Space</b> &#45; GigaSpaces data grid implementation. A distributed, shared, memory-based repository for objects. A space runs in a <em>space container</em> &#45; this is usually transparent to the developer.<br clear="all" />
+<div align="center"><img src="download/attachments/17301573/DGA-GigaSpacesDataGrid.jpg" border="0"/></div><br clear="all" /></li>
+	<li><b>GigaSpaces Container (GSC)</b> &#45; a generic container that can run one or more <a href="Packaging and Deployment.html" title="Packaging and Deployment">processing units</a>. A space instances usually runs within processing unit. The GSC is launched on each machine that participates in the space cluster, and hosts the space instances.<br clear="all" /> <div align="center"><img src="download/attachments/17301573/DGA-ServiceGridDataGrid.jpg" border="0"/></div><br clear="all" /></li>
+	<li><b>Replication</b> &#45; a relationship in which data is copied between two or more space instances, with the aim of having the same data in some or all of them.<br clear="all" /> <div align="center"><img src="download/attachments/17301573/DGA-Replication2.jpg" border="0"/></div><br clear="all" /></li>
+	<li><b>Synchronous replication</b> &#45; replication scheme in which space client applications are blocked until their changes are propagated to all peer spaces. This guarantees higher data consistency between space instances, at the expense of reduced performance since clients have to wait for the replication to complete before the operation is finished.</li>
+</ul>
+
+
+<ul>
+	<li><b>Asynchronous replication</b> &#45; replication mode in which changes are propagated to peer space instances in the background, using separate thread(s) that the onces the are used to receive the write request from the clients. Applications clients do not have to wait for their changes to be propagated to other space instances. With asynchronous replication the client does not block until all the data has been replicated, and the space can optimize the replication by batching multiple updates into a single network call. Therefore this options performs better and allows for higher throughput. On the other hand, data is less consistent between space instances and takes longer to get propagated.</li>
+</ul>
+
+
+<ul>
+	<li><b>Partitioning</b> &#45; new data or operations on data are routed to one of several space instances (partitions). Each space instance holds a subset of the data, with no overlap. Partitioning is done according to n <em>routing field</em> in the data object. Each object written to the space defines a routing field whose value is used to determine the partition to which the object will be sent. The space client side proxy guarantees that if two object have the same value set for the routing field they will end up in the same partition, regardless o how many partitions are running.<br clear="all" /> <div align="center"><img src="download/attachments/17301573/DGA-Partitioning2.jpg" border="0"/></div><br clear="all" /></li>
+	<li><b>Topology</b> &#45; a specific configuration of space instances. For example, a replicated topology is a configuration in which all space instances replicate data between one another. In GigaSpaces, space topologies are defined by <em>clustering policies</em> (explained in the following section).</li>
+</ul>
+
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Replication Configuration</b><br />For more details on how to configure the replication mechanisms of the Space, please refer to <a href="Replication.html" title="Replication">this page</a> in the <a href="Administrator's Guide.html" title="Administrator's Guide">Administrator's Guide</a>. </td></tr></table></div>
+
+<h1><a name="SpaceTopologies-GigaSpacesClusteringConcepts"></a>GigaSpaces Clustering Concepts</h1>
+
+<p>In GigaSpaces XAP, a <em>cluster</em> is a grouping of several space instances running in one or more containers. For an application trying to access data, the cluster appears as one logical resource (called a space), but in fact consists of several space instances which may be distributed across several physical machines. The space instances in the cluster are also called <em>cluster members</em>.</p>
+
+<p>A <b><em>cluster group</em></b> is a logical collection of cluster members, which defines how these members interact. The only way to define relationships between clustered spaces in GigaSpaces, is to add them to a group and define policies. A cluster can contain several, possibly overlapping groups, each of which defines some relations between some cluster members - this provides great deal of flexibility in cluster configuration.</p>
+
+<p>A GigaSpaces cluster group can have one or more of the following policies:</p>
+<ul>
+	<li><b>Replication Policy</b> &#45; defines replication between two or more spaces in the cluster, and replication options such as synchronous/asynchronous and replication direction.</li>
+	<li><b>Load Balancing Policy</b> &#45; because user requests are submitted to the entire cluster, there is a need to distribute the requests between cluster members. The load balancing policy defines an algorithm according to which requests are routed to different members. For example, in a replicated topology, requests are divided evenly between cluster members; in a partitioned topology they are routed according to the partitioning key.</li>
+	<li><b>Failover Policy</b> &#45; defines what happens when a cluster member fails. Operations on the cluster member can be transparently routed to another member in the group, or to another cluster group.</li>
+</ul>
+
+
+<p>A <b><em>cluster schema</em></b> is an XML file which defines a cluster - the cluster name, which spaces are included in the cluster, which groups are defined on them, and which policies are defined for each group. GigaSpaces provides predefined cluster schemas for all common cluster topologies. Each topology is a certain combination of replication, load balancing and failover policies.</p>
+
+<h1><a name="SpaceTopologies-DataGridTopologiesSupportedOutoftheBox"></a>Data Grid Topologies Supported Out of the Box</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Topology and Description </th>
+<th class='confluenceTh'> Common Use </th>
+<th class='confluenceTh'> Options </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <b>Replicated</b> (<a href="http://www.gigaspaces.com/wiki/download/attachments/17301573/dg_a_topology2a.gif?version=1">view diagram</a>)<br clear="all" />
+ Two or more space instances with replication between them. </td>
+<td class='confluenceTd'> Allowing two or more applications to work with their own dedicated data store, while working on the same data as the other applications. Also allows for load distribution between multiple space instances in read-intensive scenarios </td>
+<td class='confluenceTd'><ul>
+	<li>Replication can be synchronous (slower but with better consistency) or asynchronous (faster but less reliable, as it does not guarantee consistency and immediate replication).</li>
+	<li>Space instances can run on the same JVM as the application (embedded - allows faster read access) or in a separate process (remote - allows multiple applications to use the space, easier management).</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b>Partitioned</b> (<a href="http://www.gigaspaces.com/wiki/download/attachments/17301573/dg_a_topology3.gif?version=1">view diagram</a>)<br clear="all" />
+ Data and operations are split between two or more space instances (partitions) according to a routing field defined in the data. An load balancing algorithm maps values of the routing field to a specific partition. </td>
+<td class='confluenceTd'> Allows the In-Memory Data Grid to hold large volumes of data, even if it is larger than the memory of a single machine, by splitting the data across several partitions. </td>
+<td class='confluenceTd'><ul>
+	<li>With/without backup space instance for each partition.</li>
+	<li>Business logic can be collocated with each partition and act on the data of the local partition. This is one of the principles of the SBA paradigm</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b>Master-Local</b> (<a href="http://www.gigaspaces.com/wiki/download/attachments/17301573/dg_a_topology4.gif?version=1">view diagram</a>)<br clear="all" />
+ Each space client has a lightweight, embedded cache, which is initially empty. Upon the first time data is read, it is loaded from a master space to the local cache (this is called lazy loading); the next time the same data is read, it is fetched quickly from the local cache. Later on data is either updated from the master or evicted from the cache. <br clear="all" />  <br clear="all" />  </td>
+<td class='confluenceTd'> Boosting read performance for frequently used data. A useful rule of thumb is to use a local cache when over 80% of all operations are repetitive read operations. </td>
+<td class='confluenceTd'><ul>
+	<li>The master cache can be clustered in any of the other topologies: replicated, partitioned, etc.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <b>Local-View</b> (<a href="http://www.gigaspaces.com/wiki/download/attachments/17301573/dg_a_topology5.gif?version=1">view diagram</a>)<br clear="all" />
+ Similar to master-local, except that data is pushed to the local cache. The application defines a criteria, using a space <em>read template</em> or an SQL query, and data matching the filter is streamed to the cache from the master space. </td>
+<td class='confluenceTd'> Achieving maximal read performance for a predetermined subset of the data. </td>
+<td class='confluenceTd'><ul>
+	<li>The master cache can be clustered in any of the other topologies: replicated, partitioned, etc.</li>
+</ul>
+</td>
+</tr>
+</tbody></table>
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The topologies above are provided in the GigaSpaces product as predefined cluster schemas. The schema names are:</p>
+<ul>
+	<li>Synchronous replication - <tt>sync-replicated</tt></li>
+	<li>Asynchronous replication - <tt>async-replicated</tt></li>
+	<li>Partitioned with backup - <tt>partitioned-sync2backup</tt><br/>
+The master-local and local-view topologies do not need their own schemas, because the local cache is defined on the client side.</li>
+</ul>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

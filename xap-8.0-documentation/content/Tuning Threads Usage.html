@@ -1,0 +1,360 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Tuning Threads Usage</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Tuning Threads Usage</h1>
+</div>
+<br>
+
+<h1><a name="TuningThreadsUsage-Overview"></a>Overview</h1>
+<p>GigaSpaces using Thread resources in an extensive manner to scale the different activities executed within the JVM process. The may happen at the client or server side. Some of the modules within the server or client side (proxy) require some tuning before moving into production. This section describes the important Thread (Thread pools) started and provides information when and how these should be tuned.</p>
+
+<h1><a name="TuningThreadsUsage-ThreadsList"></a>Threads List</h1>
+
+<ul class="alternate" type="square">
+	<li># - Indicates the thread name includes a running number.</li>
+	<li>SPACE_NAME - Indicates the thread name includes the associated space name using this thread.</li>
+</ul>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Starting with XAP 8.0, all GigaSpaces threads running within the JVM, using the same prefix, <b>GS-</b> as part of their name.</td></tr></table></div>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Thread Name </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Configuration Parameters </th>
+<th class='confluenceTh'> Client/Server</th>
+</tr>
+<tr>
+<td class='confluenceTd'>LRMI Connection-pool#</td>
+<td class='confluenceTd'> See the <a href="Communication Protocol.html" title="Communication Protocol">Communication Protocol</a> for details. </td>
+<td class='confluenceTd'>com.gs.transport_protocol.lrmi.min-threads, com.gs.transport_protocol.lrmi.max-threads</td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>LRMI Selector Accept </td>
+<td class='confluenceTd'>Responsible for accepting incoming socket connections. </td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>LRMI Selector Read and Write#</td>
+<td class='confluenceTd'> See the <a href="Communication Protocol.html" title="Communication Protocol">Communication Protocol</a> for details. </td>
+<td class='confluenceTd'>com.gs.transport_protocol.lrmi.selector.threads </td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>LRMI async Selector#</td>
+<td class='confluenceTd'>Client side, handles async invocation, i.e executors, asyncRead/take. </td>
+<td class='confluenceTd'>4 Threads</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Pending Answers-pool#</td>
+<td class='confluenceTd'> Responsible for sending a callback to template based waiting  operations (read/take). </td>
+<td class='confluenceTd'>space-config.engine.min_threads, space-config.engine.max_threads</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Notifier-pool#</td>
+<td class='confluenceTd'> Responsible to dispath notification to client side. Used with the <a href="Notify Container.html" title="Notify Container">Notify Container</a> and <a href="Session Based Messaging API.html" title="Session Based Messaging API">Session Based Messaging API</a>. See the <a href="Notify Container.html#NotifyContainer-ScalingNotificationDelivery">Scaling Notification Delivery</a> for details.</td>
+<td class='confluenceTd'> space-config.engine.notify_min_threads , space-config.engine.notify_max_threads</td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Processor-pool#</td>
+<td class='confluenceTd'>Pool for space operations post processing that can be done asynchronously to user operation. Transaction cleanup, notifications etc.  </td>
+<td class='confluenceTd'>space-config.engine.min_threads , space-config.engine.max_threads </td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>SG LeaseReaper  </td>
+<td class='confluenceTd'> Used by the Service Grid </td>
+<td class='confluenceTd'> Single Thread </td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Template Expiration Manager Timer </td>
+<td class='confluenceTd'> The main thread of expiration manager. Wakes up on each expiration period to find the expired templates. </td>
+<td class='confluenceTd'> Single Thread per space </td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>TemplateExpirationManager-pool#</td>
+<td class='confluenceTd'>Responsible for sending response to waiting client when their template expires.</td>
+<td class='confluenceTd'> 16 threads max per space </td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>SyncReplicationChannel SPACE_NAME</td>
+<td class='confluenceTd'>Runs per sync replication channel </td>
+<td class='confluenceTd'>Dynamically adjusted</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>CapabilityChannel  </td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>ClassLoaderCache-SelfCleaningTable </td>
+<td class='confluenceTd'>Used to clean up resources of class loaders once terminated (undeploy of processing unit) </td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>TransactionTableHolder-SelfCleaningTable </td>
+<td class='confluenceTd'> Responsible for cleaning zombie local transactions that were abandoned by the user application without committing. Single thread per GSC </td>
+<td class='confluenceTd'>Single Thread per space </td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>SLA Monitor Disk</td>
+<td class='confluenceTd'>Used by the Service Grid. SLA free disk space monitor</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Memory:writer</td>
+<td class='confluenceTd'>Used by the Service Grid. SLA Memory monitor</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>CPU:writer</td>
+<td class='confluenceTd'>Used by the Service Grid. SLA CPU monitor </td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>pollingEventContainer#</td>
+<td class='confluenceTd'>Used with the <a href="Polling Container.html" title="Polling Container">Polling Container</a> </td>
+<td class='confluenceTd'> See the <a href="Polling Container.html#PollingContainer-ConcurrentConsumers">Concurrent Consumers</a></td>
+<td class='confluenceTd'>Client</td>
+</tr>
+<tr>
+<td class='confluenceTd'>LeaseRenewalManager Task</td>
+<td class='confluenceTd'> Respisible to review resource lease.</td>
+<td class='confluenceTd'>One per resource</td>
+<td class='confluenceTd'>Client</td>
+</tr>
+<tr>
+<td class='confluenceTd'>JoinManager Task</td>
+<td class='confluenceTd'> Responsible to communicate with the lookup service</td>
+<td class='confluenceTd'>Single thread per client proxy</td>
+<td class='confluenceTd'> Client</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Liveness-detector</td>
+<td class='confluenceTd'> See the <a href="Proxy Connectivity.html" title="Proxy Connectivity">Proxy Connectivity</a> for details.</td>
+<td class='confluenceTd'>Single thread per client proxy</td>
+<td class='confluenceTd'>Client</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Liveness-monitor</td>
+<td class='confluenceTd'> See the <a href="Proxy Connectivity.html" title="Proxy Connectivity">Proxy Connectivity</a> for details.</td>
+<td class='confluenceTd'> Single thread per client proxy</td>
+<td class='confluenceTd'>Client</td>
+</tr>
+<tr>
+<td class='confluenceTd'>LocalTransactionManagerImpl$Reaper SPACE_NAME </td>
+<td class='confluenceTd'> A thread that reaps expired transactions entries and other objects</td>
+<td class='confluenceTd'> Single thread per space </td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>GSPingManager</td>
+<td class='confluenceTd'> Used by the Service Grid</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>LeaseManager$Reaper SPACE_NAME </td>
+<td class='confluenceTd'>See the <a href="Leases.html#Leases-LeaseManager">Lease Manager</a> for details </td>
+<td class='confluenceTd'>Single Thread per space</td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Cache PersistentGC</td>
+<td class='confluenceTd'>Responsible for backup activities (cleanup indexes)</td>
+<td class='confluenceTd'>Single Thread per space</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>SPACE_NAME BackgroundFifoThread3_Notify=false#</td>
+<td class='confluenceTd'>Threads that use segmentation in order to handle background events like handling waiting templates in a fifo fashion </td>
+<td class='confluenceTd'> Thread pool per space</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>SPACE_NAME BackgroundFifoThread3_Notify=true#</td>
+<td class='confluenceTd'>Threads that use segmentation in order to handle background notify events  in a fifo fashion</td>
+<td class='confluenceTd'>Thread pool per space</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Statistics-Task</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>SPACE_NAME Batch Notifier</td>
+<td class='confluenceTd'>Used when using batch notifications. See the <a href="Notify Container.html#NotifyContainer-BatchEvents">Batch Events</a> for details.</td>
+<td class='confluenceTd'>Single Thread per space</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>ActiveFailureDetector</td>
+<td class='confluenceTd'> Responsible for the active election process. See the <a href="Failure Detection.html" title="Failure Detection">Failure Detection</a> for details.</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>ProvisionLeaseManager</td>
+<td class='confluenceTd'>Used by the Service Grid</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Watchdog</td>
+<td class='confluenceTd'>See the <a href="Communication Protocol.html" title="Communication Protocol">Communication Protocol</a> for details. </td>
+<td class='confluenceTd'>Single Thread per proxy</td>
+<td class='confluenceTd'>Client</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Scheduled System Boot Thread</td>
+<td class='confluenceTd'>Used when the system starts</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>SLAThresholdTaskPool#</td>
+<td class='confluenceTd'>Used by the Service Grid</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>CapabilityChannel</td>
+<td class='confluenceTd'>Used by the Service Grid</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'> Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>DynamicSmartStub-InvHandlerCache-SelfCleaningTable$Cleaner</td>
+<td class='confluenceTd'>Used by LRMI for backround cleanup</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>ClassLoaderCache-SelfCleaningTable$Cleaner</td>
+<td class='confluenceTd'>Used by LRMI to cleanup unused classes</td>
+<td class='confluenceTd'>Single Thread</td>
+<td class='confluenceTd'>Server</td>
+</tr>
+<tr>
+<td class='confluenceTd'>ProvisionFailurePool#</td>
+<td class='confluenceTd'>Used by the Service Grid. Monitors the running services</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>ProvisionPool#</td>
+<td class='confluenceTd'>Used by the Service Grid. Monitors the running services</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>ProvisionMonitorEventPool#</td>
+<td class='confluenceTd'>Used by the Service Grid. Monitors the running services</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Reggie Comm Task-pool#</td>
+<td class='confluenceTd'>Used by the Service Grid. Monitors the running services</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>SDM Cache Task</td>
+<td class='confluenceTd'>Used by the Service Grid.</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>unicast request</td>
+<td class='confluenceTd'>Used by the Service Grid.</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>service expire</td>
+<td class='confluenceTd'>Used by the Service Grid.</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Webster Runner</td>
+<td class='confluenceTd'>Used by the Service Grid.</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Event Lease Manager</td>
+<td class='confluenceTd'>Used by the Service Grid.</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Fault Detection Handler</td>
+<td class='confluenceTd'>Used by the Service Grid.</td>
+<td class='confluenceTd'>&nbsp;</td>
+<td class='confluenceTd'>Server - GSM</td>
+</tr>
+</tbody></table>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

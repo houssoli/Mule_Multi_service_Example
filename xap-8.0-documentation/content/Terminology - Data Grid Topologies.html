@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Terminology - Data Grid Topologies</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Terminology - Data Grid Topologies</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  GigaSpaces Data-Grid components  </p>
+</div>
+<table class='confluenceTable'><tbody>
+<tr>
+<td class='confluenceTd'><a href="Terminology - Basic Components.html" title="Terminology - Basic Components">Basic Components</a></td>
+<th class='confluenceTh'>Data Grid Topologies</th>
+<td class='confluenceTd'><a href="Terminology - Space-Based Architecture.html" title="Terminology - Space-Based Architecture">Space-Based Architecture</a></td>
+<td class='confluenceTd'><a href="Terminology - Runtime Components.html" title="Terminology - Runtime Components">Runtime Components</a></td>
+</tr>
+</tbody></table>
+<h1><a name="Terminology-DataGridTopologies-DataGrid"></a>Data Grid </h1>
+
+
+<p><a name="Terminology-DataGridTopologies-DataGrid"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-DataGridTopologies-InMemoryDataGridIMDG%2CorEnterpriseDataGridEDG"></a>In Memory Data Grid - IMDG, or Enterprise Data Grid - EDG</h4>
+
+<p>A set of space instances, typically running within their respective processing unit instances.<br/>
+The space instances are connected to each other to form a space cluster.<br/>
+The relations between the spaces define the <a href="#Terminology-DataGridTopologies-DataGridTopology">Data Grid Topology</a>.</p>
+
+<p><sub>Key Sentence: A set of connected space instances holding objects form a space cluster</sub> </p>
+</td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_populated_data_grid.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Data Grid with 3 Instances</b></sub></p></div>
+</td></tr></tbody></table>
+<p><a name="Terminology-DataGridTopologies-DataGridTopology"></a></p>
+<h1><a name="Terminology-DataGridTopologies-DataGridTopologies"></a>Data Grid Topologies</h1>
+
+<p><a name="Terminology-DataGridTopologies-PrimaryBackupDataGrid"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-DataGridTopologies-PrimaryBackupDataGrid"></a>Primary Backup Data Grid</h4>
+
+<p>A Data Grid with a primary instance and one or more backup instances.<br/>
+Destructive operations (write, update and take) are applied to the primary instance, and are replicated to the backup instance either synchronously or asynchronously.</p>
+
+<p><sub>Key Sentence: Objects in primary instance are replicated to its backup instance/s</sub> </p>
+</td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_primary_backup_text_data_grid.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Data Grid comprised of a primary instance with one backup instance</b></sub></p></div>
+</td></tr></tbody></table>
+
+<p><a name="Terminology-DataGridTopologies-PartitionedDataGrid"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-DataGridTopologies-PartitionedDataGrid"></a>Partitioned Data Grid</h4>
+
+<p>Each Data Grid instance (partition) holds a different subset of the objects in the Data Grid.<br/>
+When the objects are written to this Data Grid, they are routed to the proper partition, according to a predefined attribute in the object that acts as the <a href="#Terminology-DataGridTopologies-Routing">routing</a> index.</p>
+</td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_partitioned_data_grid.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Partitioned Data Grid with 3 Instances, each holding a different set objects</b></sub></p>
+</div>
+</td></tr></tbody></table>
+
+<p><a name="Terminology-DataGridTopologies-Routing"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-DataGridTopologies-Routing"></a>Routing</h4>
+
+<p>The mechanism that is in charge of routing the objects into and out of the corresponding partitions. <br/>
+The routing is based on a designated attribute inside the objects that are written to the space, and is termed <em>Routing Index</em>.</p>
+
+<p><sub>Key sentence: Routing the mechanism that determines how object will be partitioned.</sub></p>
+</td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_routing.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>Routing in a partitioned Data Grid with 3 instances</b></sub></p>
+</div>
+</td></tr></tbody></table>
+
+<p><a name="Terminology-DataGridTopologies-PrimaryBackupPartitionedDataGrid"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-DataGridTopologies-PrimaryBackupPartitionedDataGrid"></a>Primary Backup Partitioned Data Grid</h4>
+
+<p>A <a href="#Terminology-DataGridTopologies-PartitionedDataGrid">partitioned Data Grid</a>, with one or more <a href="#Terminology-DataGridTopologies-PrimaryBackupDataGrid">backup</a> instances for each partition. Each of the Data Grid instances (partitions) holds a different subset of the objects in the Data Grid, and replicates this subset to its backup instance/s.</p>
+</td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_partitioned_primary_backup_data_grid.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Primary Backup Partitioned Data Grid: 2 partitions, each replicates to one backup instance</b></sub></p>
+</div>
+</td>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>For details about scaling a running space cluster <b>in runtime</b> see the <a href="http://www.gigaspaces.com/wiki/display/SBP/Moving+into+Production+Checklist#MovingintoProductionChecklist-RebalancingDynamicRepartitioning">Dynamic Partitioning</a> section. </td></tr></table></div></tr></tbody></table>
+<p><br clear="all" />
+<br clear="all" /></p>
+<table class='confluenceTable'><tbody>
+<tr>
+<td class='confluenceTd'><a href="Terminology - Basic Components.html" title="Terminology - Basic Components">Basic Components</a></td>
+<th class='confluenceTh'>Data Grid Topologies</th>
+<td class='confluenceTd'><a href="Terminology - Space-Based Architecture.html" title="Terminology - Space-Based Architecture">Space-Based Architecture</a></td>
+<td class='confluenceTd'><a href="Terminology - Runtime Components.html" title="Terminology - Runtime Components">Runtime Components</a></td>
+</tr>
+</tbody></table>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

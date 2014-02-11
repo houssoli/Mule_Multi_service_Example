@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : How to Set GigaSpaces Over NAT</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>How to Set GigaSpaces Over NAT</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  The GigaSpaces settings to enable functioning over NAT.  </p>
+</div>
+
+<h1><a name="HowtoSetGigaSpacesOverNAT-Overview"></a>Overview</h1>
+
+<p>Some scenarios may include usage of GigaSpaces components where each component is  in a different private network, and the connection between the components needs to be on  a different public IP (i.e., via <a href="http://en.wikipedia.org/wiki/Network_address_translation">network address translation</a>.) GigaSpaces components expose themselves via the built in remoting mechanism (<a href="Communication Protocol.html" title="Communication Protocol">LRMI</a>) that contains the IP of the source component as part of its connection url. In the above case, the private IP has no meaning to a remote component/client that needs to connect to this component. For instance, imagine a remote client which is trying to connect to a space that exists in a private network but has a public IP provided by the NAT mapping: the LRMI url would normally contain the private IP but has to use the public IP to actually connect. This page addresses how to solve this issue.</p>
+
+<h1><a name="HowtoSetGigaSpacesOverNAT-DefaultNATmappingusingnetworkmapping.config"></a>Default NAT mapping using network_mapping.config</h1>
+
+<p>There is a built in mechanism for mapping private ips to public ones, the <tt>/config/network_mapping.config</tt>. </p>
+
+<p>This file contains a list of translations, using the format:</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>&lt;private ip&gt;:&lt;private port&gt;,&lt;public ip&gt;:&lt;public port&gt;
+</pre>
+</div></div>
+
+<p>This file should be edited on the machine that is accessing the cluster via the public IP. For example, suppose you have a machine in a cluster behind a router with the private IP/port of 10.0.0.1:4000, with a public IP of 212.232.12.1:5000. This mapping should be placed at the remote client's <tt>/config/network_mapping.config</tt> file as a separate line in the following format:</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>10.0.0.1:4000,212.232.12.1:5000</pre>
+</div></div>
+
+<p>The mapping can be configured differently on each machine. If, for example, this space also needs to connect to the client and the client is also has a private IP, then the mapping file at the space machine should contain the mapping of the private to public ip of the client in the same manner.</p>
+
+<p>In other words, each machine in the network needs to have a translation file for each <em>other</em> machine it needs to connect to - if those machines use network-translated IPs.</p>
+
+<p>The location of the mapping file can be overriden by using the following system property:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>com.gs.transport_protocol.lrmi.network-mapping-file=&lt;file location&gt;</pre>
+</div></div>
+
+<h1><a name="HowtoSetGigaSpacesOverNAT-Custommappinglogic"></a>Custom mapping logic</h1>
+
+<p>You can implement your own custom mapping logic by specifying a class name that will be used to map addresses.</p>
+
+<p>This is done by implementing the <tt>com.gigaspaces.lrmi.INetworkMapper</tt> interface:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> INetworkMapper
+{ 
+    ServerAddress map(ServerAddress serverAddress);
+}</pre>
+</div></div>
+<p>This interface will be called each time a new connection will be created between the proxy to the service and the <tt>map</tt> method will be called with the given server address and the actual connection will be made using the return value of the method.<br/>
+In order to use your own implementation you should have your own class placed in a jar in <tt>/lib/platform/ext</tt> and specify the class name via the following system property:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>com.gs.transport_protocol.lrmi.network-mapper=&lt;class name&gt;</pre>
+</div></div>
+
+<p>Note that the system will construct the object with no arguments, so a null-argument constructor must be available.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

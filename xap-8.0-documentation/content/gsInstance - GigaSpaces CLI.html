@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : gsInstance - GigaSpaces CLI</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>gsInstance - GigaSpaces CLI</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Loads a space container, one space, an embedded Reggie, and an embedded Webster, using the <tt>gsInstance</tt> script.  </p>
+</div>
+
+<h1><a name="gsInstance-GigaSpacesCLI-Overview"></a>Overview</h1>
+
+<p>This section explains how to start a light version of the GigaSpaces server, which loads a container and one space, using the <tt>gsInstance</tt> script. The <tt>gsInstance</tt> (which calls <a href="http://www.gigaspaces.com/docs/JavaDoc8.0/index.html?com/j_spaces/core/client/SpaceFinder.html" target="_blank">SpaceFinder</a>) starts by default embedded Reggie and Webster services.</p>
+
+<h2><a name="gsInstance-GigaSpacesCLI-StartingEmbeddedMahalo"></a>Starting Embedded Mahalo</h2>
+
+<p>By default, <tt>gsInstance</tt> does not start an embedded Mahalo (Jini Transaction Manager).</p>
+
+<p>You can enable this option in one of the following ways:</p>
+<ul>
+	<li>Setting the following option to <tt>true</tt> in your container schema: <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;embedded-services&gt;</span>
+...
+<span class="code-tag">&lt;mahalo&gt;</span>
+	<span class="code-tag"><span class="code-comment">&lt;!-- If true, will start an embedded Mahalo Jini Transaction Manager. Default value: false --&gt;</span></span>
+    <span class="code-tag">&lt;start-embedded-mahalo&gt;</span>${com.gs.start-embedded-mahalo}<span class="code-tag">&lt;/start-embedded-mahalo&gt;</span>
+<span class="code-tag">&lt;/mahalo&gt;</span></pre>
+</div></div></li>
+	<li>Setting the following option in the <tt>gsInstance</tt> command line: <div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>-Dcom.gs.start-embedded-mahalo=true</pre>
+</div></div></li>
+	<li>Setting XPath in the <tt>&lt;GigaSpaces Root&gt;\config\gs.properties</tt> file:
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>com.j_spaces.core.container.embedded-services.mahalo.start-embedded-mahalo=true</pre>
+</div></div></li>
+</ul>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>GigaSpaces supports space monitoring and management using JMX - The Java Management Extensions. For more details, refer to the <a href="Space JMX Management.html" title="Space JMX Management">JMX Management</a> section. </td></tr></table></div>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>When running <tt>gsIntance</tt>, the Jini Lookup Service runs implicitly. When having many Jini Lookup Services running across the network, the spaces and clients might be overloaded since they publish themselves into the Lookup Service, or are trying to get updates about newly registered services.<br/>
+A good practice is to have two Lookup Services running using the <tt>startJiniLUS</tt> command located in the <tt>&lt;GigaSpaces Root&gt;\bin</tt> directory, or the GSM command located in the <tt>&lt;GigaSpaces Root&gt;\bin</tt> folder. This ensures no single point of failure for the Lookup Service. </td></tr></table></div>
+
+<h1><a name="gsInstance-GigaSpacesCLI-Syntax%26Arguments"></a>Syntax &amp; Arguments</h1>
+
+<p>The full <tt>gsInstance</tt> syntax (the arguments passed below are optional):</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gsInstance <span class="code-quote">"/./newSpace?schema=persistent"</span> <span class="code-quote">"../../classes"</span> <span class="code-quote">"-DmyOwnSysProp=value -DmyOwnSysProp2=value"</span></pre>
+</div></div>
+<p>The <tt>gsInstance</tt> arguments are passed through the command line. These arguments are optional - if you do not want to pass any arguments, you don't have to specify anything in the command line, as seen below:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">gsInstance</pre>
+</div></div>
+<p>You can use three arguments. All arguments must be enclosed by quotes (<tt>" "</tt>). If used, the arguments must be entered in the following order (descending):</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Argument </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> Argument 1 </td>
+<td class='confluenceTd'> Defines a space URL. The value is set into the <tt>SPACE_URL</tt> variable. If no value is passed for this argument, the space URL defined in the <tt>gsInstance</tt> script is used. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Argument 2 </td>
+<td class='confluenceTd'> Defines a path which will be appended to the beginning of the used classpath. The value you define is set into the <tt>APPEND_TO_CLASSPATH_ARG</tt> variable. If no value is passed, the classpath defined in the <tt>gsInstance</tt> script is used. </td>
+</tr>
+<tr>
+<td class='confluenceTd'> Argument 3 </td>
+<td class='confluenceTd'> Defines additional command line arguments such as system properties. The value is set into the <tt>APPEND_ADDITIONAL_ARG</tt> variable. </td>
+</tr>
+</tbody></table>
+<p>If you are using the third and/or second argument only, <b>you must use empty quote signs for the argument or arguments that come before the one you are using</b>. For example:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gsInstance "" "" "-DmyOwnSysProp=value -DmyOwnSysProp2=value"
+</pre>
+</div></div>
+<p>In the example above, only the third argument is used, so two pairs of empty quote signs are written before it. In this case, the default URL and classpath (defined in the <tt>gsInstance</tt> script) are used, and only the system properties are appended. <div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The Java command in the <tt>gsInstance</tt> script starts the JVM that hosts the space. For more details, refer to the <a href="http://www.gigaspaces.com/docs/docs/quick_start/Top_Bar_2.htm">Quick Start Guide - Using the Examples (GigaSpaces Environment) - The Server Side</a>. </td></tr></table></div><br clear="all" /></p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

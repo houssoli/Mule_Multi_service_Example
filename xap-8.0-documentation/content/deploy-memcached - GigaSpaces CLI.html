@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : deploy-memcached - GigaSpaces CLI</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>deploy-memcached - GigaSpaces CLI</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Deploys a memcached-enabled space onto the service grid.  </p>
+</div>
+
+<h1><a name="deploy-memcached-GigaSpacesCLI-Syntax"></a>Syntax</h1>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; deploy-memcached [-sla ...] [-cluster ...] [-properties ...] [-user xxx -password yyy] [-secured true/false] space_url
+</pre>
+</div></div>
+
+<h1><a name="deploy-memcached-GigaSpacesCLI-Description"></a>Description</h1>
+
+<p>Deploys a <a href="The Memcached API.html" title="The Memcached API">memcached-enabled space</a>, which exposes the <a href="http://code.google.com/p/memcached/wiki/NewProtocols">memcached protocol</a>, onto the service grid. </p>
+
+<h1><a name="deploy-memcached-GigaSpacesCLI-Options"></a>Options</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Option</th>
+<th class='confluenceTh'>Description</th>
+<th class='confluenceTh'>Value Format</th>
+</tr>
+<tr>
+<td class='confluenceTd'> space_url </td>
+<td class='confluenceTd'> The url of the space, can be embedded, eg: <tt>/./myMemcachedSpace</tt>, or remote eg: <tt>jini://<b>/</b>/myMemcachedSpace</tt> </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-cluster</tt> </td>
+<td class='confluenceTd'>Allows you to control the clustering characteristics of the processing unit. <br clear="all" />The cluster option is a simplified option that overrides the cluster part of the processing unit's built in SLA (if such exists). <br/>
+The following options are available (used automatically by any embedded space included in the Processing Unit):
+<ul>
+	<li><tt>schema</tt> &#8211; the cluster schema used by the Processing Unit.</li>
+	<li><tt>total_members</tt> &#8211; the number of instances, optionally followed by the number of backups <br clear="all" />(number of backups is required only if the <tt>partitioned-sync2backup</tt> schema is used).</li>
+</ul>
+</td>
+<td class='confluenceTd'> <tt>-cluster schema=[schema name] total_members=numberOfInstances[,numberOfBackups]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-properties</tt> </td>
+<td class='confluenceTd'> Allows you to control <a href="Deployment Properties.html" title="Deployment Properties">deployment properties</a>. </td>
+<td class='confluenceTd'> <tt>-properties [bean name] location</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-sla</tt> </td>
+<td class='confluenceTd'> Allows you to specify a link (defaults to file-system) to a Spring XML configuration, holding the SLA definition. </td>
+<td class='confluenceTd'> <tt>-sla [slaLocation]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-zones</tt> </td>
+<td class='confluenceTd'> Allows you to specify a list of deployment zones that are to restrict that the deployment to specific GSCs. </td>
+<td class='confluenceTd'> <tt>-zones [zoneName1, zoneName2 ... ]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-timeout</tt> </td>
+<td class='confluenceTd'> Allows you to specify a timeout value (in milliseconds) when looking up the GSM to deploy to. <br clear="all" />Defaults to <tt>5000</tt> milliseconds (5 seconds).</td>
+<td class='confluenceTd'> <tt>-timeout [timeoutValue]</tt></td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-max-instances-per-vm</tt> </td>
+<td class='confluenceTd'> Allows you to set the SLA number of instances per VM </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-max-instances-per-machine</tt> </td>
+<td class='confluenceTd'> Allows you to set the SLA number of instances per machine </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-max-instances-per-zone</tt> </td>
+<td class='confluenceTd'> Allows you to set the SLA number of instances per zone in the format of <tt>zoneX/number,zoneY/number</tt> </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>h</tt> / <tt>help</tt>  </td>
+<td class='confluenceTd'> Prints help </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-secured</tt> </td>
+<td class='confluenceTd'> Deploys a secured processing unit (implicit when using -user/-password) - <a href="Command Line Interface (CLI) Security.html" title="Command Line Interface (CLI) Security">(CLI) Security</a></td>
+<td class='confluenceTd'> <tt>-secured [true/false]</tt></td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>-user</tt> <tt>-password</tt> </td>
+<td class='confluenceTd'> Deploys a secured processing unit propagated with the supplied user and password - <a href="Command Line Interface (CLI) Security.html" title="Command Line Interface (CLI) Security">(CLI) Security</a></td>
+<td class='confluenceTd'> <tt>-user xxx -password yyyy</tt></td>
+</tr>
+</tbody></table>
+
+<h1><a name="deploy-memcached-GigaSpacesCLI-Example"></a>Example</h1>
+
+<p>The following deploys a memcached-enabled space named <tt>mySpace</tt> using the <tt>partitioned-sync2backup</tt> cluster schema with 2 primaries and 1 primary per backup. </p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; deploy-memcached -cluster schema=partitioned-sync2backup total_members=2,1 mySpace
+</pre>
+</div></div>
+
+
+<p>The following deploys a memcached-enabled space called <tt>mySpace</tt> using an SLA element read from an external <tt>sla.xml</tt> file.</p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>gs&gt; deploy-space -sla file://config/sla.xml mySpace</pre>
+</div></div> 
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

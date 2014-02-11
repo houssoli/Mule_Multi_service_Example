@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Working with GigaSpaces JNDI</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Working with GigaSpaces JNDI</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  JNDI Overview, Binding/Obtaining <tt>ConnectionFactory</tt> and <tt>Destination</tt> instances. </p>
+</div>
+
+<h1><a name="WorkingwithGigaSpacesJNDI-Overview"></a>Overview</h1>
+
+<p>GigaSpaces runs a JNDI service where JMS objects can be bound by name. The administrator configures JMS destinations in the space configuration file. When the space is started, it creates and binds the configured destinations to JNDI, making them available for use.</p>
+
+<p>The application uses a JNDI context to obtain these objects, and to start working with JMS. The context is initialized with the values specified in the <tt>jndi.properties</tt> file in the GigaSpaces classpath. After obtaining the context, the client calls the <tt>context.lookup()</tt> method, passing the name of the required resource. If the resource is found in JNDI, it is returned to the client.</p>
+
+<h1><a name="WorkingwithGigaSpacesJNDI-ObtainingConnectionFactoryInstancesfromJNDI"></a>Obtaining ConnectionFactory Instances from JNDI</h1>
+
+<p>It is not possible to configure connection factories.</p>
+
+<p>When JMS services in JNDI are enabled, the space creates and binds the following connection factories:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Connectionfactory           GigaSpaces;ContainerName;SpaceName;GSConnectionFactoryImpl
+TopicConnectionfactory      GigaSpaces;ContainerName;SpaceName;GSTopicConnectionFactoryImpl
+QueueConnectionfactory      GigaSpaces;ContainerName;SpaceName;GSQueueConnectionFactoryImpl</pre>
+</div></div>
+<p>To obtain a connection factory, the application uses JNDI lookup:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// get a connection factory (unified model)
+</span>InitialContext context = <span class="code-keyword">new</span> InitialContext();
+ConnectionFactory factory = (ConnectionFactory)context.lookup(<span class="code-quote">"GigaSpaces;ContainerName;SpaceName;GSConnectionFactoryImpl"</span>);</pre>
+</div></div>
+<p>or:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// get a topic connection factory (publish/subscribe)
+</span>InitialContext context = <span class="code-keyword">new</span> InitialContext();
+TopicConnectionFactory factory = (TopicConnectionFactory)context.lookup(<span class="code-quote">"GigaSpaces;ContainerName;SpaceName;GSTopicConnectionFactoryImpl"</span>);</pre>
+</div></div>
+<p>or:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// get a queue connection factory (point to point)
+</span>InitialContext context = <span class="code-keyword">new</span> InitialContext();
+QueueConnectionFactory factory = (QueueConnectionFactory)context.lookup(<span class="code-quote">"GigaSpaces;ContainerName;SpaceName;GSQueueConnectionFactoryImpl"</span>);</pre>
+</div></div>
+
+<h1><a name="WorkingwithGigaSpacesJNDI-ConfiguringJMSDestinations"></a>Configuring JMS Destinations</h1>
+
+<p>To enable JMS services in GigaSpaces JNDI, change the space schema file as follows:</p>
+<ol>
+	<li>Set the <tt>com.j_spaces.core.container.directory_services.jms_services.enabled</tt> property to <tt>true</tt>.</li>
+	<li>Add a comma-separated list of topic names to the <tt>space-config.jms.administrated-destinations.topics.topic-names</tt> property.</li>
+	<li>Add a comma-separated list of queue names to the <tt>space-config.jms.administrated-destinations.queues.queue-names</tt> property.</li>
+</ol>
+
+
+<p>For example:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">com.j_spaces.core.container.directory_services.jms_services.enabled=<span class="code-keyword">true</span>
+
+space-config.jms.administrated-destinations.topics.topic-names=MyTopic,TempTopic
+space-config.jms.administrated-destinations.queues.queue-names=MyQueue,TempQueue</pre>
+</div></div>
+<p>The example above:</p>
+<ul>
+	<li>Enables JMS services in JNDI</li>
+	<li>Configures <tt>MyTopic</tt> and <tt>TempTopic</tt>.</li>
+	<li>Configures <tt>MyQueue</tt> and <tt>TempQueue</tt></li>
+</ul>
+
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When configuring destination as described above, the space binds the destinations to the following names:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpaces;ContainerName;spaceName;jms;destinations;MyTopic
+GigaSpaces;ContainerName;spaceName;jms;destinations;TempTopic
+GigaSpaces;ContainerName;spaceName;jms;destinations;MyQueue
+GigaSpaces;ContainerName;spaceName;jms;destinations;TempQueue</pre>
+</div></div>
+
+<h1><a name="WorkingwithGigaSpacesJNDI-ObtainingJMSDestinationsfromJNDI"></a>Obtaining JMS Destinations from JNDI</h1>
+
+<p>The application uses a JNDI context to get the destinations from JNDI.</p>
+
+<p>For example, to get the <tt>MyTopic</tt> Topic:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">InitialContext context = <span class="code-keyword">new</span> InitialContext();
+Topic myTopic = (Topic)context.lookup(<span class="code-quote">"GigaSpaces;containername;spaceName;jms;destinations;MyTopic"</span>);</pre>
+</div></div>
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> To get the resource, use the full binding name. If you configure <tt>MyTopic</tt> in the space configuration, the space binds it to the name:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpaces;ContainerName;spaceName;jms;destinations;MyTopic.</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Defining Replication Policy in Static Cluster - GigaSpaces Browser</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Defining Replication Policy in Static Cluster - GigaSpaces Browser</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  How to define the replication policy in a static cluster. </p>
+</div>
+<h1><a name="DefiningReplicationPolicyinStaticCluster-GigaSpacesBrowser-Overview"></a>Overview</h1>
+<p>Replication ensures that changes to a space's information are mirrored in other cluster members. The procedure below explains how to define a replication policy.</p>
+
+<p><b>To define a replication policy:</b></p>
+
+<p><img src="download/attachments/53903580/IMG502.jpg" align="absmiddle" border="0"/></p>
+
+<ul>
+	<li><b>Replication Mode</b> - Sync for <b>Synchronous</b>. The default value is sync.</li>
+	<li><b>Communication Mode</b> - Optional vales are multicast or unicast. The default value is unicast.</li>
+	<li><b>Todo Queue Timeout</b> - The time in milleseconds that the target space waits for missing packets. When the timeout expires, replication is performed via the asynchronous replicator. The default value is 1500.</li>
+	<li><b>Asynchronous Interval Check</b> - The interval time in milliseconds where the asynchronous replicator checks for missing packets sent to target the space as one batch. This parameter is also the interval time for the asynchronous redo log that cleans packets which have been sent successfully to all target spaces. The default value is 2000.</li>
+	<li><b>Asynchronous Interval Operations</b> -The number of destructive operations performed before the asynchronous replicator checks for missing packets sent to the target space as one batch. This parameter is also the number of destructive operations performed before the asynchronous redo log cleans packets which have been sent successfully to all target spaces. The default value is 1000.</li>
+	<li><b>Asynchronous Replication Chunk Size</b> - The number of sync packets that are transmitted together on the network. The default value is 100.</li>
+</ul>
+
+
+<h3><a name="DefiningReplicationPolicyinStaticCluster-GigaSpacesBrowser-UnicastValues"></a>Unicast Values</h3>
+<ul>
+	<li>Min Work Threads - The synchronous replicator module allocates a thread to communicate with the target space. This thread is taken from a pool. This parameter defines the pool's minimum size. The default value is 4.</li>
+	<li>Max Work Threads - The maximum pool size. Make this number larger than the number of target spaces. The default value is 64.</li>
+</ul>
+
+
+<h3><a name="DefiningReplicationPolicyinStaticCluster-GigaSpacesBrowser-MulticastValues"></a>Multicast Values</h3>
+<ul>
+	<li>Min Work Threads- When running in multicast mode the target space handles incoming replication packets through multiple threads taken from a dedicated thread pool. You may configure the size of this thread pool.Default value is 4.</li>
+	<li>Max Work Threads- This parameter sets the pool minimum size. The default value is 64.</li>
+	<li>IP Group - This is the multicast IP value. The default is 224.8.8.8.</li>
+	<li>Port - This is the multicast IP port value. The default is 5555.</li>
+	<li>Ack Interval: This value keeps alive the heartbeat interval in milliseconds by waiting for missing packets or processing incoming requests (writing an Entry to the replica space.) Communication is performed via multicast. Every non-completed packet gets a heartbeat. <tt>&lt;ack-interval&gt;</tt> value must be smaller than the <tt>&lt;response-timeout&gt;</tt>. The default value is 4000.</li>
+	<li>Response Timeout - The maximum expected response time in milliseconds to get acknowledged from the target space. Acknowledgement is received when the packet has been completely processed at the target space. Default value is 2000.</li>
+</ul>
+
+
+<p><img src="download/attachments/53903580/IMG503.jpg" align="absmiddle" border="0"/></p>
+
+<ul>
+	<li>Continue from step 8 in <a href="Defining Cluster Name and Spaces - GigaSpaces Browser.html" title="Defining Cluster Name and Spaces - GigaSpaces Browser">Defining Cluster Name and Spaces</a>.</li>
+	<li>From the Cluster Options area, select the <b>Replication</b> checkbox. Observe that the <b>Replication</b> tab is enabled at the bottom of the dialog.</li>
+	<li>Use the <b>Policy Type</b> drop-down to specify whether replication should be full or partial (meaning that only some Entries are replicated):
+	<ul>
+		<li>Full Replication - All Entries in the group's spaces are replicated.</li>
+		<li>Partial Replication - Entries are only replicated if their class implements the <tt>com.j_spaces.core.client.IReplicatable</tt> interface, a tag interface that contains no methods. This allows you to control replication on a class-based level.</li>
+	</ul>
+	</li>
+	<li>Select the <b>Synch</b> on <b>Commit</b> check-box if your application uses transactions, and you want the commit operation to be blocked until all members of the replication group receive the changes made by the transaction. The operation is not blocked if some of the transaction participants are unavailable; they simply receive the changes when they come back up.</li>
+	<li>With regard to the <b>Trigger Notify Template</b> and <b>Replicate Notify Template</b> check-boxes, there are four options:</li>
+</ul>
+
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Replicate Notify Template Setting</th>
+<th class='confluenceTh'>Trigger Notify Template Setting</th>
+<th class='confluenceTh'>Description</th>
+</tr>
+<tr>
+<td class='confluenceTd'>True (checked)</td>
+<td class='confluenceTd'>False (unchecked)</td>
+<td class='confluenceTd'>Client gets notification from the master space while it is active after registration. If failover has been configured, it gets notification from replica space when master space fails.</td>
+</tr>
+<tr>
+<td class='confluenceTd'>False (unchecked)</td>
+<td class='confluenceTd'>True (checked)</td>
+<td class='confluenceTd'>Client gets notification only from those spaces that are registered for notification.Notification occurs when data has been delivered to the space, either by a client application or from the replication.</td>
+</tr>
+<tr>
+<td class='confluenceTd'>True (checked)</td>
+<td class='confluenceTd'>True (checked)</td>
+<td class='confluenceTd'>Client gets notification from all cluster spaces after registration.Client gets multiple notifications for every space event.</td>
+</tr>
+<tr>
+<td class='confluenceTd'>False (unchecked)</td>
+<td class='confluenceTd'>False (unchecked)</td>
+<td class='confluenceTd'>Client gets notification only from those spaces to which it registered.Client does not get notifications from spaces which received their data by replication.</td>
+</tr>
+</tbody></table>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Replicate Notify Template</b> and <b>Trigger Notify Templates</b> are orthogonal. However, if you check them both (option 3), you should be aware that, for each Entry that matches the notify template and is replicated to another space, you get a remote event. This may result in more events than you initially intended. You can use the source of the event to check which space triggered it.</td></tr></table></div>
+
+<ul>
+	<li>Select the <b>Memory Recovery</b> checkbox if you want the space to recover its data from a replication partner when the GigaSpaces Server starts. This is only relevant for memory (transient) spaces).</li>
+	<li>Type the number of sync packets that are transmitted together on the network in the <b>Chunk Size</b> field.<br/>
+Type the time (in milliseconds) to wait between replication operations in the <b>Interval Millisecond...</b> field.</li>
+	<li>In the <b>Interval Operations</b> field, type the number of destructive space operations (write, take, Notify) to wait before replicating.</li>
+	<li>Type the timeout (in milliseconds) to wait for the lookup of a peer space in the <b>Find Timeout</b> field. This parameter applies only when the space is searched in a Jini lookup service.</li>
+	<li>Select the <b>Group Members Attribute</b> check-box if you want to enable replication selectively across the group members. If this check-box is clear, all spaces in the group are replicated with all the other spaces in the group. The <b>Edit...</b> button is enabled if you have selected the <b>Group Members Attribute</b> check-box.</li>
+	<li>Click the <b>Edit...</b> button to define the replication matrix, which specifies which spaces replicate to which spaces.</li>
+</ul>
+
+
+<p><img src="download/attachments/53903580/IMG504.jpg" align="absmiddle" border="0"/></p>
+
+<ul>
+	<li>The <b>Replications</b> tab of the <b>Replication Matrix</b> dialog box allows you to define which spaces replicate to which spaces. Boxes in white are possible combinations for replication. Selecting the check-box where sp2 is target and sp1 is source enables one-way replication, from sp1 to sp2. This is shown in the screenshot below. By selecting additional check-boxes in the matrix, you enable other replication relationships.</li>
+	<li>The <b>Properties</b> pane on the right of the dialog relates to the box that is currently selected (shaded in purple) in the matrix. Use the check-boxes under <b>Operations</b>, on the right of the dialog, to enable or disable the replication of specific operations, for the current replication relationship (e.g. sp1 to sp2):</li>
+</ul>
+
+
+<p><img src="download/attachments/53903580/IMG505.jpg" align="absmiddle" border="0"/></p>
+
+<ul>
+	<li>Select the <b>Sync on commit</b> check-box to block the commit operation until both the spaces in the current replication relationship have received the changes made by the transaction.
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The <b>Filters/Recovery</b> tab contains advanced settings related to space filters and recovery from a replication partner after shutdown. For more information, see <a href="Creating Static Cluster - GigaSpaces Browser.html" title="Creating Static Cluster - GigaSpaces Browser">Creating a Cluster</a>.</td></tr></table></div></li>
+	<li>Click the OK button to save the changes and return to the <b>Create New Cluster Group</b> dialog box.</li>
+	<li>You may now define additional policies for the group. See <a href="Defining Failover Policy in Static Cluster - GigaSpaces Browser.html" title="Defining Failover Policy in Static Cluster - GigaSpaces Browser">Defining a Failover Policy.</a> If you do not need to define additional policies for this group, press <b>Create</b> to finish creating it.</li>
+	<li>If you need to define additional groups, see <a href="Defining Groups in Static Cluster - GigaSpaces Browser.html" title="Defining Groups in Static Cluster - GigaSpaces Browser">Creating Groups</a> . If not, page through to the end of the wizard and jump to <b>Creating Spaces</b>.<br/>
+<a name="DefiningReplicationPolicyinStaticCluster-GigaSpacesBrowser-1"></a> <br/>
+Cluster repl-original-state:</li>
+</ul>
+
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;repl-policy&gt;</span>
+<span class="code-tag">&lt;repl-original-state&gt;</span>true<span class="code-tag">&lt;/repl-original-state&gt;</span>
+<span class="code-tag">&lt;/repl-policy&gt;</span></pre>
+</div></div>
+
+<p>When this option is set to true, the replication mechanism maintains for every entry its full state together with the operation. For example, if an Entry has been written to the space and updated several times within a specific replication batch, the replication mechanism replicates the operations in their correct order together with the Entry's original state for each operation.<br/>
+When this option is set to false, the replication mechanism replicates the latest state of the Entry to the target space. For example, if an Entry has been written to the space and updated several times within a specific replication batch, the replication mechanism replicates the operations in their correct order, but uses the Entry with its latest state for all operations.<br/>
+Config file example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;repl-policy&gt;</span>
+             ...
+             ....
+             <span class="code-tag">&lt;repl-find-timeout&gt;</span>10000<span class="code-tag">&lt;/repl-find-timeout&gt;</span>
+             <span class="code-tag">&lt;repl-original-state&gt;</span>true<span class="code-tag">&lt;/repl-original-state&gt;</span>  
+<span class="code-tag">&lt;/repl-policy&gt;</span></pre>
+</div></div> 
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

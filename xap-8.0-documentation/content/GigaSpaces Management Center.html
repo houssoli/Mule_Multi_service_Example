@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : GigaSpaces Management Center</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>GigaSpaces Management Center</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903593";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903593";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  GigaSpaces Management Center is a GUI that allows you to view spaces, containers, and clusters and configure them, using the Space Browser tab. You can also deploy and manage services using the Deployments tab. </p>
+</div>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Using the GigaSpaces Management Center in production and large-scale environments</b><br />
+<ul class="alternate" type="square">
+	<li>It is highly recommended to run the GigaSpaces Management Center on the <b>same network subnet</b> as the Data-Grid and other GigaSpaces runtime components are running. Since the GigaSpaces Management Center communicates with the Data-Grid,GSCs, GSM, GSA and Lookup-Service continuously, it should have fast connectivity with these components. High latency connectivity will impact the responsiveness of the GigaSpaces Management Center and its initial bootstrap time. In production environments you should use remote desktop products such as <a href="http://www.realvnc.com/products/free/4.1/index.html">VNC</a> or <a href="http://www.nomachine.com">No Machine</a>, run the GigaSpaces Management Center at the <b>same</b> network subnet as the Data-Grid and the other GigaSpaces runtime components and run the VNC or NX client side to access the remote machines desktop from the administrator machine desktop.</li>
+	<li>With relatively large amount of GSCs , Services or Data-Grid partitions (over 20 units) it is recommended to increase the heap size of the GigaSpaces Management Center to 1G (-Xmx1g).</li>
+</ul>
+</td></tr></table></div>
+<h1><a name="GigaSpacesManagementCenter-Overview"></a>Overview</h1>
+
+<p>GigaSpaces Management Center is a Graphical User Interface that allows you to view spaces, containers, and clusters and configure them, using the Space Browser tab. You can also deploy and manage services using the Deployments tab.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> To start the GigaSpaces Management Center, run: </p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>&lt;GigaSpaces Root&gt;\bin\gs-ui.bat/sh</pre>
+</div></div>
+
+<p>The GigaSpaces Management Center is separated into 3 tabs (Space Browser, Deployment, Details, Utilization):</p>
+
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/GigaSpaces_Management_Center_6.5_M7.jpg" align="absmiddle" border="0"/></p></div>
+
+<p>Each GigaSpaces Management Center tab is described in a dedicated documentation tab below:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="GigaSpacesManagementCenter-SpaceBrowserTab"></a>Space Browser Tab</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This section has <b>undergone many changes in the latest releases</b> of GigaSpaces and might not be accurate. It will be fully updated soon.</td></tr></table></div>
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:47219546";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=COM'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:47219546";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="GigaSpacesManagementCenter-Overview"></a>Overview</h1>
+
+<p>The Space Browser tab allows you to view and configure two main components in GigaSpaces &#8211; space and cluster. </p>
+
+<p>The main <b>Spaces</b> node (<img src="download/attachments/48235222/space_network_view_icon.gif" align="absmiddle" border="0"/>) displays the <em>Space Network view</em> &#8211; a table listing all spaces in the network, and different details regarding those spaces. </p>
+
+<p>The <b>Spaces</b> node includes:</p>
+<ul>
+	<li>Space container nodes (<img src="download/attachments/48235222/container.gif" align="absmiddle" border="0"/>) that hold spaces (<img src="download/attachments/48235222/spaceTreeIcon.gif" align="absmiddle" border="0"/>). Container nodes allow you to manage space containers &#8211; shutting down the container, creating a space under it, and more.</li>
+	<li>Space nodes (<img src="download/attachments/48235222/spaceTreeIcon.gif" align="absmiddle" border="0"/>) allow you to manage spaces &#8211; starting or stopping, destroying, cleaning the space, and more. Each space node includes different views under it, that allow you to manage it further.<br/>
+<span id='tgl_content_1' class='cloakToggle'></span>See screenshot... 
+
+<div class="panel" style="background-color: white;border-style: none;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/GMC_space_6.0.jpg" align="absmiddle" border="0"/></p></div>
+</div></div>
+
+<br/>
+The main <b>Clusters</b> node (<img src="download/attachments/48235222/cluster_node.gif" align="absmiddle" border="0"/>) includes: </li>
+	<li>Cluster nodes (<img src="download/attachments/48235222/specific_cluster_icon.jpg" align="absmiddle" border="0"/>) that allow you to manage the cluster &#8211; stop, start, restart, clean the cluster, and more.</li>
+	<li>Cluster group nodes (<img src="download/attachments/48235222/cluster_topology_icon.jpg" align="absmiddle" border="0"/>) hold the cluster members (<img src="download/attachments/48235222/spaceTreeIcon.gif" align="absmiddle" border="0"/>). Clicking a cluster member displays a graphic representation of the cluster, and tables showing details regarding replication, failover, load-balancing, and classes.<br/>
+<span id='tgl_content_2' class='cloakToggle'></span>See screenshot... 
+
+<div class="panel" style="background-color: white;border-style: none;border-width: 1px;"><div class="panelContent" style="background-color: white;">
+<div class="indent20 inline" style="margin-left: 20px;"><style type="text/css">div.inline p:first-child { display: inline; }</style><p><img src="download/attachments/48235229/GMC_space_clusterNodeSelected_6.0.jpg" align="absmiddle" border="0"/></p></div>
+</div></div>
+
+</li>
+</ul>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903559";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903559";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="GigaSpacesManagementCenter-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="GigaSpaces Browser Tree Panel and Configuration Panel.html" title="GigaSpaces Browser Tree Panel and Configuration Panel">GigaSpaces Browser Tree Panel and Configuration Panel</a> &mdash; <span class="smalltext">Using the Grid Tree and the Configuration Panel on the right.</span><ul><li><a href="Classes View - GigaSpaces Browser.html" title="Classes View - GigaSpaces Browser">Classes View - GigaSpaces Browser</a> &mdash; <span class="smalltext">Used to view data stored on the space (classes and number of instances).</span></li><li><a href="Connections View - GigaSpaces Browser.html" title="Connections View - GigaSpaces Browser">Connections View - GigaSpaces Browser</a> &mdash; <span class="smalltext">Displays information regarding all connected and disconnected proxies.</span></li><li><a href="Object Inspector.html" title="Object Inspector">Object Inspector</a> &mdash; <span class="smalltext">Using the selected object's UID, the Object Inspector takes the object itself from the space and displays its class fields, allowing you to drill down into object arrays.</span></li><li><a href="Query View - GigaSpaces Browser.html" title="Query View - GigaSpaces Browser">Query View - GigaSpaces Browser</a> &mdash; <span class="smalltext">Used to query the space using SQL statements and view the resulting data set in tabular format.</span></li><li><a href="Statistics View - GigaSpaces Browser.html" title="Statistics View - GigaSpaces Browser">Statistics View - GigaSpaces Browser</a> &mdash; <span class="smalltext">Provides graphical representation of space operations performed and average throughput.</span></li><li><a href="Transactions View - GigaSpaces Browser.html" title="Transactions View - GigaSpaces Browser">Transactions View - GigaSpaces Browser</a> &mdash; <span class="smalltext">The Transactions view allows you to view all of the trasactions that are currently taking place in the selected space.</span></li></ul></li><li><a href="GigaSpaces Browser Menus and Buttons.html" title="GigaSpaces Browser Menus and Buttons">GigaSpaces Browser Menus and Buttons</a> &mdash; <span class="smalltext">Using the <b>File</b> menu, <b>Container</b> menu, <b>Space</b> menu, <b>Cluster</b> menu, <b>Windows</b> menu, <b>Help</b> menu, button toolbar, and address bar.</span></li><li><a href="Managing Containers - GigaSpaces Browser.html" title="Managing Containers - GigaSpaces Browser">Managing Containers - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using the Container Configuration tab of a container node in the Grid Tree, and tool buttons relevant for containers.</span><ul><li><a href="Container Configuration Directory Services Tab - GigaSpaces Browser.html" title="Container Configuration Directory Services Tab - GigaSpaces Browser">Container Configuration Directory Services Tab - GigaSpaces Browser</a> &mdash; <span class="smalltext">Lookup service options for the container.</span></li><li><a href="Container Configuration General Tab - GigaSpaces Browser.html" title="Container Configuration General Tab - GigaSpaces Browser">Container Configuration General Tab - GigaSpaces Browser</a> &mdash; <span class="smalltext">Home directory, license, container socket port, security mode.</span></li><li><a href="Container Configuration JMS Tab - GigaSpaces Browser.html" title="Container Configuration JMS Tab - GigaSpaces Browser">Container Configuration JMS Tab - GigaSpaces Browser</a> &mdash; <span class="smalltext">Enabling JMS, enabling internal JNDI, enabling external JNDI.</span></li><li><a href="Container Maintenance - GigaSpaces Browser.html" title="Container Maintenance - GigaSpaces Browser">Container Maintenance - GigaSpaces Browser</a> &mdash; <span class="smalltext">Restarting, shutting down and refreshing containers; viewing a runtime configuration report.</span></li></ul></li><li><a href="Pending Notify Templates Information.html" title="Pending Notify Templates Information">Pending Notify Templates Information</a> &mdash; <span class="smalltext">Information regarding pending notify templates is exposed in all management components &#8211; GigaSpaces Management Center, JMX, CLI.</span></li><li><a href="Working with Clusters - GigaSpaces Browser.html" title="Working with Clusters - GigaSpaces Browser">Working with Clusters - GigaSpaces Browser</a> &mdash; <span class="smalltext">Creating a cluster, replication options, load-balancing options, failover options, verifying and editing cluster definitions, visualizing clusters.</span><ul><li><a href="Cluster View - GigaSpaces Browser.html" title="Cluster View - GigaSpaces Browser">Cluster View - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using Cluster View areas: Cluster Tree, visual display, legend, and information panel.</span></li><li><a href="Creating Cluster from Existing Cluster - GigaSpaces Browser.html" title="Creating Cluster from Existing Cluster - GigaSpaces Browser">Creating Cluster from Existing Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using an existing cluster as a basis for a new cluster.</span></li><li><a href="Creating Custom Cluster - GigaSpaces Browser.html" title="Creating Custom Cluster - GigaSpaces Browser">Creating Custom Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">Building a custom cluster from a standard cluster schema.</span></li><li><a href="Creating Static Cluster - GigaSpaces Browser.html" title="Creating Static Cluster - GigaSpaces Browser">Creating Static Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">How to create a cluster from scratch using the Cluster Wizard in the GigaSpaces Browser.</span></li><li><a href="Editing Existing Cluster Configuration - GigaSpaces Browser.html" title="Editing Existing Cluster Configuration - GigaSpaces Browser">Editing Existing Cluster Configuration - GigaSpaces Browser</a> &mdash; <span class="smalltext">Editing an existing cluster's configuration using the Cluster Wizard.</span></li><li><a href="Failover Group - GigaSpaces Browser.html" title="Failover Group - GigaSpaces Browser">Failover Group - GigaSpaces Browser</a> &mdash; <span class="smalltext">A failover group defines failover between spaces in the cluster.</span></li><li><a href="Load-Balancing Group - GigaSpaces Browser.html" title="Load-Balancing Group - GigaSpaces Browser">Load-Balancing Group - GigaSpaces Browser</a> &mdash; <span class="smalltext">A load-balancing group defines load-balancing between spaces in the cluster.</span></li><li><a href="Replication Group - GigaSpaces Browser.html" title="Replication Group - GigaSpaces Browser">Replication Group - GigaSpaces Browser</a> &mdash; <span class="smalltext">Common settings, sync/async replication, transmission policies, filters, recovery options.</span></li><li><a href="Verifying Cluster Configuration - GigaSpaces Browser.html" title="Verifying Cluster Configuration - GigaSpaces Browser">Verifying Cluster Configuration - GigaSpaces Browser</a> &mdash; <span class="smalltext">Verifying the cluster configuration is OK and placing it on member machines.</span></li></ul></li><li><a href="Working with Spaces - GigaSpaces Browser.html" title="Working with Spaces - GigaSpaces Browser">Working with Spaces - GigaSpaces Browser</a> &mdash; <span class="smalltext">Performing operations on a space in the GigaSpaces Browser.</span><ul><li><a href="Basic Space Configuration - GigaSpaces Browser.html" title="Basic Space Configuration - GigaSpaces Browser">Basic Space Configuration - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using the basic space configuration dialog.</span></li><li><a href="Space JMS - GigaSpaces Browser.html" title="Space JMS - GigaSpaces Browser">Space JMS - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using the <b>JMS</b> tab of the advanced space configuration dialog.</span></li><li><a href="Space Maintenance - GigaSpaces Browser.html" title="Space Maintenance - GigaSpaces Browser">Space Maintenance - GigaSpaces Browser</a> &mdash; <span class="smalltext">Pinging, destroying, cleaning, stopping, starting, and restarting a space using the button toolbar.</span></li><li><a href="Space Memory Management - GigaSpaces Browser.html" title="Space Memory Management - GigaSpaces Browser">Space Memory Management - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using the <b>Memory Management</b> tab of the advanced space configuration dialog.</span></li><li><a href="Space Persistence - GigaSpaces Browser.html" title="Space Persistence - GigaSpaces Browser">Space Persistence - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using the <b>Persistence</b> tab of the advanced space configuration dialog.</span></li><li><a href="Space Serialization, Implicit Indexing and Threads - GigaSpaces Browser.html" title="Space Serialization, Implicit Indexing and Threads - GigaSpaces Browser">Space Serialization, Implicit Indexing and Threads - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using the <b>Performance</b> tab of the advanced space configuration dialog.</span></li><li><a href="Space Timeout, Filters and Lease Manager - GigaSpaces Browser.html" title="Space Timeout, Filters and Lease Manager - GigaSpaces Browser">Space Timeout, Filters and Lease Manager - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using the <b>General</b> tab of the advanced space configuration dialog.</span></li></ul></li></ul>
+
+
+<h5><a name="GigaSpacesManagementCenter-Deployments%2CDetailsTab"></a>Deployments, Details Tab</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This section is <b>under construction</b> and might have some missing information. It will be fully updated soon.</td></tr></table></div>
+<h1><a name="GigaSpacesManagementCenter-Overview"></a>Overview</h1>
+
+<p>The Deployments tab allows you to perform different operations in the <a href="http://www.gigaspaces.com/wiki/display/XAP66/Service+Grid+Processing+Unit+Container" title="Service Grid Processing Unit Container">OpenSpaces Service Grid Processing Unit Container</a>, such as deploying applications and managing running services.</p>
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903535";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903535";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="GigaSpacesManagementCenter-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="Deployments Tab Menus and Buttons.html" title="Deployments Tab Menus and Buttons">Deployments Tab Menus and Buttons</a> &mdash; <span class="smalltext">Using the <b>File</b> menu, <b>Launch</b> menu, <b>Deployment</b> menu, <b>Settings</b> menu, <b>Help</b> menu, and button toolbar.</span></li><li><a href="Navigating from Deployed Processing Unit to Relevant Space.html" title="Navigating from Deployed Processing Unit to Relevant Space">Navigating from Deployed Processing Unit to Relevant Space</a> &mdash; <span class="smalltext">Deploying a Processing Unit using the GMC Deployments tab.</span></li><li><a href="Service Grid Network and Deployments Status - Deployments Tab.html" title="Service Grid Network and Deployments Status - Deployments Tab">Service Grid Network and Deployments Status - Deployments Tab</a><ul><li><a href="UI Undeploy and Update Options.html" title="UI Undeploy and Update Options">UI Undeploy and Update Options</a> &mdash; <span class="smalltext">UI Undeploy, Redeploy, and Update options.</span></li></ul></li></ul>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

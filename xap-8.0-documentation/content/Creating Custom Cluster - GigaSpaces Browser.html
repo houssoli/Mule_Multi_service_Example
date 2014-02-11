@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Creating Custom Cluster - GigaSpaces Browser</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Creating Custom Cluster - GigaSpaces Browser</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Building a custom cluster from a standard cluster schema. </p>
+</div>
+
+<h1><a name="CreatingCustomCluster-GigaSpacesBrowser-Overview"></a>Overview</h1>
+<div class='panelMacro'><table class='warningMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This section intended only for advanced users interested with a special data-grid cluster topology that is not provided with the out of the box <a href="Space Topologies.html" title="Space Topologies">supported topologies</a>. The supported out of the box data-grid cluster topologies are: synchronous replicated , a-synchronous replicated , partitioned , partitioned+ synchronous replicated. Any out of the box cluster topology can be deployed via the GS-UI or the <a href="deploy-space GigaSpaces CLI.html" title="deploy-space GigaSpaces CLI">deploy CLI</a> without the need to generate cluster configuration file as described below.</td></tr></table></div>
+
+<p><b>To build a custom cluster from a standard cluster schema:</b></p>
+
+<ol>
+	<li>If not already open, open a Space Browser.</li>
+	<li>Using the mouse, select <b>Cluster|New</b> from the menu items in the Space Browser.</li>
+	<li>Enter the Cluster Name: <tt>customcluster</tt>.</li>
+	<li>Select the Topology: <tt>partitioned-sync2backup</tt>.</li>
+	<li>Specify the number of primary members to be 2 and the number of backup members to be 1 per primary.</li>
+	<li>Click <b>Next</b>.</li>
+	<li>The settings for the 4 space URLs are fine. Click <b>Next</b>.</li>
+	<li>Select the top node: <tt>LB_FO_Backup</tt>, click <b>Edit</b>. Note that all spaces are considered to be part of this group. This is good. Notice also that all space operations will be executed across the cluster using a Hashing algorithm (this is due to the default hash setting).</li>
+	<li>Click on the <b>Fail Over</b> tab. Note that container1 and container2 each have a listed backup node. (container1_1 and 2_1 respectively).</li>
+	<li>Click <b>Cancel</b> to exit that node view and select the next two nodes. Investigate their settings (if you like, you can change the replication to synchronous) and examine the Replication Matrix by checking the box and clicking <b>Edit. . .</b></li>
+	<li>Expand the window until you can see the entire replication matrix. The relationships are established between spaces according to the type of replication in which they engage. You can make changes in the replication mode for any particular relationship.</li>
+	<li>Exit all node views by pressing <b>Cancel</b>, and return to the Create Groups Wizard window.</li>
+	<li>Click <b>Next</b> (there should be no errors).</li>
+	<li>Click <b>View File</b> and walk through the generated XML configuration file.</li>
+	<li>Close the file view.</li>
+	<li>Select <b>Finish</b>: a <b>Save File</b> dialogue box will appear.</li>
+	<li>Select <b>All Files</b> and specify a location and name for your new cluster configuration file (it should end in <tt>.xml</tt>) For example: <tt>customcluster.xml</tt>.</li>
+	<li>You should see a confirmation message that indicates that your file was saved successfully.<br/>
+Congratulations! You now have a reusable cluster configuration file that you can use to build clusters. </li>
+</ol>
+
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td> Cluster and Space schema files located within the \gigaspaces-xap-root\lib\required\gs-runtime.jar\config\schemas folder</td></tr></table></div>
+
+<h1><a name="CreatingCustomCluster-GigaSpacesBrowser-ViewingClusterConfigurationinSpaceBrowser"></a>Viewing Cluster Configuration in Space Browser </h1>
+<p>The space browser allows you to view the relationships and expected behavior of a cluster. </p>
+<ol>
+	<li>Select <b>Cluster|Viewer</b> from the <b>Menu</b> options at the top of the Space Browser.</li>
+	<li>Open the <tt>customcluster.xml</tt> file you created and view the cluster configuration.
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td> This cluster is not running, you are merely observing its structure.</td></tr></table></div></li>
+	<li>Right-click the <b>customcluster</b> node and select <b>Close</b> from the menu.</li>
+</ol>
+
+
+<h1><a name="CreatingCustomCluster-GigaSpacesBrowser-StartingthecustomclusterandCreatingaTrulyCustomizedCluster"></a>Starting the customcluster and Creating a Truly Customized Cluster </h1>
+<p>When creating a cluster configuration file, only the URLs are specified for each member as it exposes itself to the Lookup Service. You will now have the opportunity to specify the space schema and any additional specifications of each instance as you create a start script and start them. <br/>
+Steps to perform:</p>
+<ol>
+	<li>Create a start script (usually from an existing one).</li>
+	<li>Specify the space schema for each space in the start script (using a properties file helps a lot here).</li>
+	<li>Ensure that the classpath and arguments to the space support the necessary behavior such as: embedded workers, filters, or JDBC driver utilization.</li>
+	<li>Start the spaces and get to work!</li>
+	<li>An example cluster start script that uses the <tt>customcluster.xml</tt> is provided in the <tt>clusterLab</tt> directory. It is called <tt>customclusterstartup.cmd</tt></li>
+	<li>Start up the <tt>customcluster</tt> and examine it in the Space Browser as you did with the previous clusters.</li>
+</ol>
+
+
+<p>The <tt>customclusterstartup.cmd</tt> starts up the following script: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">start <span class="code-quote">"customcluster1"</span> gsInstance 
+   <span class="code-quote">"java:<span class="code-comment">//localhost/customcluster_container1/customcluster?properties=customcluster&amp;schema=<span class="code-keyword">default</span>"</span> 
+</span>
+start <span class="code-quote">"customcluster2"</span> gsInstance 
+   <span class="code-quote">"java:<span class="code-comment">//localhost/customcluster_container2/customcluster?properties=customcluster&amp;schema=<span class="code-keyword">default</span>"</span> 
+</span>
+start <span class="code-quote">"customcluster1_back"</span> gsInstance 
+   <span class="code-quote">"java:<span class="code-comment">//localhost/customcluster_containecustomcluster?properties=customcluster&amp;schema=<span class="code-keyword">default</span>"</span> 
+</span>
+start <span class="code-quote">"customcluster2_back"</span> gsInstance 
+   <span class="code-quote">"java:<span class="code-comment">//localhost/customcluster_container2_1/customcluster?properties=customcluster&amp;schema=<span class="code-keyword">default</span>"</span></span></pre>
+</div></div> 
+
+<p>The properties file: <br/>
+The default value is 60000 milliseconds (60 seconds). </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">-Dsun.rmi.dgc.client.gcInterval=20000000 
+-Dsun.rmi.dgc.server.gcInterval=20000000 
+
+com.gs.env.report=<span class="code-keyword">true</span> 
+gs.space.url.arg.nowritelease=<span class="code-keyword">true</span> 
+-Dcom.gs.debug=<span class="code-keyword">true</span> 
+-Dcom.gs.clusterXML.debug=<span class="code-keyword">false</span> 
+-Dcom.gs.client.debug=<span class="code-keyword">false</span> 
+-Dcom.gs.cluster.cluster_enabled=<span class="code-keyword">true</span> 
+-Dcom.gs.cluster.config-url=config/customcluster.xml</pre>
+</div></div>
+
+<p>The cluster XML file: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span>?&gt;</span> 
+<span class="code-tag">&lt;cluster-config&gt;</span> 
+     <span class="code-tag">&lt;cluster-name&gt;</span>customcluster<span class="code-tag">&lt;/cluster-name&gt;</span> 
+     <span class="code-tag">&lt;dist-cache&gt;</span> 
+          <span class="code-tag">&lt;config-name&gt;</span>DefaultConfig<span class="code-tag">&lt;/config-name&gt;</span> 
+     <span class="code-tag">&lt;/dist-cache&gt;</span> 
+     <span class="code-tag">&lt;cluster-members&gt;</span> 
+          <span class="code-tag">&lt;member&gt;</span> 
+               <span class="code-tag">&lt;member-name&gt;</span>customcluster_container1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+               <span class="code-tag">&lt;member-url&gt;</span>jini://*/customcluster_container1/customcluster&amp;lt;/member-url&gt; 
+          <span class="code-tag">&lt;/member&gt;</span> 
+          <span class="code-tag">&lt;member&gt;</span> 
+               <span class="code-tag">&lt;member-name&gt;</span>customcluster_container1_1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+               <span class="code-tag">&lt;member-url&gt;</span>jini://*/customcluster_container1_1/customcluster&amp;lt;/member-url&gt; 
+          <span class="code-tag">&lt;/member&gt;</span> 
+          <span class="code-tag">&lt;member&gt;</span> 
+               <span class="code-tag">&lt;member-name&gt;</span>customcluster_container2:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+               <span class="code-tag">&lt;member-url&gt;</span>jini://*/customcluster_container2/customcluster&amp;lt;/member-url&gt; 
+          <span class="code-tag">&lt;/member&gt;</span> 
+          <span class="code-tag">&lt;member&gt;</span> 
+               <span class="code-tag">&lt;member-name&gt;</span>customcluster_container2_1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+               <span class="code-tag">&lt;member-url&gt;</span>jini://*/customcluster_container2_1/customcluster&amp;lt;/member-url&gt; 
+          <span class="code-tag">&lt;/member&gt;</span> 
+     <span class="code-tag">&lt;/cluster-members&gt;</span> 
+     <span class="code-tag">&lt;groups&gt;</span> 
+          <span class="code-tag">&lt;group&gt;</span> 
+               <span class="code-tag">&lt;group-name&gt;</span>LB_FO_Backup<span class="code-tag">&lt;/group-name&gt;</span> 
+               <span class="code-tag">&lt;group-members&gt;</span> 
+                    <span class="code-tag">&lt;member&gt;</span> 
+                         <span class="code-tag">&lt;member-name&gt;</span>customcluster_container1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+                    <span class="code-tag">&lt;/member&gt;</span> 
+                    <span class="code-tag">&lt;member&gt;</span> 
+                         <span class="code-tag">&lt;member-name&gt;</span>customcluster_container1_1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+                    <span class="code-tag">&lt;/member&gt;</span> 
+                    <span class="code-tag">&lt;member&gt;</span> 
+                         <span class="code-tag">&lt;member-name&gt;</span>customcluster_container2:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+                    <span class="code-tag">&lt;/member&gt;</span> 
+                    <span class="code-tag">&lt;member&gt;</span> 
+                         <span class="code-tag">&lt;member-name&gt;</span>customcluster_container2_1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+                    <span class="code-tag">&lt;/member&gt;</span> 
+               <span class="code-tag">&lt;/group-members&gt;</span> 
+               <span class="code-tag">&lt;load-bal-policy&gt;</span> 
+                    <span class="code-tag">&lt;load-bal-impl-class&gt;</span>com.gigaspaces.cluster.loadbalance.LoadBalanceImpl<span class="code-tag">&lt;/load-bal-impl-class&gt;</span> 
+                    <span class="code-tag">&lt;apply-ownership&gt;</span>false<span class="code-tag">&lt;/apply-ownership&gt;</span> 
+                    <span class="code-tag">&lt;disable-parallel-scattering&gt;</span>false<span class="code-tag">&lt;/disable-parallel-scattering&gt;</span> 
+                    <span class="code-tag">&lt;notify&gt;</span> 
+                         <span class="code-tag">&lt;policy-type&gt;</span>hash-based<span class="code-tag">&lt;/policy-type&gt;</span> 
+                         <span class="code-tag">&lt;broadcast-condition&gt;</span>broadcast-if-null-values<span class="code-tag">&lt;/broadcast-condition&gt;</span> 
+                    <span class="code-tag">&lt;/notify&gt;</span> 
+                    <span class="code-tag">&lt;default&gt;</span> 
+                         <span class="code-tag">&lt;policy-type&gt;</span>hash-based<span class="code-tag">&lt;/policy-type&gt;</span> 
+                         <span class="code-tag">&lt;broadcast-condition&gt;</span>broadcast-if-null-values<span class="code-tag">&lt;/broadcast-condition&gt;</span> 
+                    <span class="code-tag">&lt;/default&gt;</span> 
+               <span class="code-tag">&lt;/load-bal-policy&gt;</span> 
+               <span class="code-tag">&lt;fail-over-policy&gt;</span> 
+                    <span class="code-tag">&lt;fail-back&gt;</span>false<span class="code-tag">&lt;/fail-back&gt;</span> 
+                    <span class="code-tag">&lt;fail-over-find-timeout&gt;</span>2000<span class="code-tag">&lt;/fail-over-find-timeout&gt;</span> 
+                    <span class="code-tag">&lt;default&gt;</span> 
+                         <span class="code-tag">&lt;policy-type&gt;</span>fail-to-backup<span class="code-tag">&lt;/policy-type&gt;</span> 
+                         <span class="code-tag">&lt;backup-members&gt;</span> 
+                              <span class="code-tag">&lt;member&gt;</span> 
+                                   <span class="code-tag">&lt;source-member&gt;</span>customcluster_container1:customcluster<span class="code-tag">&lt;/source-member&gt;</span> 
+                                   <span class="code-tag">&lt;backup-member&gt;</span>customcluster_container1_1:customcluster<span class="code-tag">&lt;/backup-member&gt;</span> 
+                              <span class="code-tag">&lt;/member&gt;</span> 
+                              <span class="code-tag">&lt;member&gt;</span> 
+                                   <span class="code-tag">&lt;source-member&gt;</span>customcluster_container2:customcluster<span class="code-tag">&lt;/source-member&gt;</span> 
+                                   <span class="code-tag">&lt;backup-member&gt;</span>customcluster_container2_1:customcluster<span class="code-tag">&lt;/backup-member&gt;</span> 
+                              <span class="code-tag">&lt;/member&gt;</span> 
+                         <span class="code-tag">&lt;/backup-members&gt;</span> 
+                         <span class="code-tag">&lt;backup-members-only&gt;</span> 
+                              <span class="code-tag">&lt;backup-member-only&gt;</span>customcluster_container1_1:customcluster<span class="code-tag">&lt;/backup-member-only&gt;</span> 
+                              <span class="code-tag">&lt;backup-member-only&gt;</span>customcluster_container2_1:customcluster<span class="code-tag">&lt;/backup-member-only&gt;</span> 
+                         <span class="code-tag">&lt;/backup-members-only&gt;</span> 
+                    <span class="code-tag">&lt;/default&gt;</span> 
+               <span class="code-tag">&lt;/fail-over-policy&gt;</span> 
+          <span class="code-tag">&lt;/group&gt;</span> 
+          <span class="code-tag">&lt;group&gt;</span> 
+               <span class="code-tag">&lt;group-name&gt;</span>replGroupcustomcluster_0<span class="code-tag">&lt;/group-name&gt;</span> 
+               <span class="code-tag">&lt;group-members&gt;</span> 
+                    <span class="code-tag">&lt;member&gt;</span> 
+                         <span class="code-tag">&lt;member-name&gt;</span>customcluster_container1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+                    <span class="code-tag">&lt;/member&gt;</span> 
+                    <span class="code-tag">&lt;member&gt;</span> 
+                         <span class="code-tag">&lt;member-name&gt;</span>customcluster_container1_1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+                    <span class="code-tag">&lt;/member&gt;</span> 
+               <span class="code-tag">&lt;/group-members&gt;</span> 
+               <span class="code-tag">&lt;repl-policy&gt;</span> 
+                    <span class="code-tag">&lt;replication-mode&gt;</span>async<span class="code-tag">&lt;/replication-mode&gt;</span> 
+                    <span class="code-tag">&lt;policy-type&gt;</span>full-replication<span class="code-tag">&lt;/policy-type&gt;</span> 
+                    <span class="code-tag">&lt;recovery&gt;</span>true<span class="code-tag">&lt;/recovery&gt;</span> 
+                    <span class="code-tag">&lt;replicate-notify-templates&gt;</span>true<span class="code-tag">&lt;/replicate-notify-templates&gt;</span> 
+                    <span class="code-tag">&lt;trigger-notify-templates&gt;</span>false<span class="code-tag">&lt;/trigger-notify-templates&gt;</span> 
+                    <span class="code-tag">&lt;repl-find-timeout&gt;</span>5000<span class="code-tag">&lt;/repl-find-timeout&gt;</span> 
+                    <span class="code-tag">&lt;communication-mode&gt;</span>unicast<span class="code-tag">&lt;/communication-mode&gt;</span> 
+                    <span class="code-tag">&lt;async-replication&gt;</span> 
+                         <span class="code-tag">&lt;repl-original-state&gt;</span>false<span class="code-tag">&lt;/repl-original-state&gt;</span> 
+                         <span class="code-tag">&lt;sync-on-commit&gt;</span>false<span class="code-tag">&lt;/sync-on-commit&gt;</span> 
+                         <span class="code-tag">&lt;sync-on-commit-timeout&gt;</span>300000<span class="code-tag">&lt;/sync-on-commit-timeout&gt;</span> 
+                         <span class="code-tag">&lt;repl-chunk-size&gt;</span>500<span class="code-tag">&lt;/repl-chunk-size&gt;</span> 
+                         <span class="code-tag">&lt;repl-interval-millis&gt;</span>3000<span class="code-tag">&lt;/repl-interval-millis&gt;</span> 
+                         <span class="code-tag">&lt;repl-interval-opers&gt;</span>500<span class="code-tag">&lt;/repl-interval-opers&gt;</span> 
+                    <span class="code-tag">&lt;/async-replication&gt;</span> 
+                    <span class="code-tag">&lt;sync-replication&gt;</span> 
+                         <span class="code-tag">&lt;todo-queue-timeout&gt;</span>1500<span class="code-tag">&lt;/todo-queue-timeout&gt;</span> 
+                         <span class="code-tag">&lt;unicast&gt;</span> 
+                              <span class="code-tag">&lt;min-work-threads&gt;</span>4<span class="code-tag">&lt;/min-work-threads&gt;</span> 
+                              <span class="code-tag">&lt;max-work-threads&gt;</span>16<span class="code-tag">&lt;/max-work-threads&gt;</span> 
+                         <span class="code-tag">&lt;/unicast&gt;</span> 
+                         <span class="code-tag">&lt;multicast&gt;</span> 
+                              <span class="code-tag">&lt;ip-group&gt;</span>224.0.0.1<span class="code-tag">&lt;/ip-group&gt;</span> 
+                              <span class="code-tag">&lt;port&gt;</span>28672<span class="code-tag">&lt;/port&gt;</span> 
+                              <span class="code-tag">&lt;min-work-threads&gt;</span>4<span class="code-tag">&lt;/min-work-threads&gt;</span> 
+                              <span class="code-tag">&lt;max-work-threads&gt;</span>16<span class="code-tag">&lt;/max-work-threads&gt;</span> 
+                         <span class="code-tag">&lt;/multicast&gt;</span> 
+                    <span class="code-tag">&lt;/sync-replication&gt;</span> 
+               <span class="code-tag">&lt;/repl-policy&gt;</span> 
+          <span class="code-tag">&lt;/group&gt;</span> 
+          <span class="code-tag">&lt;group&gt;</span> 
+               <span class="code-tag">&lt;group-name&gt;</span>replGroupcustomcluster_1<span class="code-tag">&lt;/group-name&gt;</span> 
+               <span class="code-tag">&lt;group-members&gt;</span> 
+                    <span class="code-tag">&lt;member&gt;</span> 
+                         <span class="code-tag">&lt;member-name&gt;</span>customcluster_container2:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+                    <span class="code-tag">&lt;/member&gt;</span> 
+                    <span class="code-tag">&lt;member&gt;</span> 
+                         <span class="code-tag">&lt;member-name&gt;</span>customcluster_container2_1:customcluster<span class="code-tag">&lt;/member-name&gt;</span> 
+                    <span class="code-tag">&lt;/member&gt;</span> 
+               <span class="code-tag">&lt;/group-members&gt;</span> 
+               <span class="code-tag">&lt;repl-policy&gt;</span> 
+                    <span class="code-tag">&lt;replication-mode&gt;</span>async<span class="code-tag">&lt;/replication-mode&gt;</span> 
+                    <span class="code-tag">&lt;policy-type&gt;</span>full-replication<span class="code-tag">&lt;/policy-type&gt;</span> 
+                    <span class="code-tag">&lt;recovery&gt;</span>true<span class="code-tag">&lt;/recovery&gt;</span> 
+                    <span class="code-tag">&lt;replicate-notify-templates&gt;</span>true<span class="code-tag">&lt;/replicate-notify-templates&gt;</span> 
+                    <span class="code-tag">&lt;trigger-notify-templates&gt;</span>false<span class="code-tag">&lt;/trigger-notify-templates&gt;</span> 
+                    <span class="code-tag">&lt;repl-find-timeout&gt;</span>5000<span class="code-tag">&lt;/repl-find-timeout&gt;</span> 
+                    <span class="code-tag">&lt;communication-mode&gt;</span>unicast<span class="code-tag">&lt;/communication-mode&gt;</span> 
+                    <span class="code-tag">&lt;async-replication&gt;</span> 
+                         <span class="code-tag">&lt;repl-original-state&gt;</span>false<span class="code-tag">&lt;/repl-original-state&gt;</span> 
+                         <span class="code-tag">&lt;sync-on-commit&gt;</span>false<span class="code-tag">&lt;/sync-on-commit&gt;</span> 
+                         <span class="code-tag">&lt;sync-on-commit-timeout&gt;</span>300000<span class="code-tag">&lt;/sync-on-commit-timeout&gt;</span> 
+                         <span class="code-tag">&lt;repl-chunk-size&gt;</span>500<span class="code-tag">&lt;/repl-chunk-size&gt;</span> 
+                         <span class="code-tag">&lt;repl-interval-millis&gt;</span>3000<span class="code-tag">&lt;/repl-interval-millis&gt;</span> 
+                         <span class="code-tag">&lt;repl-interval-opers&gt;</span>500<span class="code-tag">&lt;/repl-interval-opers&gt;</span> 
+                    <span class="code-tag">&lt;/async-replication&gt;</span> 
+                    <span class="code-tag">&lt;sync-replication&gt;</span> 
+                         <span class="code-tag">&lt;todo-queue-timeout&gt;</span>1500<span class="code-tag">&lt;/todo-queue-timeout&gt;</span> 
+                         <span class="code-tag">&lt;unicast&gt;</span> 
+                              <span class="code-tag">&lt;min-work-threads&gt;</span>4<span class="code-tag">&lt;/min-work-threads&gt;</span> 
+                              <span class="code-tag">&lt;max-work-threads&gt;</span>16<span class="code-tag">&lt;/max-work-threads&gt;</span> 
+                         <span class="code-tag">&lt;/unicast&gt;</span> 
+                         <span class="code-tag">&lt;multicast&gt;</span> 
+                              <span class="code-tag">&lt;ip-group&gt;</span>224.0.0.1<span class="code-tag">&lt;/ip-group&gt;</span> 
+                              <span class="code-tag">&lt;port&gt;</span>28672<span class="code-tag">&lt;/port&gt;</span> 
+                              <span class="code-tag">&lt;min-work-threads&gt;</span>4<span class="code-tag">&lt;/min-work-threads&gt;</span> 
+                              <span class="code-tag">&lt;max-work-threads&gt;</span>16<span class="code-tag">&lt;/max-work-threads&gt;</span> 
+                         <span class="code-tag">&lt;/multicast&gt;</span> 
+                    <span class="code-tag">&lt;/sync-replication&gt;</span> 
+               <span class="code-tag">&lt;/repl-policy&gt;</span> 
+          <span class="code-tag">&lt;/group&gt;</span> 
+     <span class="code-tag">&lt;/groups&gt;</span> 
+<span class="code-tag">&lt;/cluster-config&gt;</span></pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

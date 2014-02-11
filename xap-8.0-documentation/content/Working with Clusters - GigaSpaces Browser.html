@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Working with Clusters - GigaSpaces Browser</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Working with Clusters - GigaSpaces Browser</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Creating a cluster, replication options, load-balancing options, failover options, verifying and editing cluster definitions, visualizing clusters. </p>
+</div>
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903753";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903753";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="WorkingwithClusters-GigaSpacesBrowser-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="Cluster View - GigaSpaces Browser.html" title="Cluster View - GigaSpaces Browser">Cluster View - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using Cluster View areas: Cluster Tree, visual display, legend, and information panel.</span><ul><li><a href="Customizing Cluster View - GigaSpaces Browser.html" title="Customizing Cluster View - GigaSpaces Browser">Customizing Cluster View - GigaSpaces Browser</a> &mdash; <span class="smalltext">Changing cluster visualization behavior, refresh speed, and colors.</span></li><li><a href="Viewing Cluster Policy Settings for Space - GigaSpaces Browser.html" title="Viewing Cluster Policy Settings for Space - GigaSpaces Browser">Viewing Cluster Policy Settings for Space - GigaSpaces Browser</a> &mdash; <span class="smalltext">How to view replication, load-balancing and failover settings for a space in Cluster View.</span></li><li><a href="Viewing Space Interrelations in Cluster - GigaSpaces Browser.html" title="Viewing Space Interrelations in Cluster - GigaSpaces Browser">Viewing Space Interrelations in Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">Viewing spaces in different cluster policy groups and how they relate to each other.</span></li><li><a href="Visualizing Cluster Groups and Members - GigaSpaces Browser.html" title="Visualizing Cluster Groups and Members - GigaSpaces Browser">Visualizing Cluster Groups and Members - GigaSpaces Browser</a> &mdash; <span class="smalltext">Viewing clustered groups, clustered spaces and URLs, and accessing information views for a clustered space.</span></li></ul></li><li><a href="Creating Cluster from Existing Cluster - GigaSpaces Browser.html" title="Creating Cluster from Existing Cluster - GigaSpaces Browser">Creating Cluster from Existing Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">Using an existing cluster as a basis for a new cluster.</span></li><li><a href="Creating Custom Cluster - GigaSpaces Browser.html" title="Creating Custom Cluster - GigaSpaces Browser">Creating Custom Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">Building a custom cluster from a standard cluster schema.</span></li><li><a href="Creating Static Cluster - GigaSpaces Browser.html" title="Creating Static Cluster - GigaSpaces Browser">Creating Static Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">How to create a cluster from scratch using the Cluster Wizard in the GigaSpaces Browser.</span><ul><li><a href="Creating Spaces in Static Cluster - GigaSpaces Browser_.html" title="Creating Spaces in Static Cluster - GigaSpaces Browser_">Creating Spaces in Static Cluster - GigaSpaces Browser_</a> &mdash; <span class="smalltext">Creating the actual spaces intended to be members of the static cluster.</span></li><li><a href="Defining Cluster Name and Spaces - GigaSpaces Browser.html" title="Defining Cluster Name and Spaces - GigaSpaces Browser">Defining Cluster Name and Spaces - GigaSpaces Browser</a> &mdash; <span class="smalltext">Defining the cluster name and spaces intended to be members in the static cluster.</span></li><li><a href="Defining Failover Policy in Static Cluster - GigaSpaces Browser.html" title="Defining Failover Policy in Static Cluster - GigaSpaces Browser">Defining Failover Policy in Static Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">How to define the failover policy in a static cluster.</span></li><li><a href="Defining Groups in Static Cluster - GigaSpaces Browser.html" title="Defining Groups in Static Cluster - GigaSpaces Browser">Defining Groups in Static Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">How to define cluster groups, add spaces to the group and define the relationships between the spaces using policies.</span></li><li><a href="Defining Load-Balancing Policy in Static Cluster - GigaSpaces Browser.html" title="Defining Load-Balancing Policy in Static Cluster - GigaSpaces Browser">Defining Load-Balancing Policy in Static Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">How to define the load-balancing policy in a static cluster.</span></li><li><a href="Defining Replication Policy in Static Cluster - GigaSpaces Browser.html" title="Defining Replication Policy in Static Cluster - GigaSpaces Browser">Defining Replication Policy in Static Cluster - GigaSpaces Browser</a> &mdash; <span class="smalltext">How to define the replication policy in a static cluster.</span></li><li><a href="Static Cluster Planning - GigaSpaces Browser.html" title="Static Cluster Planning - GigaSpaces Browser">Static Cluster Planning - GigaSpaces Browser</a> &mdash; <span class="smalltext">Planning a static cluster before creating it in the GigaSpaces Browser.</span></li></ul></li><li><a href="Editing Existing Cluster Configuration - GigaSpaces Browser.html" title="Editing Existing Cluster Configuration - GigaSpaces Browser">Editing Existing Cluster Configuration - GigaSpaces Browser</a> &mdash; <span class="smalltext">Editing an existing cluster's configuration using the Cluster Wizard.</span></li><li><a href="Failover Group - GigaSpaces Browser.html" title="Failover Group - GigaSpaces Browser">Failover Group - GigaSpaces Browser</a> &mdash; <span class="smalltext">A failover group defines failover between spaces in the cluster.</span></li><li><a href="Load-Balancing Group - GigaSpaces Browser.html" title="Load-Balancing Group - GigaSpaces Browser">Load-Balancing Group - GigaSpaces Browser</a> &mdash; <span class="smalltext">A load-balancing group defines load-balancing between spaces in the cluster.</span></li><li><a href="Replication Group - GigaSpaces Browser.html" title="Replication Group - GigaSpaces Browser">Replication Group - GigaSpaces Browser</a> &mdash; <span class="smalltext">Common settings, sync/async replication, transmission policies, filters, recovery options.</span></li><li><a href="Verifying Cluster Configuration - GigaSpaces Browser.html" title="Verifying Cluster Configuration - GigaSpaces Browser">Verifying Cluster Configuration - GigaSpaces Browser</a> &mdash; <span class="smalltext">Verifying the cluster configuration is OK and placing it on member machines.</span></li></ul>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

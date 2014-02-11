@@ -1,0 +1,913 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Event Driven Remoting</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Event Driven Remoting</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903801";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903801";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Event Driven Remoting allows you to use remote invocations of POJO services, with the space as the transport layer using a polling container on the space side to process the invocations </p>
+</div>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Renaming Async Remoting to Event Driven Remoting</b><br />This feature was previously called <b>Async Remoting</b>. It has been renamed to better reflect its implementation and avoid confusion with other remoting mechanisms. <br/>
+All of the configuration elements have also been renamed to support the new naming scheme. <br/>
+The previous naming scheme is still fully supported for backwards compatibility purposes, but is considered deprecated.</td></tr></table></div>
+
+
+<h1><a name="EventDrivenRemoting-Overview"></a>Overview</h1>
+
+<p>Event Driven remoting is characterized by the nature of how the client communicates with the server. Under the wires, event driven remoting uses the space write and take capabilities. The client writes an internal invocation Entry, that holds the different invocation information (such as service name, method name, and arguments) and then waits for a response (by using blocking take on an expected response). The server, meanwhile, waits (by using OpenSpaces event containers) for internal invocation entries, and once one arrives, it executes the requested service and writes back a response.</p>
+
+<h1><a name="EventDrivenRemoting-DefiningtheContract"></a>Defining the Contract</h1>
+
+<p>In order to support remoting, the first step is to define the contract between the client and the server. In our case, the contract is a simple Java interface. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> IDataProcessor {
+
+    /**
+     * <span class="code-object">Process</span> a given Data object, returning the processed Data object.
+     */
+    Data processData(Data data);
+}</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>Data</tt> object should be <tt>Serializable</tt>, or better yet, <tt>Externalizable</tt> (for better performance).</p>
+
+<h1><a name="EventDrivenRemoting-ImplementingtheContract"></a>Implementing the Contract</h1>
+
+<p>Next, an implementation of this contract needs to be provided. This implementation will "live" on the server side. Here is a sample implementation:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventDrivenRemoting-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@RemotingService
+<span class="code-keyword">public</span> class DataProcessor <span class="code-keyword">implements</span> IDataProcessor {
+
+    <span class="code-keyword">public</span> Data processData(Data data) {
+    	data.setProcessor(<span class="code-keyword">true</span>);
+    	<span class="code-keyword">return</span> data;
+    }
+}</pre>
+</div></div>
+
+
+<h5><a name="EventDrivenRemoting-XML"></a>XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class DataProcessor <span class="code-keyword">implements</span> IDataProcessor {
+
+    <span class="code-keyword">public</span> Data processData(Data data) {
+    	data.setProcessor(<span class="code-keyword">true</span>);
+    	<span class="code-keyword">return</span> data;
+    }
+}</pre>
+</div></div>
+</div></div>
+
+<p>The XML tab corresponds to exporting the service using xml configuration. The Annotation tab corresponds to exporting the service using annotations.</p>
+
+<h1><a name="EventDrivenRemoting-ExportingtheServiceOvertheSpace"></a>Exporting the Service Over the Space</h1>
+
+<p>The next step is exporting the service over the space. Exporting the service is done on the server side. As with other Spring remoting support, exporting the service and the method of exporting the service is a configuration time decision. Here is an example of a Spring XML configuration:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventDrivenRemoting-Annotation"></a>Annotation</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag"><span class="code-comment">&lt;!-- Support @RemotingService component scanning --&gt;</span></span>
+<span class="code-tag">&lt;context:component-scan base-package=<span class="code-quote">"com.mycompany"</span>/&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- Support the @RemotingService annotation on a service--&gt;</span></span>
+<span class="code-tag">&lt;os-remoting:annotation-support /&gt;</span>
+
+<span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;os-remoting:service-exporter id=<span class="code-quote">"serviceExporter"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-events:polling-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener ref=<span class="code-quote">"serviceExporter"</span>/&gt;</span>
+    
+<span class="code-tag">&lt;/os-events:polling-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataProcessor"</span> class=<span class="code-quote">"DataProcessor"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-remoting:service-exporter id=<span class="code-quote">"serviceExporter"</span>&gt;</span>
+     <span class="code-tag">&lt;os-remoting:service ref=<span class="code-quote">"dataProcessor"</span>/&gt;</span>
+<span class="code-tag">&lt;/os-remoting:service-exporter&gt;</span>
+
+<span class="code-tag">&lt;os-events:polling-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener ref=<span class="code-quote">"serviceExporter"</span>/&gt;</span>
+    
+<span class="code-tag">&lt;/os-events:polling-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataProcessor"</span> class=<span class="code-quote">"DataProcessor"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"serviceExporter"</span> class=<span class="code-quote">"org.openspaces.remoting.SpaceRemotingServiceExporter"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"services"</span>&gt;</span>
+        <span class="code-tag">&lt;list&gt;</span>
+            <span class="code-tag">&lt;ref bean=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+        <span class="code-tag">&lt;/list&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.polling.SimplePollingEventListenerContainer"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span> ref=<span class="code-quote">"serviceExporter"</span>&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+
+<p>Exporting the service as a remote space service uses the <a href="Polling Container.html" title="Polling Container">event polling container</a>. The polling container automatically listens to internal <tt>EventDrivenSpaceRemotingEntry</tt> objects, and writes back an updated <tt>EventDrivenSpaceRemotingEntry</tt> to the space. All polling event container features, such as transactions and different receive handlers can be used with Space remoting.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Usually, exporting services is done on a Processing Unit (or Spring application context) that starts an embedded space.</p>
+
+<h1><a name="EventDrivenRemoting-UsingtheServiceontheClientSide"></a>Using the Service on the Client-Side</h1>
+
+<p>In order to use the exported <tt>IDataProcessor</tt> on the client side, beans should use the <tt>IDataProcessor</tt> interface directly:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class DataRemoting {
+    
+    <span class="code-keyword">private</span> IDataProcessor dataProcessor;
+    
+    <span class="code-keyword">public</span> void setDataProcessor(IDataProcessor dataProcessor) {
+        <span class="code-keyword">this</span>.dataProcessor = dataProcessor;
+    }
+}</pre>
+</div></div>
+
+<p>Configuring the <tt>IDataProcessor</tt> proxy can be done in the following manner:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventDrivenRemoting-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+&lt;os-remoting:event-driven-proxy id=<span class="code-quote">"dataProcessor"</span> giga-space=<span class="code-quote">"gigaSpace"</span>
+                   interface=<span class="code-quote">"org.openspaces.example.data.common.IDataProcessor"</span> timeout=<span class="code-quote">"15000"</span>&gt;
+<span class="code-tag">&lt;/os-remoting:event-driven-proxy&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataRemoting"</span> class=<span class="code-quote">"DataRemoting"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataProcessor"</span> ref=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataProcessor"</span> class=<span class="code-quote">"org.openspaces.remoting.EventDrivenSpaceRemotingProxyFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"serviceInterface"</span> value=<span class="code-quote">"org.openspaces.example.data.common.IDataProcessor"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"timeout"</span> value=<span class="code-quote">"15000"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataRemoting"</span> class=<span class="code-quote">"DataRemoting"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataProcessor"</span> ref=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>).space();
+</span>
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).gigaSpace();
+
+IDataProcessor dataProcessor = <span class="code-keyword">new</span> EventDrivenRemotingProxyConfigurer&lt;IDataProcessor&gt;(gigaSpace, IDataProcessor.class)
+                               .timeout(15000)
+                               .asyncProxy();
+
+DataRemoting dataRemoting = <span class="code-keyword">new</span> DataRemoting();
+
+dataRemoting.setDataProcessor(dataProcessor);</pre>
+</div></div>
+</div></div>
+
+<p>The above example uses the <tt>event-driven-proxy</tt> bean in order to create the remoting proxy, which can then be injected into the <tt>DataRemoting</tt> object. As of 6.5, OpenSpaces remoting also allows you to inject the remoting proxy directly into the remoting service property using annotations. Here is an example using the <tt>DataRemoting</tt> class:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class DataRemoting {
+
+    @EventDrivenProxy(timeout=15000)    
+    <span class="code-keyword">private</span> IDataProcessor dataProcessor;
+
+    <span class="code-comment">// ...    
+</span>}</pre>
+</div></div>
+
+<p>If there are more than one <tt>GigaSpace</tt> beans defined within the application context, the ID of the <tt>giga-space</tt> bean needs to be defined on the annotations.</p>
+
+<p>In order to enable this feature, the following element needs to be added to the application context XML:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventDrivenRemoting-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-remoting:annotation-support /&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.remoting.RemotingAnnotationBeanPostProcessor"</span> /&gt;</span></pre>
+</div></div>
+</div></div>
+
+<h2><a name="EventDrivenRemoting-RemoteRoutingHandler"></a>Remote Routing Handler</h2>
+
+<p>Many times, space remoting is done by exporting services in a space with a partitioned cluster topology. The service is exported when working directly with a cluster member (and not against the whole space cluster). When working with such a topology, the client side remoting automatically generates a random routing index value (using the newly created remote invocation object hashcode). In order to control the routing index, the following interface can be implemented:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> RemoteRoutingHandler&lt;T&gt; {
+
+    /**
+     * Returns the routing field value based on the remoting invocation. If &lt;code&gt;<span class="code-keyword">null</span>&lt;/code&gt;
+     * is returned, will use internal calcualtion of the routing index.
+     */
+    T computeRouting(SpaceRemotingInvocation remotingEntry);
+}</pre>
+</div></div>
+
+<p>Here is a sample implementation which uses the first parameter <tt>Data</tt> object type as the routing index.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class DataRemoteRoutingHandler <span class="code-keyword">implements</span> RemoteRoutingHandler&lt;<span class="code-object">Long</span>&gt; {
+
+    <span class="code-keyword">public</span> <span class="code-object">Long</span> computeRouting(SpaceRemotingInvocation remotingEntry) {
+        <span class="code-keyword">if</span> (remotingEntry.getMethodName().equals(<span class="code-quote">"processData"</span>)) {
+            Data data = (Data) remotingEntry.getArguments()[0];
+            <span class="code-keyword">return</span> data.getType();
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+    }
+}</pre>
+</div></div>
+
+<p>Finally, the wiring is done in the following manner:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventDrivenRemoting-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+&lt;os-remoting:event-driven-proxy id=<span class="code-quote">"dataProcessor"</span> giga-space=<span class="code-quote">"gigaSpace"</span>
+                   interface=<span class="code-quote">"org.openspaces.example.data.common.IDataProcessor"</span> timeout=<span class="code-quote">"15000"</span>&gt;
+    <span class="code-tag">&lt;os-remoting:routing-handler&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.feeder.support.DataRemoteRoutingHandler"</span>/&gt;</span>
+    <span class="code-tag">&lt;/os-remoting:routing-handler&gt;</span>
+<span class="code-tag">&lt;/os-remoting:event-driven-proxy&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataRemoting"</span> class=<span class="code-quote">"DataRemoting"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataProcessor"</span> ref=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataProcessor"</span> class=<span class="code-quote">"org.openspaces.remoting.EventDrivenSpaceRemotingProxyFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"serviceInterface"</span> value=<span class="code-quote">"org.openspaces.example.data.common.IDataProcessor"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"timeout"</span> value=<span class="code-quote">"15000"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"remoteRoutingHandler"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.example.data.feeder.support.DataRemoteRoutingHandler"</span>/&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataRemoting"</span> class=<span class="code-quote">"DataRemoting"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataProcessor"</span> ref=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>).space();
+</span>
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).gigaSpace();
+
+IDataProcessor dataProcessor = <span class="code-keyword">new</span> EventDrivenRemotingProxyConfigurer&lt;IDataProcessor&gt;(gigaSpace, IDataProcessor.class)
+                               .timeout(15000)
+                               .remoteRoutingHandler(<span class="code-keyword">new</span> DataRemoteRoutingHandler())
+                               .asyncProxy();
+
+DataRemoting dataRemoting = <span class="code-keyword">new</span> DataRemoting();
+
+dataRemoting.setDataProcessor(dataProcessor);</pre>
+</div></div>
+</div></div>
+
+<h2><a name="EventDrivenRemoting-RoutingAnnotation"></a>Routing Annotation</h2>
+
+<p>The above option of using the remote routing handler is very handy when not using annotations. OpenSpaces remoting supports the <tt>Routing</tt> annotation in order to define which of the parameters controls the routing. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> MyService {
+
+    void doSomething(@Routing <span class="code-object">int</span> param1, <span class="code-object">int</span> param2);
+}</pre>
+</div></div>
+
+<p>In the above example, routing is done using the <tt>param1</tt> value. When using complex objects, a method name can be specified, which is invoked on the parameter in order to get the actual routing index. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> MyService {
+
+    void doSomething(@Routing(<span class="code-quote">"getProperty"</span>) Value param1, <span class="code-object">int</span> param2);
+}</pre>
+</div></div>
+
+<p>In the above example, the <tt>getProperty</tt> method is called on the <tt>Value</tt> object and its return value is used to extract the routing index.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <b>Note:</b> Using a <a href="Document (Schema-Free) API.html" title="Document (Schema-Free) API">SpaceDocument</a> as the annotated routing argument will cause an exception since the <tt>SpaceDocument</tt> class does not define a getter method for each property, but rather a generic getter method to get a property value by its name. The solution is either to extend the <tt>SpaceDocument</tt> class as described in <a href="Extending Space Documents.html" title="Extending Space Documents">Extending Space Documents</a>, and define the relevant <tt>getProperty</tt> method in the extension class, or use the <tt>RemoteRoutingHandler</tt> mentioned above.</p>
+
+<h1><a name="EventDrivenRemoting-ServerSideServicesInjection"></a>Server Side Services Injection</h1>
+<p>Each parameter of a remote service can be dynamically injected as if it were a bean defined within the server side (where the service is actually executed) context. This allows you to utilize server side resources and state, within the actual invocation. In order to enable such injection the service interface should either be annotated with <tt>AutowireArguments</tt> annotation, or implement the marker interface <tt>AutowireArgumentsMarker</tt>. Let's see an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@AutowireArguments
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> MyService {
+
+    void doSomething(Value param1);
+}</pre>
+</div></div>
+
+<p>The above service exposes a service which accepts a <tt>Value</tt> as a parameter. The <tt>Value</tt> parameter, if needed, can be injected dynamically with server side resources and state. For example, if the server side execution needs to be aware of the <tt>ClusterInfo</tt>, the <tt>Value</tt> parameter can implement the <tt>ClusterInfoAware</tt> interface. Here is what it looks like:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class Value <span class="code-keyword">implements</span> ClusterInfoAware {
+    
+    <span class="code-keyword">private</span> <span class="code-keyword">transient</span> ClusterInfo clusterInfo;
+    
+    <span class="code-keyword">public</span> void setClusterInfo(ClusterInfo clusterInfo) {
+        <span class="code-keyword">this</span>.clusterInfo = clusterInfo;
+    }
+}</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Note the fact that <tt>clusterInfo</tt> is transient, so it won't be marshalled after injection back to the client.</p>
+
+<p>Another example is injecting another service that is defined in the server side directly into the parameter, for example, using Spring <tt>@Autowired</tt> annotation.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class Value <span class="code-keyword">implements</span> ClusterInfoAware {
+
+    @Autowired
+    <span class="code-keyword">private</span> <span class="code-keyword">transient</span> AnotherService anotherService;
+}</pre>
+</div></div>
+
+<h1><a name="EventDrivenRemoting-ExecutionAspects"></a>Execution Aspects</h1>
+
+<p>Space based remoting allows you to inject "aspects" that can wrap the invocation of a remote method on the client side, as well as wrapping the execution of an invocation on the server side.</p>
+
+<h2><a name="EventDrivenRemoting-TheClientInvocationAspect"></a>The Client Invocation Aspect</h2>
+
+<p>The client invocation aspect interface is shown below. You should implement this interface and wire and instance of the implementing class to the client side remote proxy, as explained below:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> RemoteInvocationAspect&lt;T&gt; {
+
+    /**
+     * The aspect is called instead of the actual remote invocation. The methodInvocation can
+     * be used to access any method related information. The remoting invoker passed can be used
+     * to actually invoke the remote invocaiton.
+     */
+    T invoke(MethodInvocation methodInvocation, RemotingInvoker remotingInvoker) <span class="code-keyword">throws</span> Throwable;
+}</pre>
+</div></div>
+
+<p>An implementation of such an aspect can be configured as follows:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventDrivenRemoting-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+&lt;os-remoting:event-driven-proxy id=<span class="code-quote">"dataProcessor"</span> giga-space=<span class="code-quote">"gigaSpace"</span>
+                   interface=<span class="code-quote">"org.openspaces.example.data.common.IDataProcessor"</span>&gt;
+    <span class="code-tag">&lt;os-remoting:aspect&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"eg.MyRemoteInvocationAspect"</span> /&gt;</span>
+    <span class="code-tag">&lt;/os-remoting:aspect&gt;</span>
+<span class="code-tag">&lt;/os-remoting:event-driven-proxy&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataRemoting"</span> class=<span class="code-quote">"DataRemoting"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataProcessor"</span> ref=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataProcessor"</span> class=<span class="code-quote">"org.openspaces.remoting.EventDrivenSpaceRemotingProxyFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"serviceInterface"</span> value=<span class="code-quote">"org.openspaces.example.data.common.IDataProcessor"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"remoteInvocationAspect"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"eg.MyRemoteInvocationAspect"</span> /&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataRemoting"</span> class=<span class="code-quote">"DataRemoting"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataProcessor"</span> ref=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>).space();
+</span>
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).gigaSpace();
+
+IDataProcessor dataProcessor = <span class="code-keyword">new</span> EventDrivenRemotingProxyConfigurer&lt;IDataProcessor&gt;(gigaSpace, IDataProcessor.class)
+                               .timeout(15000)
+                               .remoteInvocationAspect(<span class="code-keyword">new</span> MyRemoteInvocationAspect())
+                               .asyncProxy();
+
+DataRemoting dataRemoting = <span class="code-keyword">new</span> DataRemoting();
+
+dataRemoting.setDataProcessor(dataProcessor);</pre>
+</div></div>
+</div></div>
+
+<p>The instance of the class that implements the <tt>RemoteInvocationAspect</tt> interface will be called by the framework prior to the invocation on the client side. Note that it is up to the aspect implementation to decide whether or not the call should proceed. <br/>
+If the aspect implementation decides to proceed with the call it should call <tt>method.invoke()</tt> on the provided <tt>method argument</tt>. Otherwise the call to the server will not be performed.</p>
+
+<p><a name="EventDrivenRemoting-serverExecutionApect"></a></p>
+<h2><a name="EventDrivenRemoting-TheServerInvocationAspect"></a>The Server Invocation Aspect</h2>
+
+<p>The server side invocation aspect interface is shown below. You should implement this interface and wire and instance of the implementing class to the server side service exporter (this is the component that is responsible for exposing your service bean to remote clients):</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> ServiceExecutionAspect {
+
+    /**
+     * A service execution callback allows you to wrap the execution of <span class="code-quote">"server side"</span> service. If
+     * actual execution of the service is needed, the &lt;code&gt;invoke&lt;/code&gt; method will need to
+     * be called on the passed &lt;code&gt;Method&lt;/code&gt;, using the service as the actual service to
+     * invoke it on, and {@link SpaceRemotingInvocation#getArguments()} as the method arguments.
+     *
+     * &lt;p&gt;As an example: &lt;code&gt;method.invoke(service, invocation.getArguments())&lt;/code&gt;.
+     */
+    <span class="code-object">Object</span> invoke(SpaceRemotingInvocation invocation, Method method, <span class="code-object">Object</span> service) 
+                                  <span class="code-keyword">throws</span> InvocationTargetException, IllegalAccessException;
+}</pre>
+</div></div>
+
+<p>An implementation of such an aspect can be configured as follows:</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventDrivenRemoting-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataProcessor"</span> class=<span class="code-quote">"DataProcessor"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-remoting:service-exporter id=<span class="code-quote">"serviceExporter"</span>&gt;</span>
+     <span class="code-tag">&lt;os-remoting:aspect&gt;</span>
+         <span class="code-tag">&lt;bean class=<span class="code-quote">"eg.MyServiceExecutionAspect"</span> /&gt;</span>
+     <span class="code-tag">&lt;/os-remoting:aspect&gt;</span>
+     <span class="code-tag">&lt;os-remoting:service ref=<span class="code-quote">"dataProcessor"</span>/&gt;</span>
+<span class="code-tag">&lt;/os-remoting:service-exporter&gt;</span>
+
+<span class="code-tag">&lt;os-events:polling-container id=<span class="code-quote">"eventContainer"</span> giga-space=<span class="code-quote">"gigaSpace"</span>&gt;</span>
+    
+    <span class="code-tag">&lt;os-events:listener ref=<span class="code-quote">"serviceExporter"</span>/&gt;</span>
+    
+<span class="code-tag">&lt;/os-events:polling-container&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataProcessor"</span> class=<span class="code-quote">"DataProcessor"</span> /&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"serviceExporter"</span> class=<span class="code-quote">"org.openspaces.remoting.SpaceRemotingServiceExporter"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"serviceExecutionAspect"</span>&gt;</span>
+         <span class="code-tag">&lt;bean class=<span class="code-quote">"eg.MyServiceExecutionAspect"</span> /&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"services"</span>&gt;</span>
+        <span class="code-tag">&lt;list&gt;</span>
+            <span class="code-tag">&lt;ref bean=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+        <span class="code-tag">&lt;/list&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"eventContainer"</span> class=<span class="code-quote">"org.openspaces.events.polling.SimplePollingEventListenerContainer"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"eventListener"</span> ref=<span class="code-quote">"serviceExporter"</span>&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+</div></div>
+<p>The instance of the class that implements the <tt>ServiceExecutionAspect</tt> interface will be called by the framework prior to the invocation of the service bean on the server side. Note that it is up to the aspect implementation to decide whether or not the call should proceed. <br/>
+If the aspect implementation decides to proceed with the call it should call <tt>method.invoke()</tt> on the provided <tt>method</tt> argument. Otherwise the call to the service bean will not be performed. </p>
+
+<h1><a name="EventDrivenRemoting-TheMetadataHandler"></a>The Metadata Handler</h1>
+
+<p>When executing a service using Space based remoting, a set of one or more metadata arguments (in the form of a <tt>java.lang.Object</tt> array) can be passed to the server with the remote invocation. This feature is very handy when you want to pass certain metadata with every remote call that is not part of the arguments of the method you call. A prime example for using meta arguments is security &#8211; i.e. passing security credentials as meta arguments, and using a server side aspect to authorize the execution or to log who actually called the method. </p>
+
+<p>To create the meta arguments on the client side you should implement the following interface and inject an instance of the implementing class to the client side proxy:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> MetaArgumentsHandler {
+
+    /**
+     * Meta argument handler can control the meta data objects that will be used
+     * <span class="code-keyword">for</span> the remote invocation.
+     */
+    <span class="code-object">Object</span>[] obtainMetaArguments(SpaceRemotingInvocation remotingEntry);
+}</pre>
+</div></div>
+
+<p>The following snippets show how to plug a custom meta arguments handler to the client side remote proxy. The <tt>Object</tt> array returned by the implementation of the <tt>MetaArgumentsHandler</tt> interface will be sent along with the invocation to server side. </p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="EventDrivenRemoting-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+
+<span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+&lt;os-remoting:event-driven-proxy id=<span class="code-quote">"dataProcessor"</span> giga-space=<span class="code-quote">"gigaSpace"</span>
+                   interface=<span class="code-quote">"org.openspaces.example.data.common.IDataProcessor"</span>&gt;
+    <span class="code-tag">&lt;os-remoting:meta-arguments-handler&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"eg.MyMetaArgumentsHandler"</span> /&gt;</span>
+    <span class="code-tag">&lt;/os-remoting:meta-arguments-handler&gt;</span>
+<span class="code-tag">&lt;/os-remoting:event-driven-proxy&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataRemoting"</span> class=<span class="code-quote">"DataRemoting"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataProcessor"</span> ref=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"gigaSpace"</span> class=<span class="code-quote">"org.openspaces.core.GigaSpaceFactoryBean"</span>&gt;</span>
+	<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataProcessor"</span> class=<span class="code-quote">"org.openspaces.remoting.EventDrivenSpaceRemotingProxyFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"gigaSpace"</span> ref=<span class="code-quote">"gigaSpace"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"serviceInterface"</span> value=<span class="code-quote">"org.openspaces.example.data.common.IDataProcessor"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"metaArgumentsHandler"</span>&gt;</span>
+    	<span class="code-tag">&lt;bean class=<span class="code-quote">"eg.MyMetaArgumentsHandler"</span> /&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span>
+
+<span class="code-tag">&lt;bean id=<span class="code-quote">"dataRemoting"</span> class=<span class="code-quote">"DataRemoting"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"dataProcessor"</span> ref=<span class="code-quote">"dataProcessor"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div> 
+
+
+<h5><a name="EventDrivenRemoting-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">IJSpace space = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>).space();
+</span>
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(space).gigaSpace();
+
+IDataProcessor dataProcessor = <span class="code-keyword">new</span> EventDrivenRemotingProxyConfigurer&lt;IDataProcessor&gt;(gigaSpace, IDataProcessor.class)
+                               .timeout(15000)
+                               .metaArgumentsHandler(<span class="code-keyword">new</span> MyMetaArgumentsHandler())
+                               .asyncProxy();
+
+DataRemoting dataRemoting = <span class="code-keyword">new</span> DataRemoting();
+
+dataRemoting.setDataProcessor(dataProcessor);</pre>
+</div></div>
+</div></div>
+<p>The way to access the meta arguments on the server side is to configure a <a href="#EventDrivenRemoting-serverExecutionApect">server side execution aspect</a> by implementing the <tt>ServiceExecutionAspect</tt> and wiring it on the server side as shown <a href="#EventDrivenRemoting-serverExecutionApect">above</a>. To access the meta arguments, you should call <tt>SpaceRemotingInvocation.getMetaArguments()</tt> on the <tt>invocation</tt> argument provided to the server side aspect. </p>
+
+<h1><a name="EventDrivenRemoting-AsynchronousExecution"></a>Asynchronous Execution</h1>
+
+<p>OpenSpaces event driven remoting supports asynchronous execution of remote services using the <tt>java.util.concurrent</tt> <tt>Future</tt> interface. Since the remoting implementation is asynchronous by nature, a <tt>Future</tt> can be used to execute remote services asynchronously.</p>
+
+<p>Since the definition of the interface acts as the contract between the client and the server, asynchronous invocation requires the interface to also support the same business method, returning a <tt>Future</tt> instead of its actual return value. The asynchronous nature is only relevant on the client side, provided by the asynchronous nature of OpenSpaces remoting. There are two options to implement such behavior:</p>
+
+<h2><a name="EventDrivenRemoting-DifferentServiceInterfaces"></a>Different Service Interfaces</h2>
+
+<p>The client and the server can have a different service interface definition under the same package and under the same name. The server includes the actual implementation:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> SimpleService {
+
+    <span class="code-object">String</span> say(<span class="code-object">String</span> message);
+    
+    <span class="code-object">int</span> calc(<span class="code-object">int</span> value1, <span class="code-object">int</span> value2);
+}</pre>
+</div></div>
+
+<p>The client has the same method except it returns a future:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> SimpleService {
+
+    Future&lt;<span class="code-object">String</span>&gt; say(<span class="code-object">String</span> message);
+    
+    <span class="code-object">int</span> calc(<span class="code-object">int</span> value1, <span class="code-object">int</span> value2);
+}</pre>
+</div></div>
+
+<p>In the above example, the <tt>say()</tt> method uses a <tt>Future</tt> in order to receive the result, while the <tt>calc</tt> method remains synchronous.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When using different services, it is important to include the interface definition in the processing unit <tt>lib</tt> directory (or the compiled classes root directory), so that both client and server use their own definitions and don't share a single one.</p>
+
+<h2><a name="EventDrivenRemoting-SingleServiceInterface"></a>Single Service Interface</h2>
+
+<p>Both the client and server share the same interface, with the interface holding both synchronous and asynchronous services. Here is an example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> <span class="code-keyword">interface</span> SimpleService {
+
+    <span class="code-object">String</span> say(<span class="code-object">String</span> message);
+
+    Future&lt;<span class="code-object">String</span>&gt; asyncSay(<span class="code-object">String</span> message);
+}</pre>
+</div></div>
+
+<p>In the above case, the server implementation does not need to implement the <tt>asyncSay</tt> method (simply return <tt>null</tt> for the <tt>asyncSay</tt> method). The client side can choose which service to invoke.<br/>
+You should note the naming convention and the signature of the asynchronous method in this case. <br/>
+If the regular method looks as follows: <br/>
+<tt>T doSomething(String arg)</tt>, T being the return value type, then the asynchronous method should have the following signature: <br/>
+<tt>Future&lt;T&gt; asyncDoSomething(String arg)</tt>.<br/>
+In other words, the regular method should be prefixed with <tt>async</tt> and the return value should be a <tt>Future</tt> of the original return value (unless it's <tt>void</tt>, in which case it stays <tt>void</tt>.</p>
+
+<h1><a name="EventDrivenRemoting-Failover"></a>Failover</h1>
+
+<p>In case of a Primary Backup clusters and Partitioned Sync2Backup clusters, when there is failure of primary space partition, remoting request is transparently forwarded to the backup. </p>
+
+<p>Event Driven Remoting proxy is aware of each partition in the cluster and connection with the failed primary partition will get interrupted/disconnected in case of a failure. Proxy recognizes failure and redirects the request to the backup partition. When the backup becomes ready (any warmup code that needs to run and is ready to accept operations), it will accept this request and process the request. All of this failover behavior is done within the GigaSpaces proxy code and client does not need any extra logic.</p>
+
+<p>By default proxy is trying to find a primary partition 20 times with a 1 second gap between each retry. These settings can be modified using following system parameters on the client JVM,</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> Property (client side) </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Defualt value</th>
+</tr>
+<tr>
+<td class='confluenceTd'> com.gs.client.inactiveRetryLimit </td>
+<td class='confluenceTd'> Number of retires on execute operation, <br/>
+waiting for one of the servers to become active after Active election. </td>
+<td class='confluenceTd'> 20 </td>
+</tr>
+<tr>
+<td class='confluenceTd'> com.gs.failover.standby-wait-time</td>
+<td class='confluenceTd'> Retry backoff sleep time(ms). Between retries <br/>
+while waiting for one of the servers to become active after Active election. </td>
+<td class='confluenceTd'> 1000 ms</td>
+</tr>
+</tbody></table>
+
+<p>If the backup space does not become ready to accept requests within the configured number of retries, execute request will fail with <tt>org.openspaces.core.RemoteDataAccessException</tt> Exception.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : JPA Relationships</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>JPA Relationships</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  <br/>
+GigaSpaces JPA Relationships</p>
+
+</div>
+
+<h1><a name="JPARelationships-Overview"></a>Overview</h1>
+<p>GigaSpaces JPA relationships model is different than Relational Databases model.<br/>
+In GigaSpaces relationships are owned, which means that an owner of a relationship holds the owned entities within itself in Space.<br/>
+For instance, if an Author has a One-to-many relationship with Book, in Space all the Book instances relevant for a specific Author will reside<br/>
+within a Collection in Author.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>
+<p>When defining a One-to-one/One-to-many relationship the cascading type should be set to CascadeType.ALL using the relationship's annotation cascade attribute since no-cascading is unsupported.<br/>
+Setting cascading globally can also be done in orm.xml:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;persistence-unit-metadata&gt;</span>
+  <span class="code-tag">&lt;persistence-unit-defaults&gt;</span>
+    <span class="code-tag">&lt;cascade-persist/&gt;</span>
+  <span class="code-tag">&lt;/persistence-unit-defaults&gt;</span>
+<span class="code-tag">&lt;/persistence-unit-metadata&gt;</span></pre>
+</div></div></td></tr></table></div>
+
+<p>Further information can be found on the <a href="Modeling your data.html" title="Modeling your data">Modeling your data</a> page.</p>
+
+<h1><a name="JPARelationships-Embedded"></a>Embedded</h1>
+
+<p>In the following example we have a Store entity which has an embedded Address property.<br/>
+In this case, the Address property is saved as is within Store.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// An Embeddable Address object
+</span>@Embeddable
+<span class="code-keyword">public</span> class Address <span class="code-keyword">implements</span> Serializable {
+  <span class="code-keyword">private</span> <span class="code-object">String</span> street;
+  <span class="code-keyword">private</span> <span class="code-object">String</span> city;
+  <span class="code-keyword">private</span> <span class="code-object">String</span> country;
+
+  <span class="code-keyword">public</span> Address() {
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">String</span> getStreet() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.street;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">String</span> getCity() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.city;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">String</span> getCountry() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.country;
+  }
+
+  /* Additional Getters &amp; Setters */
+
+}
+
+
+<span class="code-comment">// A Store entity with an embedded Address property
+</span>@Entity
+<span class="code-keyword">public</span> class Store {
+  <span class="code-keyword">private</span> <span class="code-object">Integer</span> id;
+  <span class="code-keyword">private</span> Address address;
+
+  <span class="code-keyword">public</span> Store() {
+  }
+
+  @Id
+  @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.id;
+  }
+
+  @Embedded
+  @SpaceIndex(path = <span class="code-quote">"city"</span>) <span class="code-comment">// Address.city is indexed
+</span>  <span class="code-keyword">public</span> Address getAddress() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.address;
+  }
+
+  /* Additional Getters &amp; Setters */
+
+}</pre>
+</div></div>
+
+<p>We created an Embeddable Address object and used it as a property in our Store object.</p>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Please note that Embeddable classes must be Serializable since they're transferred over the network.</td></tr></table></div>
+
+<p>It's possible to query a Store entity by an Address property in the following way:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">EntityManager em = emf.createEntityManager();
+Query query = em.createQuery(<span class="code-quote">"SELECT store FROM com.gigaspaces.objects.Store store WHERE s.address.city = 'London'"</span>);
+List&lt;Store&gt; result = (List&lt;Store&gt;) query.getResultList();</pre>
+</div></div>
+
+<h1><a name="JPARelationships-Onetoone"></a>One-to-one</h1>
+
+<p>GigaSpaces JPA One-to-one relationship is very similar to an embedded relationship except for the fact that when querying<br/>
+the owner entity it is possible to use an Inner Join.</p>
+
+<p>As with Embeddable classes, owned entities in a relationship should always be Serializable since they are transferred over the network.</p>
+
+<p>In the following example we show a One-to-one relationship between two entities, Order &amp; Invoice:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Entity
+<span class="code-keyword">public</span> class Order {
+  <span class="code-keyword">private</span> <span class="code-object">Long</span> id;
+  <span class="code-keyword">private</span> Date date;
+  <span class="code-keyword">private</span> Invoice invoice;
+
+  <span class="code-keyword">public</span> Order() {
+  }
+
+  @Id
+  @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Long</span> getId() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.id;
+  }
+
+  <span class="code-keyword">public</span> Date getDate() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.date;
+  }
+  
+  @OneToOne(cascade = CascadeType.ALL)
+  @SpaceIndex(path = <span class="code-quote">"sum"</span>, type = SpaceIndexType.EXTENDED) <span class="code-comment">// Invoice.sum is indexed
+</span>  <span class="code-keyword">public</span> Invoice getInvoice() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.invoice;
+  }
+
+  <span class="code-comment">// Additional Getters &amp; Setters...
+</span>
+}
+
+
+<span class="code-comment">// An Invoice entity which is owned in the relationship and
+</span><span class="code-comment">// therefore should implement Serializable
+</span>@Entity
+<span class="code-keyword">public</span> class Invoice <span class="code-keyword">implements</span> Serializable {
+  <span class="code-keyword">private</span> <span class="code-object">Long</span> id;
+  <span class="code-keyword">private</span> <span class="code-object">Double</span> sum;
+
+  <span class="code-keyword">public</span> Invoice() {
+  }
+
+  @Id
+  @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Long</span> getId() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.id;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">Double</span> getSum() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.sum;
+  }
+
+  <span class="code-comment">// Additional Getters &amp; Setters...
+</span>
+}</pre>
+</div></div>
+
+<p>For One-to-one relationship we can use an Inner Join for querying:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">EntityManager em = emf.createEntityManager();
+Query query = em.createQuery(<span class="code-quote">"SELECT order FROM com.gigaspaces.objects.Order order JOIN o.invoice invoice WHERE invoice.sum &gt; 499.99"</span>);
+List&lt;Order&gt; orders = (List&lt;Order&gt;) query.getResultList();</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>We defined an extended index on Invoice.sum and therefore the above query takes advantage of the defined index.</td></tr></table></div>
+
+<h1><a name="JPARelationships-Onetomany"></a>One-to-many</h1>
+<p>GigaSpaces JPA One-to-many relationship means that the owner of the relationship stores the owned entities in a collection within itself.</p>
+
+<p>As with One-to-one, owned entities in a relationship should always be Serializable since they are transferred over the network.</p>
+
+<p>Lets examine the following example:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// An Author entity which will be the owner of a relationship.
+</span>@Entity
+<span class="code-keyword">public</span> class Author {
+  <span class="code-keyword">private</span> <span class="code-object">Integer</span> id;
+  <span class="code-keyword">private</span> <span class="code-object">String</span> name;
+  <span class="code-keyword">private</span> List&lt;Book&gt; books;
+
+  <span class="code-keyword">public</span> Author() {
+  }
+
+  @Id @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.id;
+  }
+
+  @SpaceRouting <span class="code-comment">// Routing is determined by the author's name
+</span>  <span class="code-keyword">public</span> <span class="code-object">String</span> getName() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.name;
+  }
+
+  @OneToMany(cascade = CascadeType.ALL)
+  @SpaceIndex(path = <span class="code-quote">"[*].id"</span>) <span class="code-comment">// Books are indexed by their id
+</span>  <span class="code-keyword">public</span> List&lt;Book&gt; getBooks() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.books;
+  }
+
+  <span class="code-comment">// Additional Getters &amp; Setters..
+</span>
+}
+
+<span class="code-comment">// A Book entity which is owned in a relationship
+</span><span class="code-comment">// Book shouuld implement Serializable since its transferred over the network
+</span>@Entity
+<span class="code-keyword">public</span> class Book <span class="code-keyword">implements</span> Serializable {
+  <span class="code-keyword">private</span> <span class="code-object">Integer</span> id;
+  <span class="code-keyword">private</span> <span class="code-object">String</span> name;
+  
+  <span class="code-keyword">public</span> Book() {
+  }
+
+  @Id
+  @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {
+  }
+  
+  <span class="code-keyword">public</span> <span class="code-object">String</span> getName() {
+  }
+
+  <span class="code-comment">// Additional Getters &amp; Setters..
+</span>
+}</pre>
+</div></div>
+
+<p>We can use a JPQL Inner Join for querying an Author by a specific Book id:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">EntityManager em = emf.createEntityManager();
+Query query = em.createQuery(<span class="code-quote">"SELECT author FROM com.gigaspaces.objects.Author author JOIN author.books book WHERE book.id = 100"</span>);
+Author result = (Author) query.getSingleResult();</pre>
+</div></div>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>We defined an index on Book.id and therefore the above query takes advantage of the defined index.</td></tr></table></div>
+
+<h1><a name="JPARelationships-Limitations"></a>Limitations</h1>
+
+<h3><a name="JPARelationships-Workingwithembeddedentitieslimitations"></a>Working with embedded entities limitations</h3>
+<p>When working with embedded entities its not possible to call JPA methods on owned entities.</p>
+
+<h3><a name="JPARelationships-Ownedmanytomanyrelationship"></a>Owned many-to-many relationship</h3>
+<p>Owned many-to-many relationship is not supported since GigaSpaces data model doesn't permit it.<br/>
+It is possible to implement such a relation by explicitly setting the Ids for each of the relationship participants.</p>
+
+<h3><a name="JPARelationships-Unownedrelationships"></a>Unowned relationships</h3>
+<p>Unowned relationships where each part of the relation is represented as a Data Type in space is not supported.</p>
+
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

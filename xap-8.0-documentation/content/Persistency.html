@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Persistency</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Persistency</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  GigaSpaces's persistency approach consists of several paradigms for data persistency, according to the application needs. This section gives a basic overview of each paradigm.  </p>
+</div>
+
+<h1><a name="Persistency-PersistingSpaceDataintoPermanentStorage"></a>Persisting Space Data into Permanent Storage</h1>
+
+<p>There are many situations where space data needs to be persisted to permanent storage and retrieved from it. For example:</p>
+<ul>
+	<li>A client process works primarily with the memory space for temporary storage of process data structures, and the permanent storage is used to extend or back up the physical memory of the process running the space. In case the data in the space becomes unavailable due to cache eviction, for example, the backup data in permanent storage can be accessed.</li>
+	<li>A client process works primarily with the database storage and the space is used to make read processing more efficient. Since database access is expensive, the data read from the database is cached in the space, where it is available for subsequently fast read operations. (This is using the space as a side cache.)</li>
+	<li>When a space is restarted, data from its persistent media files can be loaded into the space to speed up incoming query processing.</li>
+</ul>
+
+
+<h1><a name="Persistency-BridgingtheGapBetweenObjecttoRelational"></a>Bridging the Gap Between Object to Relational </h1>
+<p>Object-oriented development dominates the enterprise, and most client applications today are written in the Java, C#, and C&#43;&#43; languages. However, the majority of business-critical data is stored in relational database management systems (RDBMS) or similar systems that use record-based (non object-oriented) storage, whose data is read by query-based search schemes. </p>
+
+<p>Because of this mismatch, an intermediate object-relational mapping (ORM) step is required to perform translation of objects to records when writing data to a database, and translation of records to objects when reading data from a database. This intermediate step is implemented in middleware that is detached from and transparent to the client application. Client calls to standard API read and write methods trigger the middleware functionality without a need for the client to intervene. Advanced middleware systems permit the client API to formulate and pass a database query for use when reading from the database.</p>
+
+<p>The Hibernate library, an ORM persistence and query service for the Java language, can provide this service for RDBMS. Hibernate allows you to express queries in its own portable SQL extension (HQL), as well as in native SQL. However, Hibernate is restricted to run at the client level, and does not relate to read/write-through caching.</p>
+
+<h1><a name="Persistency-MigratingLegacyHibernateAPIApplicationstoGigaSpacesAPI"></a>Migrating Legacy Hibernate API Applications to GigaSpaces API</h1>
+
+<p>To benefit from data caching and other capabilities, it is worthwhile to migrate a legacy application that uses the Hibernate API, to the GigaSpace or GigaMap API. In such cases, these applications can benefit from the ability to scale when using the GigaSpaces Data Grid. This is achieved by partitioning the data across different spaces running on different machines, and having the business logic colocated with each partition. This allows the space and the business logic to run in same memory address, eliminating remote calls when accessing the data.</p>
+
+<p>The following tables show the correspondence between the Hibernate basic API methods to <a href="The GigaSpace Interface.html" title="The GigaSpace Interface">GigaSpaces Interface</a> and the <a href="The GigaMap Interface.html" title="The GigaMap Interface">GigaMap Interface</a> methods.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> <tt>org.hibernate.Session Method</tt> </th>
+<th class='confluenceTh'> <tt>GigaSpace</tt> Method</th>
+<th class='confluenceTh'> <tt>GigaMap</tt> Method</th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>save</tt> </td>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>put </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>persist</tt> </td>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>put </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>delete</tt> </td>
+<td class='confluenceTd'> clear </td>
+<td class='confluenceTd'>remove </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>update</tt> </td>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>put </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>merge</tt> </td>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>put </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>saveOrUpdate</tt> </td>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>put </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>replicate</tt> </td>
+<td class='confluenceTd'>write</td>
+<td class='confluenceTd'>put </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>get</tt> </td>
+<td class='confluenceTd'>read</td>
+<td class='confluenceTd'>get </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>load</tt> </td>
+<td class='confluenceTd'>read</td>
+<td class='confluenceTd'>get </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>createSQLQuery</tt> </td>
+<td class='confluenceTd'> readMultiple(SQLQuery) </td>
+<td class='confluenceTd'>Not supported</td>
+</tr>
+</tbody></table>
+
+<p>The <a href="http://www.gigaspaces.com/wiki/display/SBP/Moving+from+Hibernate+to+Space" title="Moving from Hibernate to Space">Moving from Hibernate to Space</a> best practice includes step by step instructions for moving from Hibernate based application to GigaSpaces Data-Grid as the data access layer. This use Hibernate as the space persistency layer using write-through approach when pushing updates into the database.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The space can be used as a <a href="GigaSpaces for Hibernate ORM Users.html" title="GigaSpaces for Hibernate ORM Users">Hibernate second level cache</a>.</td></tr></table></div>
+
+<h1><a name="Persistency-CachingpoliciesandtheExternalDataSource"></a>Caching policies and the External Data Source</h1>
+<p>The External Data Source supports the <b>All In Cache</b> and <b>LRU</b> <a href="Memory Management Facilities.html" title="Memory Management Facilities">Cache policies</a>.</p>
+
+<h2><a name="Persistency-AllInCachePolicy"></a>All In Cache Policy</h2>
+<p>With the <a href="ALL IN CACHE-Cache Policy.html" title="ALL IN CACHE-Cache Policy">All In Cache policy</a>, the assumption is the Space holds the entire data in memory. In this case, the space communicated with the data source at startup, and loads all the data. If data within the space is updated/added/removed, the space is calling the relevant external data source interface to update the underlying data source. All data activities leveraging the data in memory.</p>
+
+
+<h2><a name="Persistency-LRUCachePolicyReadAhead"></a>LRU Cache Policy - Read-Ahead</h2>
+<p>LRU persistency model is based on the eviction model: <b>Some</b> of the data stored In-Memory (based on auto expiration mechanism or explicit data eviction) and <b>ALL</b> the data stored on disk where the preferred disk media is a database. You may leverage Hibernate as the mapping layer when data is persist or have a custom persistency mapping implemented leveraging the <a href="External Data Source API.html" title="External Data Source API">External Data Source API</a>. <br/>
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>GigaSpaces do not support the overflow model when persisting data since it may lead to inconsistency situations.</td></tr></table></div>. <br/>
+Using a database to store the data allows you to:</p>
+<ul class="alternate" type="square">
+	<li>Reload it very fast into the space with plenty of flexibility to customize the load activity.</li>
+	<li>Allows the system to query the database when needed.</li>
+</ul>
+
+
+<p>Database technology has proven itself to be able to store vast amount of data very efficiently with very good high-availability. You may use <a href="http://en.wikipedia.org/wiki/RDBMS">RDBMS</a> SQL databases (mySQL, Oracle, Sybase, DB2) or <a href="http://en.wikipedia.org/wiki/NoSQL">NoSQL</a> databases (MongoDB , MarkLogic, AllegroGraph) as the space persistency layer. </p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>When using NoSQL databases you may also leverage GigaSpaces <a href="Document (Schema-Free) API.html" title="Document (Schema-Free) API">Document API</a> support to map complex data structure into a document data store model.</td></tr></table></div>
+
+<p>With the <a href="LRU-Cache Policy.html" title="LRU-Cache Policy">LRU policy</a>, the assumption is that some of the data (recently used) is stored in memory. The amount of data stored in memory is limited by the <b>cache size</b> parameter, the memory usage watermark threshold parameters and available free GSC JVM heap size. In this case, once the space is started is loads data up 50% (you may tune this value) of the defined cache max size (total of objects per partition).</p>
+
+<p>If data within the space is updated/added/removed, the space is calling the relevant external data source interface to update the underlying data source. When performing read operations for a single object (read/readById/readIfExists) and no matching object is found in-memory (cache miss), the relevant external data source is called to search for a matching data to be loaded back into the space and from there sent to the client application (read-ahead). If a query is executed (readMultiple), and the max objects to read exceed beyond the amount of matching objects in memory, the relevant external data source is called to search for matching data elements to be loaded back into the space and from there sent to the client application. In this case, the client might have in return objects that were originally within the space, and objects that have been read from the external data source and loaded into the space as a result of the query operation.</p>
+
+<div class='panelMacro'><table class='tipMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/check.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The <a href="http://www.gigaspaces.com/wiki/display/SBP/IMDG+with+Large+Backend+Database+Support" title="IMDG with Large Backend Database Support">IMDG with Large Backend Database Support</a> best practice suggest a simple approach you may use to leverage LRU Space with a large database allowing the application to <b>execute queries</b> against the space in an optimal manner.</td></tr></table></div>
+
+<p>In both cases (ALL_IN_CACHE and LRU cache policy), you can <a href="External Data Source Initial Load.html" title="External Data Source Initial Load">customize the data load phase</a> to speed up the space initialization phase.</p>
+
+<h1><a name="Persistency-TheExternalDataSource"></a>The External Data Source</h1>
+
+<p>The space can load data from external data sources, store data into external data sources, and persist data into a relational data source or any other media via a custom External Data Source implementation.<br/>
+The <a href="External Data Source.html" title="External Data Source">External Data Source</a> has a simple interface with a built-in implementation using Hibernate, to store data in an existing data source and in the space. Data is loaded from the data source during space initialization (via the <tt>DataProvider</tt> implementation), and from then onwards the application works with the space directly. Meanwhile, the data source is constantly updated with all the changes made in the space (via the <tt>DataPersister</tt> implementation). This is the recommended model.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The JDBC Storage Adapter is Not supported with XAP 8.0</p>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903789";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903789";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+<h1><a name="Persistency-SectionContents"></a>Section Contents</h1>
+<ul><li><a href="External Data Source.html" title="External Data Source">External Data Source</a> &mdash; <span class="smalltext">External Data Source (EDS) is a space component that provides advanced persistency capabilities for the space architecture.</span><ul><li><a href="External Data Source Advanced Topics.html" title="External Data Source Advanced Topics">External Data Source Advanced Topics</a> &mdash; <span class="smalltext">External Data Source advanced topics such as advanced operations, tuning, troubleshooting, and limitations.</span></li><li><a href="External Data Source API.html" title="External Data Source API">External Data Source API</a> &mdash; <span class="smalltext">External Data Source API. This page explains how to implement custom external data source.</span></li><li><a href="Hibernate External Data Source.html" title="Hibernate External Data Source">Hibernate External Data Source</a> &mdash; <span class="smalltext">The default Hibernate implementation of the <a href="External Data Source.html" title="External Data Source">External Data Source</a>.</span></li><li><a href="External Data Source Initial Load.html" title="External Data Source Initial Load">External Data Source Initial Load</a> &mdash; <span class="smalltext">External Data Source (EDS) initial Load pre-load the space with data before it is available for clients.</span></li></ul></li><li><a href="Asynchronous Persistency with the Mirror.html" title="Asynchronous Persistency with the Mirror">Asynchronous Persistency with the Mirror</a> &mdash; <span class="smalltext">Reliable Asynchronous Persistency (Mirror)</span><ul><li><a href="Async Persistency - Mirror - Advanced.html" title="Async Persistency - Mirror - Advanced">Async Persistency - Mirror - Advanced</a> &mdash; <span class="smalltext">Reliable Asynchronous Persistency (Mirror) - advanced topics.</span></li></ul></li><li><a href="Direct Persistency.html" title="Direct Persistency">Direct Persistency</a> &mdash; <span class="smalltext">Direct persistency mode support Read-Write Through</span></li><li><a href="Persistency Advanced Topics.html" title="Persistency Advanced Topics">Persistency Advanced Topics</a><ul><li><a href="Persisting Large Entries.html" title="Persisting Large Entries">Persisting Large Entries</a> &mdash; <span class="smalltext">What to do when Entry arrays or collection attribute types are very large, so that the database cannot store them in a one-column cell.</span></li><li><a href="GigaSpaces for Hibernate ORM Users.html" title="GigaSpaces for Hibernate ORM Users">GigaSpaces for Hibernate ORM Users</a> &mdash; <span class="smalltext">Using GigaSpaces as a Hibernate cache provider; creating a Hibernate-integrated Data Grid with your existing ORM.</span></li><li><a href="Transient Entries.html" title="Transient Entries">Transient Entries</a> &mdash; <span class="smalltext">How to specify that some objects in a persistent space should not be saved to the persistent storage.</span></li></ul></li></ul>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

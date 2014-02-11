@@ -1,0 +1,516 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : CPP API Mapping File</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>CPP API Mapping File</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Elements that are available to be used in your <tt>gs.xml</tt> file and supported types. </p>
+</div>
+<h1><a name="CPPAPIMappingFile-Overview"></a>Overview</h1>
+
+<p>This section describes the elements that are available to be used in your <tt>gs.xml</tt> file. <br/>
+<img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>type</tt> property is mandatory in case the <tt>property</tt> element is defined.</p>
+
+<p>The gs.xml file allows you to define C+&#43; classes in the space. To learn how to do this, see the <a href="CPP API Code Generator.html" title="CPP API Code Generator">CPP API Code Generator</a> section.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/lightbulb_on.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> To find out about the <b>supported C+&#43; types</b>, see <a href="#CPPAPIMappingFile-typeSupportedTypes">below</a>.</p>
+
+<p>The <tt>&#42;.gs.xml</tt> configuration needs to reside in a <tt>&lt;Root Folder&gt;\config\mapping</tt> folder where the <tt>&lt;Root Folder&gt;</tt> should be part of the application classpath.</p>
+
+<p>XML mapping can be defined in the same package as the class (using the class name as the file prefix).</p>
+
+
+<h1><a name="CPPAPIMappingFile-class"></a>class</h1>
+
+<p><b>Usage</b>: <tt>&lt;class name="myClass" &gt;</tt></p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Attribute Name </th>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> The name of the class. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>cpp-name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> The C++ name of the class. <br clear="all" />
+If not specified then 'name' is used. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>dotnet-name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> The .NET name of the class, including the namespace. <br clear="all" />
+If not specified then 'name' is used. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>replicate</tt> </td>
+<td class='confluenceTd'> boolean </td>
+<td class='confluenceTd'> When running in partial replication mode, a <tt>true</tt> value for this field replicates all objects of this type to a target space or spaces. </td>
+<td class='confluenceTd'> <tt>true</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>persist</tt> </td>
+<td class='confluenceTd'> boolean </td>
+<td class='confluenceTd'> When a space is defined as persistent, a <tt>true</tt> value for this annotation persists objects of this type. <br clear="all" />
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details, refer to the <a href="Persistency.html" title="Persistency">Persistency</a> section.</p><br clear="all" /> <br clear="all" /> </td>
+<td class='confluenceTd'> <tt>true</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>fifo</tt> </td>
+<td class='confluenceTd'> boolean </td>
+<td class='confluenceTd'> To enable FIFO-based notifications and take operations, this annotation should be <tt>true</tt>. <br clear="all" />
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> For more details, refer to the <a href="FIFO Support.html" title="FIFO Support">FIFO operations</a> section.</p><br clear="all" /> <br clear="all" /> </td>
+<td class='confluenceTd'> <tt>false</tt> </td>
+</tr>
+</tbody></table>
+
+<div class='panelMacro'><table class='noteMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>The default values for <tt>replicate</tt>, <tt>persist</tt>, and <tt>fifo</tt> should only be considered as <ins>recommended</ins> default values. Actual values should be specified in the <tt>gs.xml</tt> file.</td></tr></table></div>
+
+<h1><a name="CPPAPIMappingFile-superclass"></a>superclass</h1>
+
+<p>Declares the parent class. If it inherits from another class, only one class is allowed.</p>
+
+<p>The superclass must also be a C+&#43; class.</p>
+
+<p><b>Usage</b>: <tt>&lt;superclass name="myBaseClass" /&gt;</tt></p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Attribute Name </th>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> The name of the inherited class </td>
+</tr>
+</tbody></table>
+
+<h1><a name="CPPAPIMappingFile-includeheader"></a>include-header</h1>
+
+<p>This attribute is used to add include file declaration to your generated C+&#43; code.</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Attribute Name </th>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>file</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> The name of the include file. </td>
+</tr>
+</tbody></table>
+<p>For example:<br clear="all" /></p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;include-header file=<span class="code-quote">"UserMessage.h"</span>/&gt;</pre>
+</div></div>
+
+<h1><a name="CPPAPIMappingFile-property"></a>property</h1>
+
+<p>The <tt>property</tt> element defines a field in this class.</p>
+
+<p><b>Usage</b>: <tt>&lt;property name="m_Age" type="int" null-value="-1" /&gt;</tt></p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Attribute Name </th>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> The property name.<br/>
+<img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> It is recommended that property names start with a lowercase letter to avoid conflicts in Java. If POJO classes are generated too, then any property that starts with an uppercase letter will be excluded from its POJO class.  </td>
+<td class='confluenceTd'> <tt>NONE</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>index</tt> </td>
+<td class='confluenceTd'> string of <tt>IndexType</tt> </td>
+<td class='confluenceTd'> Defines if this field data is indexed. Querying indexed fields speeds up read and take operations. Possible values are <tt>false</tt> and <tt>true</tt>. </td>
+<td class='confluenceTd'> <tt>false</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>null-value</tt> </td>
+<td class='confluenceTd'> String </td>
+<td class='confluenceTd'> Specifies that a value be treated as <tt>null</tt>. <br clear="all" />
+For example: <tt>&lt;property name="m_Age" type="int" null-value="4711" /&gt;</tt>, where <tt>4711</tt> functions as a <tt>null</tt> value. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>type</tt> </td>
+<td class='confluenceTd'> String </td>
+<td class='confluenceTd'> Defines the type of the property. <b>This is required.</b> See possible values below. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+</tbody></table>
+<p><a name="CPPAPIMappingFile-1"></a></p>
+
+<h1><a name="CPPAPIMappingFile-type"></a>type</h1>
+
+<p>The table below shows the <b>supported types that can be used in the space</b>, and how the different types are mapped in each language.</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Type </th>
+<th class='confluenceTh'> C+&#43; Type </th>
+<th class='confluenceTh'> Java Type </th>
+<th class='confluenceTh'> .NET Type </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>bool</tt> </td>
+<td class='confluenceTd'> <tt>bool</tt> </td>
+<td class='confluenceTd'> <tt>boolean</tt> </td>
+<td class='confluenceTd'> <tt>boolean</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>byte</tt> </td>
+<td class='confluenceTd'> <tt>char</tt> </td>
+<td class='confluenceTd'> <tt>byte</tt> </td>
+<td class='confluenceTd'> <tt>byte</tt><br clear="all" /> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>char</tt> </td>
+<td class='confluenceTd'> <tt>char</tt> </td>
+<td class='confluenceTd'> <tt>char</tt> </td>
+<td class='confluenceTd'> <tt>char</tt><br clear="all" /> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>double</tt> </td>
+<td class='confluenceTd'> <tt>double</tt> </td>
+<td class='confluenceTd'> <tt>double</tt> </td>
+<td class='confluenceTd'> <tt>double</tt><br clear="all" /> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>float</tt> </td>
+<td class='confluenceTd'> <tt>float</tt> </td>
+<td class='confluenceTd'> <tt>float</tt> </td>
+<td class='confluenceTd'> <tt>float</tt><br clear="all" /> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>int</tt> </td>
+<td class='confluenceTd'> <tt>int</tt> </td>
+<td class='confluenceTd'> <tt>int</tt> </td>
+<td class='confluenceTd'> <tt>int</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>long</tt> </td>
+<td class='confluenceTd'> <tt>long</tt> </td>
+<td class='confluenceTd'> <tt>int</tt> </td>
+<td class='confluenceTd'> <tt>int</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>long long</tt> </td>
+<td class='confluenceTd'> <tt>long long</tt> </td>
+<td class='confluenceTd'> <tt>long</tt> </td>
+<td class='confluenceTd'> <tt>long</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>short</tt> </td>
+<td class='confluenceTd'> <tt>short</tt> </td>
+<td class='confluenceTd'> <tt>short</tt> </td>
+<td class='confluenceTd'> <tt>short</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>string</tt> </td>
+<td class='confluenceTd'> <tt>std::string</tt> </td>
+<td class='confluenceTd'> <tt>java.lang.String</tt> </td>
+<td class='confluenceTd'> <tt>string</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>bool[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;bool&gt;</tt> </td>
+<td class='confluenceTd'> <tt>boolean[]</tt> </td>
+<td class='confluenceTd'> <tt>bool[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>byte[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;char&gt;</tt> </td>
+<td class='confluenceTd'> <tt>byte[]</tt> </td>
+<td class='confluenceTd'> <tt>byte[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>char[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;char&gt;</tt> </td>
+<td class='confluenceTd'> <tt>char[]</tt> </td>
+<td class='confluenceTd'> <tt>char[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>double[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;double&gt;</tt> </td>
+<td class='confluenceTd'> <tt>double[]</tt> </td>
+<td class='confluenceTd'> <tt>double[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>float[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;float&gt;</tt> </td>
+<td class='confluenceTd'> <tt>float[]</tt> </td>
+<td class='confluenceTd'> <tt>float[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>int[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;int&gt;</tt> </td>
+<td class='confluenceTd'> <tt>int[]</tt> </td>
+<td class='confluenceTd'> <tt>int[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>long[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;long&gt;</tt> </td>
+<td class='confluenceTd'> <tt>int[]</tt> </td>
+<td class='confluenceTd'> <tt>int[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>long long[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;long long&gt;</tt> </td>
+<td class='confluenceTd'> <tt>long[]</tt> </td>
+<td class='confluenceTd'> <tt>long[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>short[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;short&gt;</tt> </td>
+<td class='confluenceTd'> <tt>short[]</tt> </td>
+<td class='confluenceTd'> <tt>short[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>string[]</tt> </td>
+<td class='confluenceTd'> <tt>std::vector&lt;std::string&gt;</tt> </td>
+<td class='confluenceTd'> <tt>java.lang.String[]</tt> </td>
+<td class='confluenceTd'> <tt>string[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>blob</tt> </td>
+<td class='confluenceTd'> <tt>Blob</tt> </td>
+<td class='confluenceTd'> <tt>byte[]</tt> </td>
+<td class='confluenceTd'> <tt>byte[]</tt> </td>
+</tr>
+</tbody></table>
+
+<h1><a name="CPPAPIMappingFile-refproperty"></a>ref-property</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Attribute Name </th>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> The property name </td>
+<td class='confluenceTd'> <tt>NONE</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>class-ref</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> The class name </td>
+<td class='confluenceTd'> <tt>NONE</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>type</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> Determines if the object is an array or a single object </td>
+<td class='confluenceTd'> <tt>NONE</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>storage-type</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> Determines how this field value is stored in the space.<br clear="all" />
+Options are:
+<ul class="alternate" type="square">
+	<li><tt>object</tt> - The value of this property is stored explicitly, so entries can be matched by specific value. In this case you should generate a matching POJO for the embedded C++ class.</li>
+	<li><tt>binary</tt> - The value is stored as a blob. In this case there is no need to generate a matching POJO for the embedded C++ class. It is more efficient option, but would not allow you to perform matching based on this field. See below example how you should use this option: <div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;class name=<span class="code-quote">"complexPayloadAsBinary"</span> persist=<span class="code-quote">"<span class="code-keyword">true</span>"</span> replicate=<span class="code-quote">"<span class="code-keyword">false</span>"</span> fifo=<span class="code-quote">"<span class="code-keyword">false</span>"</span>&gt;
+    &lt;superclass name=<span class="code-quote">"benchmarkBase"</span> /&gt;
+    &lt;ref-property class-ref=<span class="code-quote">"payloadAsString"</span> name=<span class="code-quote">"innerPayload"</span> type=<span class="code-quote">"boost::shared_ptr"</span> storage-type=<span class="code-quote">"binary"</span>/&gt;
+  &lt;/class&gt;</pre>
+</div></div></li>
+</ul>
+</td>
+<td class='confluenceTd'> <tt>object</tt> </td>
+</tr>
+</tbody></table>
+<p>Types that can be used with the <tt>ref-property</tt> attribute:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML type </th>
+<th class='confluenceTh'> CPP Type </th>
+<th class='confluenceTh'> Java Type </th>
+<th class='confluenceTh'> .NET Type </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>array</tt> </td>
+<td class='confluenceTd'> <tt>std::vector &lt; boost::shared_ptr &lt; POCO &gt; &gt;</tt> </td>
+<td class='confluenceTd'> <tt>POJO[]</tt> </td>
+<td class='confluenceTd'> <tt>PONO[]</tt> </td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>boost::shared_ptr</tt> </td>
+<td class='confluenceTd'> <tt>boost::shared_ptr&lt; POCO &gt;</tt> </td>
+<td class='confluenceTd'> <tt>POJO</tt> </td>
+<td class='confluenceTd'> <tt>PONO</tt> </td>
+</tr>
+</tbody></table>
+<p>For example:<br clear="all" /></p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;class name=<span class="code-quote">"com.gigaspaces.tests.test_refNode"</span> persist=<span class="code-quote">"<span class="code-keyword">true</span>"</span> replicate=<span class="code-quote">"<span class="code-keyword">true</span>"</span> fifo=<span class="code-quote">"<span class="code-keyword">false</span>"</span> &gt;
+    &lt;property name=<span class="code-quote">"intIndex"</span>  type=<span class="code-quote">"<span class="code-object">int</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> index=<span class="code-quote">"<span class="code-keyword">true</span>"</span>/&gt;
+    &lt;ref-property class-ref=<span class="code-quote">"com.gigaspaces.tests.test_refChildNode"</span> name=<span class="code-quote">"children"</span> type=<span class="code-quote">"array"</span>&gt;&lt;/ref-property&gt;
+    &lt;ref-property class-ref=<span class="code-quote">"com.gigaspaces.tests.test_refChildNode"</span> name=<span class="code-quote">"leftChild"</span> type=<span class="code-quote">"boost::shared_ptr"</span>&gt;&lt;/ref-property&gt;
+    &lt;ref-property class-ref=<span class="code-quote">"com.gigaspaces.tests.test_refChildNode"</span> name=<span class="code-quote">"rightChild"</span> type=<span class="code-quote">"boost::shared_ptr"</span>&gt;&lt;/ref-property&gt;
+&lt;/class&gt;</pre>
+</div></div>
+
+<h1><a name="CPPAPIMappingFile-id"></a>id</h1>
+
+<p><b>Usage</b>:<br clear="all" /></p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;property name=<span class="code-quote">"idField"</span> type=<span class="code-quote">"string"</span> null-value="" /&gt;</span>
+<span class="code-tag">&lt;id name=<span class="code-quote">"idField"</span> auto-generate=<span class="code-quote">"true"</span> /&gt;</span></pre>
+</div></div>
+<p>Defines whether this field value is used when generating the Entry's UID. The field value should be unique - i.e. multiple objects with the same value cannot be written into the space. Each object should have a different field value. When writing an object into the space with an existing <tt>id</tt> field value, an <tt>EntryAlreadyInSpaceException</tt> is thrown. The Entry's UID is created based on the <tt>id</tt> field value.
+<br clear="all" /></p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Attribute Name </th>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+<th class='confluenceTh'> Default Value </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> Specifies the name of the property for holding the UID. </td>
+<td class='confluenceTd'>&nbsp;</td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>auto-generate</tt> </td>
+<td class='confluenceTd'> String </td>
+<td class='confluenceTd'> Specifies if the Entry's UID is generated automatically by the space when written into the space. If <tt>false</tt>, the field is indexed automatically, and if <tt>true</tt>, the field isn't indexed </td>
+<td class='confluenceTd'> <tt>false</tt> </td>
+</tr>
+</tbody></table>
+<p><img class="emoticon" src="images/icons/emoticons/forbidden.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>id</tt> element cannot be used with multiple fields.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> The <tt>id</tt> element type must be string.</p>
+
+<p>If <tt>auto-generate</tt> is declared as <tt>false</tt>, the field is indexed automatically. If <tt>auto-generate</tt> is declared as <tt>true</tt>, the field isn't indexed.</p>
+
+<p><a name="CPPAPIMappingFile-3"></a></p>
+
+<h1><a name="CPPAPIMappingFile-version"></a>version</h1>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Attribute Name </th>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> Specifies the name of the property holding the version's ID. </td>
+</tr>
+</tbody></table>
+
+
+
+<h1><a name="CPPAPIMappingFile-routing"></a>routing</h1>
+
+<p>The <tt>routing</tt> element routes the field value under this element to the relevant space. This is done using hash-based load-balancing.</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'> XML Attribute Name </th>
+<th class='confluenceTh'> Type </th>
+<th class='confluenceTh'> Description </th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>name</tt> </td>
+<td class='confluenceTd'> string </td>
+<td class='confluenceTd'> Specifies the property that allows identification of the <tt>routing</tt> element in the space. </td>
+</tr>
+</tbody></table>
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> When working with a partitioned persistent space that persists into a central data-source, make sure that a property mapped for <tt>routing</tt> is also mapped with <tt>id</tt>.</p>
+
+<h1><a name="CPPAPIMappingFile-Example"></a>Example</h1>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;class name=<span class="code-quote">"com.gigaspaces.tests.completeType"</span> persist=<span class="code-quote">"<span class="code-keyword">true</span>"</span> replicate=<span class="code-quote">"<span class="code-keyword">true</span>"</span> fifo=<span class="code-quote">"<span class="code-keyword">false</span>"</span> &gt;
+    &lt;property name=<span class="code-quote">"idField"</span> type=<span class="code-quote">"string"</span> <span class="code-keyword">null</span>-value="" /&gt;
+    &lt;id name=<span class="code-quote">"idField"</span> auto-generate=<span class="code-quote">"<span class="code-keyword">true</span>"</span> /&gt;
+
+    &lt;property name=<span class="code-quote">"stringField"</span> index=<span class="code-quote">"<span class="code-keyword">true</span>"</span> type=<span class="code-quote">"string"</span> <span class="code-keyword">null</span>-value="" /&gt;
+    &lt;routing  name=<span class="code-quote">"stringField"</span>/&gt;
+
+    &lt;property name=<span class="code-quote">"versionField"</span>     type=<span class="code-quote">"<span class="code-object">long</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;
+    &lt;version name=<span class="code-quote">"versionField"</span>/&gt;
+
+    &lt;!--&lt;property name=<span class="code-quote">"byteField"</span>     type=<span class="code-quote">"<span class="code-object">byte</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;--&gt;
+    &lt;property name=<span class="code-quote">"booleanField"</span>  type=<span class="code-quote">"bool"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"<span class="code-keyword">false</span>"</span> /&gt;
+    &lt;property name=<span class="code-quote">"shortField"</span>    type=<span class="code-quote">"<span class="code-object">short</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;
+    &lt;property name=<span class="code-quote">"charField"</span>     type=<span class="code-quote">"<span class="code-object">char</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;
+    &lt;property name=<span class="code-quote">"intField"</span>      type=<span class="code-quote">"<span class="code-object">int</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;
+    &lt;property name=<span class="code-quote">"longField"</span>     type=<span class="code-quote">"<span class="code-object">long</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;
+    &lt;property name=<span class="code-quote">"longlongField"</span>     type=<span class="code-quote">"<span class="code-object">long</span> <span class="code-object">long</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;
+    &lt;property name=<span class="code-quote">"floatField"</span>    type=<span class="code-quote">"<span class="code-object">float</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;
+    &lt;property name=<span class="code-quote">"doubleField"</span>   type=<span class="code-quote">"<span class="code-object">double</span>"</span> <span class="code-keyword">null</span>-value=<span class="code-quote">"0"</span> /&gt;
+&lt;/class&gt;</pre>
+</div></div>
+<div class="error"><span class="error">Error formatting macro: toc-zone: java.lang.NullPointerException</span> </div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Configuring Processing Unit Elements</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Configuring Processing Unit Elements</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903807";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903807";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  This page describes the processing unit deployment configuration file (<tt>pu.xml</tt>) </p>
+</div>
+
+<h1><a name="ConfiguringProcessingUnitElements-Overview"></a>Overview </h1>
+
+<p>The processing unit's configuration is expressed using a number of configuration files, namely <tt>pu.xml, sla.xml</tt> and <tt>pu.properties</tt>, which are typically located under the <tt>META-INF/spring</tt> directory within the processing unit jar file. </p>
+
+<p>Each file is used to configure separate aspects of the processing unit. The <tt>pu.xml</tt> file is used to configure the actual elements that the processing unit contains, e.g. space and space proxies, event handles and remote service. Generally speaking, it contains of the application specific components of the processing unit. </p>
+
+<h1><a name="ConfiguringProcessingUnitElements-The%7B%7Bpu.xml%7D%7Dfile"></a>The <tt>pu.xml</tt> file</h1>
+
+<p>This file is a <a href="http://www.springframework.org">Spring framework</a> XML configuration file. It leverages the Spring framework <a href="http://static.springframework.org/spring/docs/2.5.x/reference/beans.html">IoC container</a> and extends it by using the Spring <a href="http://static.springframework.org/spring/docs/2.5.x/reference/extensible-xml.html">custom namespace mechanism</a>. </p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>It is recommended (although not mandatory) that you familiarize yourself with the Spring XML configuration basics. A good place to start is <a href="http://static.springframework.org/spring/docs/2.5.x/reference/beans.html">here</a></td></tr></table></div>
+
+<h1><a name="ConfiguringProcessingUnitElements-%7B%7Bpu.xml%7D%7DContents"></a><tt>pu.xml</tt> Contents</h1>
+
+<p>The definitions in the <tt>pu.xml</tt> file are divided into 2 major categories: </p>
+
+<ul>
+	<li>GigaSpaces specific components, such as <a href="The Space Component.html" title="The Space Component">space</a>, <a href="The GigaSpace Interface.html" title="The GigaSpace Interface">GigaSpace</a>, <a href="Messaging and Events.html" title="Messaging and Events">event containers</a> or <a href="Space Based Remoting.html" title="Space Based Remoting">remote service exporters</a>.</li>
+</ul>
+
+
+<ul>
+	<li>User defined beans, which define instances of user classes to be used by the processing unit. For example, user defined event handlers to which the event containers delegate events as those are received.
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>SLA (Service Level Agreement) definitions</b><br />the <tt>pu.xml</tt> may also contain <a href="Configuring the Processing Unit SLA.html" title="Configuring the Processing Unit SLA">SLA definitions</a>. In previous releases, this was the recommended way to define your processing unit's SLA. As of version 7.0, the recommended way to do it is to use a separate sla.xml file, which separates this deployment and runtime aspect from the the processing unit's components. This enables better modularization and reuse of the processing unit. </td></tr></table></div></li>
+</ul>
+
+
+<p>This section focuses on the overall structure of the <tt>pu.xml</tt> file. The various GigaSpaces components that can be included in the {pu.xml}} (such as <a href="Messaging and Events.html" title="Messaging and Events">event containers</a>, <a href="Space Based Remoting.html" title="Space Based Remoting">remote services</a> and others) are covered in detail in their respective sections in the programmer's guide. </p>
+
+<h1><a name="ConfiguringProcessingUnitElements-MultipleConfigurationOptions"></a>Multiple Configuration Options </h1>
+
+<p>In recent versions (2.0 and 2.5), the Spring framework has introduced two additional ways to configure your Spring application.  </p>
+
+<ul>
+	<li>Extensive support for <a href="http://static.springframework.org/spring/docs/2.5.x/reference/beans.html#beans-annotation-config">configuration through Java 5 annotations</a> to simplify many of the configuration tasks a bring the configuration closer to the code</li>
+</ul>
+
+
+<ul>
+	<li><a href="http://static.springframework.org/spring/docs/2.5.x/reference/extensible-xml.html">Extensible XML schema</a> through the use of custom namespaces and namespace handlers. This allows for products like GigaSpaces (or even Spring itself) to create their own XML elements for simplifying the configuration of their specific components instead of using the plain Spring XML syntax<br/>
+Naturally, GigaSpaces XAP also leverages the extensibility of the above two mechanisms and enables users to configure the processing unit through GigaSpaces-specific XML elements and Java 5 annotations. </li>
+</ul>
+
+
+<p>Throughout this guide, every configuration example will be provided in all of the supported forms (plain Spring, custom namespace element and annotations). See below for an example pu.xml configuration file.</p>
+
+<h1><a name="ConfiguringProcessingUnitElements-Sample%7B%7Bpu.xml%7D%7DConfiguration"></a>Sample <tt>pu.xml</tt> Configuration</h1>
+<p>Here's a sample <tt>pu.xml</tt> configuration file. Note the comments in the file which describe the various elements that appear in it. </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>Sample pu.xml file</b></div><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;!-- 
+    top level element of the Spring configuration. Note the multiple namespace definition for both 
+    GigaSpaces and Spring. You can simply copy and paste this portion of the pu.xml file 
+--&gt;
+&lt;beans xmlns=<span class="code-quote">"http://www.springframework.org/schema/beans"</span>
+   <span class="code-keyword">xmlns:xsi</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema-instance"</span>
+   <span class="code-keyword">xmlns:context</span>=<span class="code-quote">"http://www.springframework.org/schema/context"</span>
+   <span class="code-keyword">xmlns:os-core</span>=<span class="code-quote">"http://www.openspaces.org/schema/core"</span>
+   <span class="code-keyword">xmlns:os-events</span>=<span class="code-quote">"http://www.openspaces.org/schema/events"</span>
+   <span class="code-keyword">xmlns:os-remoting</span>=<span class="code-quote">"http://www.openspaces.org/schema/remoting"</span>
+   <span class="code-keyword">xmlns:os-sla</span>=<span class="code-quote">"http://www.openspaces.org/schema/sla"</span>
+   xsi:schemaLocation="
+   http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+   http://www.openspaces.org/schema/core http://www.openspaces.org/schema/core/openspaces-core.xsd
+   http://www.openspaces.org/schema/events http://www.openspaces.org/schema/events/openspaces-events.xsd
+   http://www.openspaces.org/schema/remoting http://www.openspaces.org/schema/remoting/openspaces-remoting.xsd
+   http://www.openspaces.org/schema/sla http://www.openspaces.org/schema/sla/openspaces-sla.xsd"&gt;
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Enables to configure Spring beans through annotations   --&gt;</span></span>    
+    <span class="code-tag">&lt;context:annotation-config /&gt;</span>    
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Enable @PostPrimary and others annotation support. --&gt;</span></span>
+    <span class="code-tag">&lt;os-core:annotation-support /&gt;</span>
+    
+    <span class="code-tag"><span class="code-comment">&lt;!-- Enables using @Polling and @Notify annotations to creating polling and notify containers  --&gt;</span></span>
+    <span class="code-tag">&lt;os-events:annotation-support /&gt;</span>
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Enables using @RemotingService and other remoting related annotations   --&gt;</span></span>
+    <span class="code-tag">&lt;os-remoting:annotation-support /&gt;</span>
+
+    &lt;!--
+        A bean representing a space. Here we configure an embedded space (note the url element which does 
+        not contain any remote protocol prefix. Also note that we do not specify here the cluster topology
+        of the space. It is declared by the os-sla:sla element of this pu.xml file.
+    --&gt;
+    <span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span> /&gt;</span>
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Defines a local transaction manager.--&gt;</span></span>
+    <span class="code-tag">&lt;os-core:local-tx-manager id=<span class="code-quote">"transactionManager"</span> space=<span class="code-quote">"space"</span>/&gt;</span>
+
+    <span class="code-tag"><span class="code-comment">&lt;!-- Define the GigaSpace instance that the application will use to access the space  --&gt;</span></span>
+    <span class="code-tag">&lt;os-core:giga-space id=<span class="code-quote">"gigaSpace"</span> space=<span class="code-quote">"space"</span> tx-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span>
+    
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+
+<h1><a name="ConfiguringProcessingUnitElements-Importingxmlfilesintothepu.xml"></a>Importing xml files into the pu.xml</h1>
+
+<p>To import one more more xml files into your pu.xml you can use the following:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;<span class="code-keyword">import</span> resource=<span class="code-quote">"classpath*:/applicationContext-component.xml"</span> /&gt;
+	&lt;<span class="code-keyword">import</span> resource=<span class="code-quote">"classpath*:/applicationContext-matching.xml"</span>/&gt;
+	&lt;<span class="code-keyword">import</span> resource=<span class="code-quote">"classpath*:/applicationContext-services.xml"</span>/&gt;
+	&lt;<span class="code-keyword">import</span> resource=<span class="code-quote">"classpath*:/applicationContext-jmx.xml"</span> /&gt;
+	&lt;<span class="code-keyword">import</span> resource=<span class="code-quote">"classpath*:/applicationContext-containers.xml"</span>/&gt;</pre>
+</div></div>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

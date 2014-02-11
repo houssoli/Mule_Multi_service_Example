@@ -1,0 +1,598 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : JPA Support</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>JPA Support</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:54821426";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:54821426";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Using JPA with GigaSpaces. </p>
+</div>
+
+
+<h1><a name="JPASupport-Overview"></a>Overview</h1>
+<p>The Java Persistency API (JPA) is a Java programming language framework managing relational data in applications using Java Platform.<br/>
+GigaSpaces JPA allows you to use JPA's functionality, annotations and execute JPQL queries on Space.<br/>
+GigaSpaces JPA implementation is based on <a href="http://openjpa.apache.org/">OpenJPA</a>. </p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>It is highly recommended that you <a href="http://download.oracle.com/javaee/6/tutorial/doc/bnbpz.html">get yourself familiar with JPA</a> before reading this page.</td></tr></table></div>
+
+<h1><a name="JPASupport-GigaSpacesJPAConfiguration"></a>GigaSpaces JPA Configuration</h1>
+
+<h3><a name="JPASupport-OpenJPA"></a>OpenJPA</h3>
+<p>OpenJPA's jar file is included with the GigaSpaces ditribution (provided under <tt>&lt;GigaSpaces root&gt;/lib/platform/jpa</tt>), and the GigaSpaces-specific JPA implementation classes are part of the OpenSpaces jar (located under <tt>&lt;GigaSpaces root&gt;/lib/required/gs-openspaces.jar</tt>). <br/>
+Maven users should define the following dependency in their <tt>pom.xml</tt> file:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;dependencies&gt;</span>
+  <span class="code-tag">&lt;dependency&gt;</span>
+    <span class="code-tag">&lt;groupId&gt;</span>org.apache.openjpa<span class="code-tag">&lt;/groupId&gt;</span>
+    <span class="code-tag">&lt;artifactId&gt;</span>openjpa<span class="code-tag">&lt;/artifactId&gt;</span>
+    <span class="code-tag">&lt;version&gt;</span>2.0.0<span class="code-tag">&lt;/version&gt;</span>
+  <span class="code-tag">&lt;/dependency&gt;</span>
+<span class="code-tag">&lt;/dependencies&gt;</span></pre>
+</div></div>
+
+<h3><a name="JPASupport-Thepersistence.xmlfile"></a>The persistence.xml file</h3>
+<p>To enable the GigaSpaces JPA implementation you should specify  the following 3 mandatory properties in your <tt>persistence.xml</tt>:</p>
+<ul>
+	<li><tt>BrokerFactory</tt> should be set to <tt>"abstractstore"</tt> which tells OpenJPA that an alternate <tt>StoreManager</tt> (the layer responsible for interaction with underlying dfatabase) is going to be used.</li>
+	<li><tt>abstractstore.AbstractStoreManager</tt> should be set to <tt>"org.openspaces.jpa.StoreManager"</tt> which tells OpenJPA to use the OpenSpaces <tt>StoreManager</tt>.</li>
+	<li><tt>LockManager</tt> should be set to <tt>"none"</tt> since OpenJPA's default lock manager is set to <tt>"version"</tt> (Optimistic locking) which is currently unsupported (it will be supported in one of the future 8.0 service packs)</li>
+</ul>
+
+
+<p>Your persistence.xml file should be placed in any **/META-INF folder in your classpath.</p>
+
+<p>The following is an example of a GigaSpaces JPA persistence.xml configuration file:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;persistence-unit name=<span class="code-quote">"gigaspaces"</span> transaction-type=<span class="code-quote">"RESOURCE_LOCAL"</span>&gt;</span>
+	<span class="code-tag">&lt;provider&gt;</span>org.apache.openjpa.persistence.PersistenceProviderImpl<span class="code-tag">&lt;/provider&gt;</span>
+	<span class="code-tag">&lt;properties&gt;</span>
+           <span class="code-tag">&lt;property name=<span class="code-quote">"BrokerFactory"</span> value=<span class="code-quote">"abstractstore"</span>/&gt;</span>
+           <span class="code-tag">&lt;property name=<span class="code-quote">"abstractstore.AbstractStoreManager"</span> value=<span class="code-quote">"org.openspaces.jpa.StoreManager"</span>/&gt;</span>
+           <span class="code-tag">&lt;property name=<span class="code-quote">"LockManager"</span> value=<span class="code-quote">"none"</span>/&gt;</span>
+	<span class="code-tag">&lt;/properties&gt;</span>	
+<span class="code-tag">&lt;/persistence-unit&gt;</span></pre>
+</div></div>
+
+<h3><a name="JPASupport-SpaceConnectionInjection"></a>Space Connection Injection</h3>
+<p>Specifying a space connection URL or a space instance can be done in one of the following ways:</p>
+
+<h5><a name="JPASupport-ReferencinganExistingSpaceInstancethroughFactoryProperties"></a>Referencing an Existing Space Instance through Factory Properties</h5>
+<p>Specifying a space instance is possible when creating an <tt>EntityManagerFactory</tt> in the following way:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace gigaspace = ...
+Properties properties = <span class="code-keyword">new</span> Properties();
+properties.put(<span class="code-quote">"ConnectionFactory"</span>, gigaspace.getSpace());
+EntityManagerFactory emf = Persistence.createEntityManagerFactory(<span class="code-quote">"gigaspaces"</span>, properties);</pre>
+</div></div>
+
+<h5><a name="JPASupport-InjectionusingSpring"></a>Injection using Spring</h5>
+<p>It is possible to inject either an <tt>EntityManager</tt> or <tt>EntityManagerFactory</tt> using Spring. Before reading this, it is recommend that you <a href="http://static.springsource.org/spring/docs/3.0.x/reference/orm.html#orm-jpa">make yourself familiar with Spring's JPA support</a>. <br/>
+In the following example we'll see how to inject a space-based <tt>EntityManagerFactory</tt>.<br/>
+The following Spring xml configuration file declares a space, an <tt>EntityManagerFactory</tt>, a transaction manager and a JPA service bean (this is our DAO):</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+
+&lt;beans xmlns=<span class="code-quote">"http://www.springframework.org/schema/beans"</span>
+       <span class="code-keyword">xmlns:xsi</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema-instance"</span>
+       <span class="code-keyword">xmlns:os-core</span>=<span class="code-quote">"http://www.openspaces.org/schema/core"</span>
+       <span class="code-keyword">xmlns:tx</span>=<span class="code-quote">"http://www.springframework.org/schema/tx"</span>
+       <span class="code-keyword">xmlns:context</span>=<span class="code-quote">"http://www.springframework.org/schema/context"</span>
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.openspaces.org/schema/core http://www.openspaces.org/schema/core/openspaces-core.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"&gt;
+       
+	<span class="code-tag"><span class="code-comment">&lt;!-- space definition --&gt;</span></span>
+        <span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./jpaSpace"</span> lookup-groups=<span class="code-quote">"test"</span>/&gt;</span>
+
+        <span class="code-tag"><span class="code-comment">&lt;!-- JPA entity manager factory definition --&gt;</span></span>
+	<span class="code-tag">&lt;bean id=<span class="code-quote">"entityManagerFactory"</span> class=<span class="code-quote">"org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"</span>&gt;</span>
+                <span class="code-tag"><span class="code-comment">&lt;!-- this relies on the fact that our persistence.xml file defines a persistence unit named <span class="code-quote">"gigaspaces"</span> --&gt;</span></span>
+		<span class="code-tag">&lt;property name=<span class="code-quote">"persistenceUnitName"</span> value=<span class="code-quote">"gigaspaces"</span>/&gt;</span>
+		<span class="code-tag">&lt;property name=<span class="code-quote">"jpaVendorAdapter"</span>&gt;</span>
+			<span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.jpa.OpenSpacesJpaVendorAdapter"</span>&gt;</span>
+				<span class="code-tag">&lt;property name=<span class="code-quote">"space"</span> ref=<span class="code-quote">"space"</span>/&gt;</span>
+			<span class="code-tag">&lt;/bean&gt;</span>
+		<span class="code-tag">&lt;/property&gt;</span>
+	<span class="code-tag">&lt;/bean&gt;</span>	
+
+        <span class="code-tag"><span class="code-comment">&lt;!-- JPA transaction manager definition --&gt;</span></span>
+	<span class="code-tag">&lt;bean id=<span class="code-quote">"transactionManager"</span> class=<span class="code-quote">"org.springframework.orm.jpa.JpaTransactionManager"</span>&gt;</span>
+		<span class="code-tag">&lt;property name=<span class="code-quote">"entityManagerFactory"</span> ref=<span class="code-quote">"entityManagerFactory"</span> /&gt;</span>
+	<span class="code-tag">&lt;/bean&gt;</span>		
+
+        <span class="code-tag"><span class="code-comment">&lt;!-- support annotations --&gt;</span></span>
+	<span class="code-tag">&lt;bean class=<span class="code-quote">"org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"</span> /&gt;</span>	
+	<span class="code-tag">&lt;context:annotation-config/&gt;</span>	
+	<span class="code-tag">&lt;tx:annotation-driven transaction-manager=<span class="code-quote">"transactionManager"</span>/&gt;</span>
+
+        <span class="code-tag"><span class="code-comment">&lt;!-- JPA example service definition --&gt;</span></span>
+	<span class="code-tag">&lt;bean id=<span class="code-quote">"jpaService"</span> class=<span class="code-quote">"org.openspaces.jpa.JpaService"</span> /&gt;</span>
+<span class="code-tag">&lt;/beans&gt;</span></pre>
+</div></div>
+<p>Note that in our DAO, we'll have Spring inject the <tt>EntityManager</tt> using the <tt>@PersistentContext</tt> annotation. Spring will make sure to create an <tt>EntityManager</tt> using the <tt>EntityManagerFactory</tt> we have defined at the beginning of every transaction. </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Repository
+@Transactional
+<span class="code-keyword">public</span> class JpaService {
+    @PersistenceContext
+    <span class="code-keyword">private</span> EntityManager em;
+    
+    <span class="code-keyword">public</span> JpaService() {
+    }
+               
+    @Transactional
+    <span class="code-keyword">public</span> void persistObject() {            
+        em.persist(...);            
+    }
+}</pre>
+</div></div>
+
+<h5><a name="JPASupport-SpecifyingaconnectionURLusingtheConnectionURLproperty"></a>Specifying a connection URL using the ConnectionURL property</h5>
+
+<p>In your persistence.xml file set the ConnectionURL property. Note that in case of en embedded URL, this will actually create a new embedded space instance. </p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag"><span class="code-comment">&lt;!-- Embedded Space --&gt;</span></span>
+<span class="code-tag">&lt;property name=<span class="code-quote">"ConnectionURL"</span> value=<span class="code-quote">"/./jpaSpace"</span>/&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- Remote Space --&gt;</span></span>
+<span class="code-tag">&lt;property name=<span class="code-quote">"ConnectionURL"</span> value=<span class="code-quote">"jini://*/*/jpaSpace"</span>/&gt;</span></pre>
+</div></div>
+
+<p>Detailed information regarding persistence.xml can be found in <a href="http://openjpa.apache.org/builds/2.0.0/apache-openjpa-2.0.0/docs/manual/jpa_overview_persistence.html#jpa_overview_persistence_xml">OpenJPA's Manual</a>.</p>
+
+<h3><a name="JPASupport-ListingYourPersistentClasses"></a>Listing Your Persistent Classes</h3>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Information regarding Entities declaration can be found <a href="#JPASupport-GigaSpacesJPAEntities">here</a></td></tr></table></div>
+
+<p>When working with persistent classes, you have a number of ways to make the JPA layer aware of them: </p>
+<ul>
+	<li>When using Spring, this will be done automatically for you unless otherwise specified (see below). So Spring will scan you classpath looking for classes that have the <tt>@Entity</tt> annotation.</li>
+	<li>When not using Spring, you have two options:
+	<ul>
+		<li>Point to an <tt>orm.xml</tt> file your <tt>persistence.xml</tt> file
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;persistence-unit name=<span class="code-quote">"gigaspaces"</span> transaction-type=<span class="code-quote">"RESOURCE_LOCAL"</span>&gt;</span>
+    <span class="code-tag">&lt;mapping-file&gt;</span>META-INF/orm.xml<span class="code-tag">&lt;/mapping-file&gt;</span>
+    <span class="code-tag">&lt;exclude-unlisted-classes/&gt;</span>
+  <span class="code-tag">&lt;/persistence-unit&gt;</span></pre>
+</div></div></li>
+		<li>Use the <tt>&lt;class&gt;</tt> tag in your <tt>pesistence.xml</tt> file. For example, if you're going to use the classes: <tt>Trade</tt>, <tt>Book</tt> &amp; <tt>Author</tt>, you should list them in your <tt>persistence.xml</tt> file as follows:
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;persistence-unit name=<span class="code-quote">"gigaspaces"</span> transaction-type=<span class="code-quote">"RESOURCE_LOCAL"</span>&gt;</span>
+	<span class="code-tag">&lt;provider&gt;</span>org.apache.openjpa.persistence.PersistenceProviderImpl<span class="code-tag">&lt;/provider&gt;</span>
+        <span class="code-tag">&lt;class&gt;</span>org.openspaces.objects.Trade<span class="code-tag">&lt;/class&gt;</span>
+        <span class="code-tag">&lt;class&gt;</span>org.openspaces.objects.Book<span class="code-tag">&lt;/class&gt;</span>
+        <span class="code-tag">&lt;class&gt;</span>org.openspaces.objects.Author<span class="code-tag">&lt;/class&gt;</span>
+	<span class="code-tag">&lt;properties&gt;</span>
+           <span class="code-tag">&lt;property name=<span class="code-quote">"BrokerFactory"</span> value=<span class="code-quote">"abstractstore"</span>/&gt;</span>
+           <span class="code-tag">&lt;property name=<span class="code-quote">"abstractstore.AbstractStoreManager"</span> value=<span class="code-quote">"org.openspaces.jpa.StoreManager"</span>/&gt;</span>
+           <span class="code-tag">&lt;property name=<span class="code-quote">"LockManager"</span> value=<span class="code-quote">"none"</span>/&gt;</span>
+	<span class="code-tag">&lt;/properties&gt;</span>	
+<span class="code-tag">&lt;/persistence-unit&gt;</span></pre>
+</div></div></li>
+	</ul>
+	</li>
+</ul>
+
+
+<h3><a name="JPASupport-EnhancingYourClasses"></a>Enhancing Your Classes</h3>
+<p>JPA classes are monitored at runtime for automatic dirty detection. To be transparent to the user, this requires bytecode enhancement to take place.<br/>
+OpenJPA offers 3 options to do so:</p>
+<ol>
+	<li>Enhance at build time using an Ant or a Maven script.</li>
+	<li>Enahnce at runtime by using OpenJPA's javaagent enhancer.</li>
+	<li>When using Spring, you can <a href="http://static.springsource.org/spring/docs/3.0.x/reference/orm.html#orm-jpa-setup-lcemfb">specify a <tt>LoadTimeWeaver</tt></a> that will enhance the classes at load time. Note</li>
+</ol>
+
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Note that the first option (build time enhancement) is the best one in terms of performance and suitability for the GigaSpaces runtime environment.  <br/>
+Detailed information regarding how to enhance your entities can be found on <a href="http://openjpa.apache.org/entity-enhancement.html">OpenJPA's Entity Enhancement page</a>.</td></tr></table></div>
+
+<h1><a name="JPASupport-GigaSpacesJPAEntities"></a>GigaSpaces JPA Entities</h1>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>An entity class must meet the following requirements:
+<ol>
+	<li>The class must be annotated with the <tt>javax.persistence.Entity</tt> annotation.</li>
+	<li>The class must have a public no-argument constructor (the class may have other constructors).</li>
+	<li>GigaSpaces and JPA annotations can only be declared on Getters, NOT on fields.</li>
+</ol>
+</td></tr></table></div>
+
+<h3><a name="JPASupport-Annotations"></a>Annotations</h3>
+
+<p>GigaSpaces JPA Entities must have both JPA and GigaSpaces annotations for the following annotations:</p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>GigaSpaces</th>
+<th class='confluenceTh'>JPA</th>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>@SpaceId</tt></td>
+<td class='confluenceTd'> <tt>@Id/@EmbeddedId</tt></td>
+</tr>
+<tr>
+<td class='confluenceTd'> <tt>@SpaceExclude</tt></td>
+<td class='confluenceTd'> <tt>@Transient</tt></td>
+</tr>
+</tbody></table>
+
+<p>As with GigaSpaces POJOs, you may use the <tt>@SpaceIndex</tt> &amp; <tt>@SpaceRouting</tt> annotations with GigaSpaces JPA entities.</p>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Please note that indexes should only be declared in the owning entity of a relationship.<br/>
+Examples can be found on the <a href="JPA Relationships.html" title="JPA Relationships">JPA Relationships</a> page.</td></tr></table></div>
+
+<p>Here's an example of a basic JPA Entity:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Entity
+<span class="code-keyword">public</span> class Trade {
+  <span class="code-keyword">private</span> <span class="code-object">Long</span> id;
+  <span class="code-keyword">private</span> <span class="code-object">Double</span> quantity;
+  <span class="code-keyword">private</span> List&lt;<span class="code-object">Double</span>&gt; rates;
+  <span class="code-keyword">private</span> <span class="code-object">boolean</span> state;
+
+  <span class="code-comment">// Public no-argument constructor
+</span>  <span class="code-keyword">public</span> Trade() {
+  }
+
+  <span class="code-comment">// Both SpaceId and Id should be declared on the id property
+</span>  @Id
+  @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Long</span> getId() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.id;
+  }
+ 
+  <span class="code-comment">// Persistent property, no additional GigaSpaces annotations needs to be used.
+</span>  <span class="code-keyword">public</span> <span class="code-object">Double</span> getQuantity() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.quantity;
+  }
+
+  <span class="code-comment">// A persistent collection property. In <span class="code-keyword">this</span> <span class="code-keyword">case</span> we'll use a GigaSpaces annotation
+</span>  <span class="code-comment">// <span class="code-keyword">for</span> indexing its values.
+</span>  @ElementCollection
+  @SpaceIndex(path = <span class="code-quote">"[*]"</span>)
+  <span class="code-keyword">public</span> List&lt;<span class="code-object">Double</span>&gt; getRates() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.rates;
+  }
+  
+  <span class="code-comment">// A <span class="code-keyword">transient</span> property. In <span class="code-keyword">this</span> <span class="code-keyword">case</span> we'll use both GigaSpaces and JPA annotations
+</span>  @Transient
+  @SpaceExclude
+  <span class="code-keyword">public</span> <span class="code-object">boolean</span> getState() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.state;
+  }
+
+  /* Additional Getters &amp; Setters... */
+
+}</pre>
+</div></div>
+
+<p>For auto generated Id declaration and complex object Id declaration refer to <a href="JPA Entity Id.html" title="JPA Entity Id">JPA Entity Id</a>.</p>
+
+<p>Example of a JPA Owner entity with one to many relationship:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Entity
+<span class="code-keyword">public</span> class Owner {
+    <span class="code-comment">//
+</span>    <span class="code-keyword">private</span> <span class="code-object">Integer</span> id;
+    <span class="code-keyword">private</span> <span class="code-object">String</span> name;
+    <span class="code-keyword">private</span> List&lt;Pet&gt; pets;    
+    <span class="code-comment">//    
+</span>    <span class="code-keyword">public</span> Owner() {
+    }
+    <span class="code-keyword">public</span> Owner(<span class="code-object">Integer</span> id, <span class="code-object">String</span> name, List&lt;Pet&gt; pets) {
+        <span class="code-keyword">super</span>();
+        <span class="code-keyword">this</span>.id = id;
+        <span class="code-keyword">this</span>.name = name;
+        <span class="code-keyword">this</span>.pets = pets;
+    }
+    <span class="code-comment">//   
+</span>    @Id
+    @SpaceId
+    <span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {
+        <span class="code-keyword">return</span> id;
+    }
+    <span class="code-keyword">public</span> void setId(<span class="code-object">Integer</span> id) {
+        <span class="code-keyword">this</span>.id = id;
+    }
+
+    @SpaceRouting
+    <span class="code-keyword">public</span> <span class="code-object">String</span> getName() {
+        <span class="code-keyword">return</span> name;
+    }
+    <span class="code-keyword">public</span> void setName(<span class="code-object">String</span> name) {
+        <span class="code-keyword">this</span>.name = name;
+    }
+    @OneToMany(cascade = CascadeType.ALL)
+    <span class="code-keyword">public</span> List&lt;Pet&gt; getPets() {
+        <span class="code-keyword">return</span> pets;
+    }
+    <span class="code-keyword">public</span> void setPets(List&lt;Pet&gt; pets) {
+        <span class="code-keyword">this</span>.pets = pets;
+    }
+}</pre>
+</div></div>
+
+
+<h1><a name="JPASupport-JPAQueryLanguage%28JPQL%29"></a>JPA Query Language (JPQL)</h1>
+<p>GigaSpaces JPA supports a subset of JPQL. Here are a few example of the supported queries. </p>
+
+<h5><a name="JPASupport-QueryingonPropertiesofNestedObjects"></a>Querying on Properties of Nested Objects </h5>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">EntityManagerFactory emf = Persistence.createEntityManagerFactory(<span class="code-quote">"gigaspaces"</span>);
+EntityManager em = emf.createEntityManager();
+Query query = em.createQuery(<span class="code-quote">"SELECT c from org.openspaces.objects.Customer c WHERE c.address.country = 'United States'"</span>);
+List&lt;Customer&gt; customers = (List&lt;Customer&gt;) query.getResultList();
+em.close();
+emf.close();</pre>
+</div></div>
+
+<h5><a name="JPASupport-JOINsupportforonetomanyrelationship%28Owner%3EList%3CPet%3E%29"></a>JOIN support for one to many relationship (Owner --&gt; List&lt;Pet&gt;)</h5>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">EntityManagerFactory emf = Persistence.createEntityManagerFactory(<span class="code-quote">"gigaspaces"</span>);
+EntityManager em = emf.createEntityManager();
+Query query = em.createQuery(<span class="code-quote">"SELECT o FROM org.openspaces.objects.Owner o JOIN o.pets p WHERE p.name = :name"</span>);
+query.setParameter(<span class="code-quote">"name"</span>, <span class="code-quote">"Whiskey"</span>);
+Owner owner = (Owner) query.getSingleResult();
+em.close();
+emf.close();</pre>
+</div></div>
+
+<div class='panelMacro'><table class='infoMacro'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="images/icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>When specifying entity names in GigaSpaces JPQL the full class qualified name should be used as shown in the above examples.</td></tr></table></div>
+
+<h1><a name="JPASupport-PersistingCollectionProperties"></a>Persisting Collection Properties</h1>
+<p>It's possible to make a collection property persistent by using the <tt>@ElementCollection</tt> annotation.<br/>
+In the following example we have an entity with a collection of Integers:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Entity
+<span class="code-keyword">public</span> class Card {
+  <span class="code-comment">// ...
+</span>  
+  <span class="code-keyword">private</span> List&lt;<span class="code-object">Integer</span>&gt; numbers;
+  
+  @ElementCollection
+  @SpaceIndex(path = <span class="code-quote">"[*]"</span>) <span class="code-comment">// the list values will be indexed.  
+</span>  <span class="code-keyword">public</span> List&lt;<span class="code-object">Integer</span>&gt; getNumbers() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.numbers;
+  }
+  
+  <span class="code-keyword">public</span> void setNumbers(List&lt;<span class="code-object">Integer</span>&gt; numbers) {
+    <span class="code-keyword">this</span>.numbers = numbers;
+  }
+  
+  <span class="code-comment">// ...
+</span>}</pre>
+</div></div>
+
+<p>In order to query the Card entity using a specific Integer in the numbers collection we use JPQL's <tt>"MEMBER OF"</tt>:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">EntityManagerFactory emf = Persistence.createEntityManagerFactory(<span class="code-quote">"gigaspaces"</span>);
+EntityManager em = emf.createEntityManager();
+Query query = em.createQuery(<span class="code-quote">"SELECT c FROM org.openspaces.objects.Card c WHERE :number MEMBER OF c.numbers"</span>);
+query.setParameter(<span class="code-quote">"number"</span>, <span class="code-quote">"10"</span>);
+Card card = (Card) query.getSingleResult();
+em.close();
+emf.close();</pre>
+</div></div>
+
+<h1><a name="JPASupport-PersistingEnumProperties"></a>Persisting Enum Properties</h1>
+<p>JPA allows to persist Enum proeprties using the <tt>@Enumerated</tt> annotation, as shown below: </p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">// A Vehicle entity which has an Enum property
+</span>@Entity
+<span class="code-keyword">public</span> class Vehicle {
+  <span class="code-comment">// Enum Declaration
+</span>  <span class="code-keyword">public</span> <span class="code-keyword">enum</span> VehicleType { CAR, TRUCK, BIKE };
+  
+  <span class="code-keyword">private</span> <span class="code-object">Integer</span> id;
+  <span class="code-keyword">private</span> <span class="code-object">String</span> name;
+  <span class="code-keyword">private</span> VehicleType type;
+
+  <span class="code-keyword">public</span> Vehicle() {
+  }
+
+  @Id
+  @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.id;
+  }
+
+  <span class="code-keyword">public</span> <span class="code-object">String</span> getName() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.name;
+  }
+  
+  @Enumerated
+  <span class="code-keyword">public</span> VehicleType getType() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.type;
+  }
+
+  /* Additional Getters &amp; Setters */
+
+}</pre>
+</div></div>
+<p>We used the <tt>@Enumerated</tt> annotation for persisting an Enum property.<br/>
+Please note that specifying a value for the <tt>@Enumerated.value()</tt> attribute has no effect since Enums are saved in GigaSpaces as is.</p>
+
+<h5><a name="JPASupport-EnumsInJPQL"></a>Enums In JPQL</h5>
+<p>It's possible to query according to an Enum property by setting an Enum parameter or by using the Enum's value in the query string:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml">EntityManager em = emf.createEntityManager();
+
+// Query using an Enum parameter
+Query query1 = em.createQuery(<span class="code-quote">"SELECT vehicle FROM com.gigaspaces.objects.Vehicle vehicle WHERE vehicle.type = :type"</span>);
+query1.setParameter(<span class="code-quote">"type"</span>, VehicleType.CAR);
+Vehicle result1 = (Vehicle) query1.getSingleResult();
+
+// Query using an Enum in query's string
+Query query2 = em.createQuery(<span class="code-quote">"SELECT vehicle FROM com.gigaspaces.objects.Vehicle vehicle WHERE vehicle.type = 'BIKE'"</span>);
+Vehicle result2 = (Vehicle) query2.getSingleResult();</pre>
+</div></div>
+
+<h1><a name="JPASupport-Interoperability"></a>Interoperability</h1>
+
+<p>One of the nice benefits of the GigaSpaces JPA implementation is that its fully interoperable with the GigaSpaces <a href="POJO Support.html" title="POJO Support">native POJO API</a>.<br/>
+For instance, we can persist a JPA entity and read it using the native POJO-driven Space API:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">@Entity
+<span class="code-keyword">public</span> class Author {
+  <span class="code-keyword">private</span> <span class="code-object">Integer</span> id;
+  <span class="code-keyword">private</span> <span class="code-object">String</span> name;
+  <span class="code-keyword">private</span> List&lt;Book&gt; books;
+  
+  <span class="code-keyword">public</span> Author() {
+  }
+  
+  @Id
+  @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.id;
+  }
+    
+  <span class="code-keyword">public</span> <span class="code-object">String</span> getName() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.name;
+  }
+  
+  @OneToMany(cascade = CascadeType.ALL)
+  @SpaceIndex(path = <span class="code-quote">"[*].id"</span>)
+  <span class="code-keyword">public</span> List&lt;Book&gt; getBooks() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.books;
+  }
+ 
+  <span class="code-comment">// Additional Getters &amp; Setters...
+</span>  
+}
+
+
+@Entity
+<span class="code-keyword">public</span> class Book <span class="code-keyword">implements</span> Serializable {
+  <span class="code-keyword">private</span> <span class="code-object">Integer</span> id;
+  <span class="code-keyword">private</span> <span class="code-object">String</span> name;
+  
+  <span class="code-keyword">public</span> Book() {
+  }
+  
+  @Id
+  @SpaceId
+  <span class="code-keyword">public</span> <span class="code-object">Integer</span> getId() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.id;
+  }
+  
+  <span class="code-keyword">public</span> <span class="code-object">String</span> getName() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>.name;
+  }
+
+  <span class="code-comment">// Additional Getters &amp; Setters...
+</span>  
+}
+
+GigaSpace gigaspace = ...
+Book book1 = <span class="code-keyword">new</span> Book(10, <span class="code-quote">"Book Title 1"</span>);
+Book book2 = <span class="code-keyword">new</span> Book(20, <span class="code-quote">"Book Title 2"</span>);
+List&lt;Book&gt; books = <span class="code-keyword">new</span> ArrayList&lt;Book&gt;();
+books.add(book1);
+books.add(book2);
+Author author = <span class="code-keyword">new</span> Author();
+author.setId(1234);
+author.setBooks(books);
+
+<span class="code-comment">// Persist using GigaSpaces JPA..
+</span>Properties properties = <span class="code-keyword">new</span> Properties();
+properties.put(<span class="code-quote">"ConnectionFactory"</span>, gigaspace.getSpace());
+EntityManagerFactory emf = Persistence.createEntityManagerFactory(<span class="code-quote">"gigaspaces"</span>, properties);
+EntityManager em = emf.createEntityManager();
+em.getTransaction().begin();
+em.persist(author);
+em.getTransaction().commit();
+em.close();
+
+<span class="code-comment">// Read using Space API..
+</span>Author result = gigaspace.readById(Author.class, 1234);
+
+<span class="code-comment">// Or even SQLQuery..
+</span>SQLQuery&lt;Author&gt; query = <span class="code-keyword">new</span> SQLQuery&lt;Author&gt;(Author.class, <span class="code-quote">"id = 1234"</span>);
+result = gigaspace.read(query);
+
+<span class="code-comment">// Or by a certain book..
+</span>query = <span class="code-keyword">new</span> SQLQuery&lt;Author&gt;(Author.class, <span class="code-quote">"books[*].id = 10"</span>);
+result = gigaspace.read(query);</pre>
+</div></div>
+
+<h1><a name="JPASupport-GigaSpacesJPALimitations"></a>GigaSpaces JPA Limitations</h1>
+<p>For a list of unsupported JPA features and limitations please refer to <a href="GigaSpaces JPA Limitations.html" title="GigaSpaces JPA Limitations">GigaSpaces JPA Limitations</a>.</p>
+
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Terminology - Basic Components</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Terminology - Basic Components</h1>
+</div>
+<br>
+
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  GigaSpaces basic components. </p>
+</div>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Basic Components</th>
+<td class='confluenceTd'><a href="Terminology - Data Grid Topologies.html" title="Terminology - Data Grid Topologies">Data Grid Topologies</a></td>
+<td class='confluenceTd'><a href="Terminology - Space-Based Architecture.html" title="Terminology - Space-Based Architecture">Space-Based Architecture</a></td>
+<td class='confluenceTd'><a href="Terminology - Runtime Components.html" title="Terminology - Runtime Components">Runtime Components</a></td>
+</tr>
+</tbody></table>
+<h1><a name="Terminology-BasicComponents-BasicComponents"></a>Basic Components</h1>
+
+
+<p><a name="Terminology-BasicComponents-Space"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-BasicComponents-Space"></a>Space</h4>
+
+<p>The GigaSpaces cache instance that holds data objects in memory.</p>
+
+<p><sub>Key sentence: The space holds your data objects.</sub></p></td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_space.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A space holding objects</b></sub></p></div>
+</td></tr></tbody></table>
+<hr 
+ size="1" 
+ color="C9C9C9" 
+ >
+
+<p><a name="Terminology-BasicComponents-Read%2CWriteandTake"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-BasicComponents-Read%2CWriteandTake"></a>Read, Write and Take</h4>
+
+<p>A set of methods used to read, write, take, and register for notification on objects that are stored in the space. Read critera can be specified via a query or a template (an example object).</p>
+
+<p><sub>Key sentence: Interaction with the space is done using the read, write, update, take and notify methods.</sub></p></td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_verbs.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A client application uses the read, write, take, update and notify methods to exchange objects and receive notifications from the space</b></sub></p></div>
+</td></tr></tbody></table>
+<hr 
+ size="1" 
+ color="C9C9C9" 
+ >
+
+
+<p><a name="Terminology-BasicComponents-ServiceBean"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-BasicComponents-ServiceBean"></a>Service Bean</h4>
+
+<p>An application component that interacts with the space (using the read, write, take and notify operations), and implements a certain functionality.</p>
+
+<p><sub>Key sentence: The service bean interacts with the space to implement your application's logic.</sub></p></td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_service_bean.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Service Bean</b></sub></p></div>
+</td></tr></tbody></table>
+<hr 
+ size="1" 
+ color="C9C9C9" 
+ >
+
+<p><a name="Terminology-BasicComponents-ProcessingUnit"></a></p>
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-BasicComponents-ProcessingUnit"></a>Processing Unit</h4>
+
+<p>A combination of service beans and/or an embedded space instance. This is the fundamental unit of deployment in GigaSpaces XAP. The Processing Unit itself runs within a <a href="Terminology - Runtime Components.html#Terminology-RuntimeComponents-ProcessingUnitContainer">Processing Unit Container</a>, and is typically deployed onto the <a href="Terminology - Runtime Components.html#Terminology-RuntimeComponents-ServiceGrid">Service Grid</a>. Once a Processing Unit is deployed, a <b>Processing Unit instance</b> is the actual runtime entity.</p>
+</td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_empty_pu.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Processing Unit instance</b></sub></p></div>
+</td></tr></tbody></table>
+<h1><a name="Terminology-BasicComponents-DifferentProcessingUnitConfigurations"></a>Different Processing Unit Configurations</h1>
+
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-BasicComponents-ProcessingUnitconfiguredwithanembeddedspace"></a>Processing Unit configured with an embedded space</h4>
+
+<p>A deployable package which instantiates an embedded space instance, also called a data grid instance. A set of embedded space instances that run within the processing units typically form a <a href="Terminology - Data Grid Topologies.html" title="Terminology - Data Grid Topologies">Data Grid</a>. </p></td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_pu_with_space.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Processing Unit instance with an embedded space</b></sub></p></div>
+</td></tr></tbody></table>
+
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-BasicComponents-ProcessingUnitconfiguredwithoneofmoreservices"></a>Processing Unit configured with one of more services</h4>
+
+<p>A deployable package containing one or more services. In the GigaSpaces context, it usually acts as a client that interacts with other Processing Units by utilizing the messaging capabilities of the space. </p></td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_pu_with_bean.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Processing Unit instance containing a Service bean that interacts with a space embedded in another Processing Unit</b></sub></p></div>
+</td></tr></tbody></table>
+
+<table class="sectionMacro" border="0" cellpadding="5" cellspacing="0" width="100%"><tbody><tr>
+<td class="confluenceTd"  valign="top" width="50%">
+<h4><a name="Terminology-BasicComponents-ProcessingUnitconfiguredwithembeddedspaceandembeddedservices"></a>Processing Unit configured with embedded space and embedded services</h4>
+
+<p>A deployable, independent, scalable unit, which is the building block of <a href="Terminology - Space-Based Architecture.html" title="Terminology - Space-Based Architecture">Space-Based Architecture</a>.<br/>
+Client application (which can also be other processing units) write objects to the space, and the procesing unit which contains this space consumes these objects or is notified about them and triggeres a related services. </p></td>
+<td class="confluenceTd"  valign="top" width="30%">
+<div class="" align='center'>
+<p><img src="download/attachments/17301573/term_pu_with_space_and_bean.gif" align="absmiddle" border="0"/></p>
+
+<p><sub><b>A Processing Unit instance with an embedded service that interacts with an embedded space</b></sub></p></div>
+</td></tr></tbody></table>
+<p><br clear="all" />
+<br clear="all" /></p>
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Basic Components</th>
+<td class='confluenceTd'><a href="Terminology - Data Grid Topologies.html" title="Terminology - Data Grid Topologies">Data Grid Topologies</a></td>
+<td class='confluenceTd'><a href="Terminology - Space-Based Architecture.html" title="Terminology - Space-Based Architecture">Space-Based Architecture</a></td>
+<td class='confluenceTd'><a href="Terminology - Runtime Components.html" title="Terminology - Runtime Components">Runtime Components</a></td>
+</tr>
+</tbody></table>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>

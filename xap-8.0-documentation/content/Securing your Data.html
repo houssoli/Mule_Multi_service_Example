@@ -1,0 +1,612 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+     <head>
+         <title>XAP 8.0 Documentation : Securing your Data</title>
+<link rel="stylesheet" href="styles/site.css" type="text/css" />
+         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		 <style>
+.back-to {
+	color: #666666;
+	font-weight: bold;
+}	 
+a.back-to:link, a.back-to:visited, a.back-to:hover, a.back-to:active  {
+	color: #666666;
+}	 
+		 </style>
+     </head>
+
+     <body>
+<table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+<tr>
+<td valign="top" class="pagebody">
+<div class="pageheader">
+<span class="back-to">XAP 8.0 Documentation > <a href="index.html">Back to Table of Contents</a></span><br>
+<h1>Securing your Data</h1>
+</div>
+<br>
+
+<script type='text/javascript'>//<![CDATA[
+function debug() { }
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/browser.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/behaviour.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/memory.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/cloak.js'>//<![CDATA[
+// ]]></script><script type='text/javascript'>//<![CDATA[
+Cloak.closeHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_down_10.gif\'/>";
+Cloak.openHTML = "<img src=\'/wiki/download/resources/net.customware.confluence.plugin.composition:toggle-cloak/img/navigate_right_10.gif\'/>";
+Cloak.toggleZone = true;
+Cloak.memoryDuration = 0;
+Cloak.memoryPrefix = "contentId:53903624";
+Cloak.memoryPath = "/wiki/";
+// ]]></script><style type='text/css'>
+.cloakToggle { /* Definition for state toggling image */
+cursor:hand;
+cursor:pointer;
+}
+</style><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/transitions.js'>//<![CDATA[
+// ]]></script><script type='text/javascript' src='/wiki/download/resources/net.customware.confluence.plugin.composition:composition-setup/js/deck.js'>//<![CDATA[
+// ]]></script><link rel='stylesheet' type='text/css'  href='/wiki/styles/main-action.css?pluginCompleteKey=net.customware.confluence.plugin.composition:composition-setup&stylesheetName=deck&spaceKey=XAP8'/><script type='text/javascript'>//<![CDATA[
+Deck.memoryDuration = 0;
+Deck.memoryPrefix = "contentId:53903624";
+Deck.memoryPath = "/wiki/";
+// ]]></script>
+
+
+<div style="border-style:solid; border-color:#3C78B5; border-width:thin; padding-left:20px; padding-bottom:20px; padding-top:20px; padding-right:20px; background-color:#D8E4F1"> 
+
+<p><b>Section Summary:</b>  Secured Space, Processing Unit, Local Cache/View, Space Filters, Task Execution/Executors, Event Driven Remoting, JDBC </p>
+</div>
+
+<h1><a name="SecuringyourData-SecuredSpace"></a>Secured Space</h1>
+
+<p>A secured embedded Space protects access (to data) which is granted only to users with sufficient privileges. When a remote Space proxy connects to a secured Space, it must provide security credentials (usually username and password - see <a href="Custom Security.html" title="Custom Security">Custom Security</a> for extensions).</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="SecuringyourData-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"jini://*/*/space"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:security username=<span class="code-quote">"sa"</span> password=<span class="code-quote">"adaw@##$"</span> /&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"securityConfig"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.core.space.SecurityConfig"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"username"</span> value=<span class="code-quote">"sa"</span> /&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"password"</span> value=<span class="code-quote">"adaw@##$"</span> /&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UrlSpaceConfigurer urlSpaceConfigurer = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>).userDetails(<span class="code-quote">"sa"</span>, <span class="code-quote">"adaw@##$"</span>);
+</span>GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(urlSpaceConfigurer).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p>An embedded Space may be configured with internal services (Space filters, Notify/Polling Containers, etc.) which must have privileges to operate on the embedded Space. These privileges are propagated by the security credentials provided when creating a Space.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="SecuringyourData-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:security username=<span class="code-quote">"sa"</span> password=<span class="code-quote">"adaw@##$"</span> /&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"securityConfig"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.core.space.SecurityConfig"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"username"</span> value=<span class="code-quote">"sa"</span> /&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"password"</span> value=<span class="code-quote">"adaw@##$"</span> /&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>The security credentials can be either be supplied as an <tt>UserDetails</tt> object or in its simpler form of two Strings (username and password).<br/>
+These will be used to <em>implicitly</em> create a <b><tt>secured</tt></b> Space, with security privileges being propagated to internal services.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UrlSpaceConfigurer urlSpaceConfigurer = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space"</span>).userDetails(<span class="code-quote">"user"</span>, <span class="code-quote">"password"</span>);
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(urlSpaceConfigurer).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p>An embedded Space with no internal services, can be simply configured as secured.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="SecuringyourData-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:security secured=<span class="code-quote">"true"</span> /&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-PlainXML"></a>Plain XML</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"space"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"/./space"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"secured"</span> value=<span class="code-quote">"true"</span> /&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-Code"></a>Code</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>The <b><tt>secured</tt></b> Space URL property indicates that the Space being created should be secured.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UrlSpaceConfigurer urlSpaceConfigurer = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space?secured"</span>);
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(urlSpaceConfigurer).gigaSpace();</pre>
+</div></div>
+
+<p>The <b><tt>secured</tt></b> URL property is also exposed as a convenient <tt>.secured(true)</tt> method call.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UrlSpaceConfigurer urlSpaceConfigurer = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"/./space"</span>).secured(<span class="code-keyword">true</span>);
+GigaSpace gigaSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(urlSpaceConfigurer).gigaSpace();</pre>
+</div></div>
+</div></div>
+
+<p>For security reasons, you may not want to expose the security credentials in your processing unit XML (pu.xml). These properties can be supplied as deploy time properties (bean level properties).</p>
+
+<h1><a name="SecuringyourData-ProcessingUnit"></a>Processing Unit</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Configuring Processing Unit Elements.html" title="Configuring Processing Unit Elements">Configuring Processing Unit Elements</a>, <a href="The Space Component.html" title="The Space Component">Configuring the Space</a></p>
+
+<p>A processing unit by itself is not secured. It inherits its security from the managing GSM and GSC. These protect the processing unit from being restarted, relocated, destroyed, and undeployed.</p>
+
+<p>A processing unit (for example a feeder application) may access a secured Space using a remote Space proxy.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;os-core:space id=<span class="code-quote">"mySpace"</span> url=<span class="code-quote">"jini://*/*/mySpace"</span>&gt;</span>
+    <span class="code-tag">&lt;os-core:security username=<span class="code-quote">"sa"</span> password=<span class="code-quote">"adaw@##$"</span> /&gt;</span>
+<span class="code-tag">&lt;/os-core:space&gt;</span></pre>
+</div></div>
+
+<p>The <tt>username</tt> and <tt>password</tt> can also be supplied using a <tt>pu.properties</tt> file supplied during deployment. If these are supplied, they will be used to <em>implicitly</em> connect to a <b><tt>secured</tt></b> Space, returning an authenticated proxy for this user.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">#pu.properties
+security.username=user
+security.password=password</pre>
+</div></div>
+
+<p>The <tt>security.username</tt> and <tt>security.password</tt> are constant property keys. If you would like to set ${mySpace.username} and ${mySpace.password} you will need to use plain XML configuration.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-xml"><span class="code-tag">&lt;bean id=<span class="code-quote">"mySpace"</span> class=<span class="code-quote">"org.openspaces.core.space.UrlSpaceFactoryBean"</span>&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"url"</span> value=<span class="code-quote">"jini://*/*/mySpace"</span> /&gt;</span>
+    <span class="code-tag">&lt;property name=<span class="code-quote">"securityConfig"</span>&gt;</span>
+        <span class="code-tag">&lt;bean class=<span class="code-quote">"org.openspaces.core.space.SecurityConfig"</span>&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"username"</span> value=<span class="code-quote">"${mySpace.username}"</span> /&gt;</span>
+            <span class="code-tag">&lt;property name=<span class="code-quote">"password"</span> value=<span class="code-quote">"${mySpace.password}"</span> /&gt;</span>
+        <span class="code-tag">&lt;/bean&gt;</span>
+    <span class="code-tag">&lt;/property&gt;</span>
+<span class="code-tag">&lt;/bean&gt;</span></pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Of course, having the username and password exposed (in pu.xml/pu.properties) isn't that "secure". A preferred usage would be to supply the credentials <b>during deployment</b>. The <em>UI</em>, <em>CLI</em> and <em>Admin API</em> provide a comprehensive support for deploying a secured processing unit.</p>
+
+<h1><a name="SecuringyourData-LocalCache"></a>Local Cache</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Local View and Local Cache.html" title="Local View and Local Cache">Local Cache</a></p>
+
+<p>The local cache is a read-only service on top of a remote Space. Thus, the local cache "creator" needs to have <b>Read</b> privileges.<br/>
+Security is enforced by the remote Space, and the proxy should be acquired by supplying the username and password.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="SecuringyourData-LocalCacheConfigurer"></a>Local Cache Configurer</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UrlSpaceConfigurer urlSpaceConfigurer = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>).userDetails(<span class="code-quote">"user"</span>, <span class="code-quote">"password"</span>);
+</span>GigaSpace remoteSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(urlSpaceConfigurer).gigaSpace();
+
+LocalCacheSpaceConfigurer configurer = <span class="code-keyword">new</span> LocalCacheSpaceConfigurer(remoteSpace.getSpace()).updateMode(UpdateMode.PULL);
+GigaSpace localCache = <span class="code-keyword">new</span> GigaSpaceConfigurer(configurer.localCache()).gigaSpace();</pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-LocalCacheNamespace"></a>Local Cache Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"remoteSpace"</span> url=<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span> &gt;
+</span>    &lt;os-core:security username=<span class="code-quote">"user"</span> password=<span class="code-quote">"password"</span>/&gt;
+&lt;/os-core:space&gt;
+
+&lt;os-core:local-cache id=<span class="code-quote">"localCacheSpace"</span> space=<span class="code-quote">"remoteSpace"</span> update-mode=<span class="code-quote">"PULL"</span>/&gt;
+
+&lt;!--
+ OpenSpaces simplified Space API built on top of IJSpace/JavaSpace.
+--&gt;
+&lt;os-core:giga-space id=<span class="code-quote">"localCache"</span> space=<span class="code-quote">"localCacheSpace"</span>/&gt;</pre>
+</div></div>
+</div></div>
+
+<h1><a name="SecuringyourData-LocalView"></a>Local View</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Local View and Local Cache.html" title="Local View and Local Cache">Local View</a></p>
+
+<p>Similar to a Local Cache, the Local View is a read-only service on top of a remote Space. Here, the cache is limited to Views. Thus, the local view "creator" needs to have <b>Read</b> privileges for the specific views. For example, needs to have <b>Read</b> privileges for both <tt>Trade</tt> and <tt>Stock</tt> classes, otherwise access will be denied.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="SecuringyourData-LocalViewConfigurer"></a>Local View Configurer</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">UrlSpaceConfigurer urlSpaceConfigurer = <span class="code-keyword">new</span> UrlSpaceConfigurer(<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span>).userDetails(<span class="code-quote">"user"</span>, <span class="code-quote">"password"</span>);
+</span>GigaSpace remoteSpace = <span class="code-keyword">new</span> GigaSpaceConfigurer(urlSpaceConfigurer).gigaSpace();
+
+LocalViewSpaceConfigurer configurer = <span class="code-keyword">new</span> LocalViewSpaceConfigurer(remoteSpace.getSpace())
+ .addView(<span class="code-keyword">new</span> View(Trade.class, <span class="code-quote">"quantity = 20"</span>))
+ .addView(<span class="code-keyword">new</span> View(Stock.class, <span class="code-quote">"stockId =&gt; 10"</span>));
+
+GigaSpace localView = <span class="code-keyword">new</span> GigaSpaceConfigurer(configurer.localView()).gigaSpace();</pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-LocalViewNamespace"></a>Local View Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;os-core:space id=<span class="code-quote">"remoteSpace"</span> url=<span class="code-quote">"jini:<span class="code-comment">//*/*/space"</span> &gt;
+</span>   &lt;os-core:security username=<span class="code-quote">"user"</span> password=<span class="code-quote">"password"</span>/&gt;
+&lt;/os-core:space&gt;
+
+&lt;os-core:local-view id=<span class="code-quote">"localViewSpace"</span> space=<span class="code-quote">"space"</span>&gt;
+   &lt;os-core:view-query where=<span class="code-quote">"quantity = 20"</span> class=<span class="code-quote">"...Trade"</span>/&gt;
+   &lt;os-core:view-query where=<span class="code-quote">"stockId =&gt; 10"</span> class=<span class="code-quote">"...Stock"</span>/&gt;
+&lt;/os-core:local-view&gt;
+
+&lt;!--
+ OpenSpaces simplified Space API built on top of IJSpace/JavaSpace.
+--&gt;
+&lt;os-core:giga-space id=<span class="code-quote">"localView"</span> space=<span class="code-quote">"localViewSpace"</span>/&gt;</pre>
+</div></div>
+</div></div>
+
+<h1><a name="SecuringyourData-SpaceFilters"></a>Space Filters</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="The Space Component.html#TheSpaceComponent-TheSpaceComponentSpaceFilters">OpenSpaces Space Filter support</a>, <a href="Space Filters.html" title="Space Filters">ISpaceFilters </a></p>
+
+<p>Filters are interceptors inside the GigaSpaces Space which allow implementation of user-defined logic based on Space events. Some filters need to perform operations on the embedded Space. If secured, the filter needs to have sufficient privileges for its operations.</p>
+
+<p>The username and password supplied when creating a Space, will be used to <em>implicitly</em> create a <b><tt>secured</tt></b> Space. The security privileges of the specified user will be propagated to the Filter. If the user has <b>Read</b> privileges, then the filter will be able to perform a <tt>space.read(..)</tt> on its embedded Space.</p>
+
+<h4><a name="SecuringyourData-BeforeAuthenticationoperation"></a>Before Authentication operation</h4>
+
+<p>A filter can be registered for <tt>before-authentication</tt> events. Before a client tries to authenticate, any filter with the <tt>before-authentication</tt> operation-code will be invoked. The <tt>SpaceContext</tt> supplied as part of the call holds a <tt>SecurityContext</tt> that has the <tt>UserDetails</tt> object.</p>
+
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="SecuringyourData-Namespace"></a>Namespace</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>The following Spring configuration registers this filter for <tt>before-authentication</tt> (6) operation:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"simpleISpaceFilter"</span> class=<span class="code-quote">"eg.SimpleISpaceFilter"</span> /&gt;
+
+&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;
+    &lt;os-core:security secured=<span class="code-quote">"<span class="code-keyword">true</span>"</span>/&gt;
+    &lt;os-core:space-filter&gt;
+        &lt;os-core:filter ref=<span class="code-quote">"simpleISpaceFilter"</span> /&gt;
+        &lt;os-core:operation code=<span class="code-quote">"6"</span> /&gt;
+        ...
+    &lt;/os-core:space-filter&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-Annotations"></a>Annotations</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>An example of a simple POJO filter using annotations:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"simpleFilter"</span> class=<span class="code-quote">"eg.SimpleFilter"</span> /&gt;
+
+&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;
+	&lt;os-core:security secured=<span class="code-quote">"<span class="code-keyword">true</span>"</span>/&gt;
+	&lt;os-core:annotation-adapter-filter priority=<span class="code-quote">"1"</span>&gt;
+		&lt;os-core:filter ref=<span class="code-quote">"simpleFilter"</span> /&gt;
+	&lt;/os-core:annotation-adapter-filter&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+<p><b>Note</b> that the annotated method must have the <tt>SpaceContext</tt> as a parameter.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-comment">//Delegate Filter
+</span><span class="code-keyword">public</span> class SimpleFilter {
+
+    @BeforeAuthentication
+    <span class="code-keyword">public</span> void beforeAuthenticationMethod(SpaceContext context) {
+        SecurityContext securityContext = context.getSecurityContext();
+        UserDetails user = securityContext.getUserDetails();
+        AuditDetails audit = securityContext.getAuditDetails();
+        <span class="code-object">System</span>.out.println(<span class="code-quote">"user: "</span> + user.getUsername() + <span class="code-quote">" connecting from host: "</span> + audit.getHost());
+    }
+    
+    ...
+}</pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-Methodlistings"></a>Method listings</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<p>The following Spring configuration XML shows how the filter can be configured, using explicit method listings. (In this case, annotations are not required.)<br/>
+Note the <tt>before-authentication</tt> method adapter.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"simpleFilter"</span> class=<span class="code-quote">"eg.SimpleFilter"</span> /&gt;
+
+&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;
+    &lt;os-core:security secured=<span class="code-quote">"<span class="code-keyword">true</span>"</span>/&gt;
+    &lt;os-core:method-adapter-filter before-authentication=<span class="code-quote">"beforeAuthenticationMethod"</span>&gt;
+        &lt;os-core:filter ref=<span class="code-quote">"simpleFilter"</span>/&gt;
+    &lt;/os-core:method-adapter-filter&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-Embeddedspaceoperations"></a>Embedded-space operations</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+
+<p><em>Implicitly</em> create a <b><tt>secured</tt></b> Space, with security privileges being propagated to the filter.<br/>
+These privileges need to be sufficient for operations being perform by the filter on the embedded Space.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;!-- pu.xml --&gt;
+&lt;bean id=<span class="code-quote">"simpleFilter"</span> class=<span class="code-quote">"eg.SimpleFilter"</span> /&gt;
+
+&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;
+   &lt;os-core:security username=<span class="code-quote">"user"</span> password=<span class="code-quote">"password"</span>/&gt;
+   &lt;os-core:method-adapter-filter filter-init=<span class="code-quote">"init"</span>
+                                  before-write=<span class="code-quote">"beforeWrite"</span>&gt;
+        &lt;os-core:filter ref=<span class="code-quote">"simpleFilter"</span>/&gt;
+   &lt;/os-core:method-adapter-filter&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+<p>The filter acquires a GigaSpaces reference on filter initialization. Now the filter can perform operations on the embedded secured Space.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class SimpleFilter {
+
+    GigaSpace gigaSpace;
+
+    @OnFilterInit
+    void init(IJSpace space) {
+        gigaSpace= <span class="code-keyword">new</span> GigaSpaceConfigurer(space).gigaSpace();
+    }
+
+    @BeforeWrite
+    <span class="code-keyword">public</span> void beforeWrite(Data data) {
+        <span class="code-object">int</span> seq = gigaSpace.count(<span class="code-keyword">new</span> Data()); <span class="code-comment">//Needs 'Read' privileges <span class="code-keyword">for</span> 'count' operation
+</span>        data.setSeq( seq++);
+        data.setTimestamp( <span class="code-keyword">new</span> Date());
+    }</pre>
+</div></div>
+</div></div>
+
+<h1><a name="SecuringyourData-CustomAccessControl"></a>Custom Access Control</h1>
+<p>Custom Access control using Space Filters allows for access decisions based on user/role/data relationships. The <tt>SpaceContext</tt> filter invocation parameter holds the <tt>SecurityContext</tt> of the current operation. This context provides you with <tt>UserDetails</tt>, the <tt>Authentication</tt> and <tt>AuditDetails</tt>. Based on these, you can enforce custom access decisions.</p>
+
+<p><img class="emoticon" src="images/icons/emoticons/warning.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> Note that the <tt>SpaceContext</tt> may be <tt>null</tt> in cases related to replication/recovery and filter operations such as "<tt>notify-trigger</tt>". In these cases, there is no user context.</p>
+
+<p>The filter can be declared just like any other filter, but note that the <tt>priority</tt> plays a role in the order of filter execution. Default priority is zero.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">&lt;bean id=<span class="code-quote">"customAccessControlFilter"</span> class=<span class="code-quote">"example.CustomAccessControlFilter"</span> /&gt;
+
+&lt;os-core:space id=<span class="code-quote">"space"</span> url=<span class="code-quote">"/./space"</span>&gt;
+	&lt;os-core:security secured=<span class="code-quote">"<span class="code-keyword">true</span>"</span>/&gt;
+	&lt;os-core:annotation-adapter-filter priority=<span class="code-quote">"0"</span>&gt;
+		&lt;os-core:filter ref=<span class="code-quote">"customAccessControlFilter"</span> /&gt;
+	&lt;/os-core:annotation-adapter-filter&gt;
+&lt;/os-core:space&gt;</pre>
+</div></div>
+
+<p>Usage examples:</p>
+
+<div class="panel" style="background-color: #FFFFFF;border-color: #3C78B5;border-style: solid;border-width: 1px;"><div class="panelContent" style="background-color: #FFFFFF;">
+<h5><a name="SecuringyourData-Accessbasedonusername"></a>Access based on user name</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class CustomAccessControlFilter {
+    ...
+    @BeforeRead
+    <span class="code-keyword">public</span> void beforeRead(Account account, <span class="code-object">int</span> operationCode, SpaceContext context) {
+        SecurityContext securityContext = context.getSecurityContext();
+        UserDetails user = securityContext.getUserDetails();
+
+        /*
+         * only owner of an account can have access to his/her record data
+         */
+        <span class="code-keyword">if</span> (!user.getUsername().equals(account.getOwner())) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> AccessDeniedException(<span class="code-quote">"you are not the account owner!"</span>);
+        }
+    }
+...
+}</pre>
+</div></div>
+
+
+<h5><a name="SecuringyourData-Accessbasedonrole%26fielddata"></a>Access based on role &amp; field data</h5>
+<hr 
+ size="1" 
+ color="#3C78B5" 
+ >
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">public</span> class CustomAccessControlFilter {
+    ...
+    @BeforeWrite
+    <span class="code-keyword">public</span> void beforeWrite(Account account, <span class="code-object">int</span> operationCode, SpaceContext context) {
+        SecurityContext securityContext = context.getSecurityContext();
+        GrantedAuthorities authorities = securityContext.getAuthentication().getGrantedAuthorities();
+
+        /*
+         * <span class="code-quote">"accountants"</span> can only create an account with an initial balance of $500
+         */
+        <span class="code-keyword">if</span> (authorities.isUserInRole(<span class="code-quote">"accountants"</span>) &amp;&amp; account.getBalance() &gt; 500) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> AccessDeniedException(<span class="code-quote">"don't be greedy!"</span>);
+        }
+    }
+...
+}</pre>
+</div></div>
+</div></div>
+
+<h1><a name="SecuringyourData-TaskExecutionovertheSpace"></a>Task Execution over the Space</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Task Execution over the Space.html" title="Task Execution over the Space">Executors</a></p>
+
+<p>Tasks can be executed in a collocated asynchronous manner within the Space (processing unit with an embedded Space). To execute a task, you must have <b>Execute</b> privileges. Execution can be restricted to certain tasks by applying the 'Class-Filter'. There is no need to define specific privileges for operations being performed by the task on the Space.</p>
+
+<p>Here is a simple implementation of a task that performs a 'count' operation on the space.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">final</span> class MyTask <span class="code-keyword">implements</span> Task&lt;<span class="code-object">Integer</span>&gt; {
+   @TaskGigaSpace
+   <span class="code-keyword">transient</span> GigaSpace gigaSpace;
+
+   <span class="code-keyword">public</span> <span class="code-object">Integer</span> execute() <span class="code-keyword">throws</span> Exception {
+      <span class="code-keyword">return</span> gigaSpace.count(<span class="code-keyword">null</span>,<span class="code-keyword">null</span>);
+   };
+}</pre>
+</div></div>
+
+<p>While executed tasks are effective when collocated, you may require operations on the Cluster.</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">GigaSpace clustered = gigaSpace.getClustered();</pre>
+</div></div>
+
+<h1><a name="SecuringyourData-ExecutorsBasedRemoting"></a>Executors Based Remoting</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Executor Based Remoting.html" title="Executor Based Remoting">Executors Based Remoting</a></p>
+
+<p>Executor Remoting allows you to use remote invocations of POJO services, with the Space as the transport layer using OpenSpaces Executors. To invoke a service method, you must have <b>Execute</b> privileges for class <tt>org.openspaces.remoting.ExecutorRemotingTask</tt>.</p>
+
+<h1><a name="SecuringyourData-EventDrivenRemoting"></a>Event Driven Remoting</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="Event Driven Remoting.html" title="Event Driven Remoting">Event Driven Remoting</a></p>
+
+<p>Event Driven Remoting allows you to use remote invocations of POJO services, with the space as the transport layer using a polling container on the space side to process the invocations. Under the wires, event driven remoting uses the Space write and take capabilities. Thus, you must have <b>Write</b> and <b>Take</b> privileges (at both ends) for class <tt>org.openspaces.remoting.EventDrivenSpaceRemotingEntry</tt>.</p>
+
+<h1><a name="SecuringyourData-JDBCDriver"></a>JDBC Driver</h1>
+<p><img src="download/attachments/19890517/referto.gif" align="absmiddle" border="0"/> <a href="JDBC Driver.html" title="JDBC Driver">JDBC Driver</a></p>
+
+<p>GigaSpaces allows applications to connect using a JDBC driver. A GigaSpaces JDBC driver accepts SQL statements, translates them to Space operations, and returns standard result sets. To acquire a connection to a remote secured space, provide the credentials (username and password) as parameters to the connection.</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java"><span class="code-object">Class</span>.forName(<span class="code-quote">"com.j_spaces.jdbc.driver.GDriver"</span>).newInstance();
+<span class="code-object">String</span> url = <span class="code-quote">"jdbc:gigaspaces:url:jini:<span class="code-comment">//*/*/space"</span>;
+</span>Connection conn = DriverManager.getConnection(url, <span class="code-quote">"user"</span>, <span class="code-quote">"password"</span>);
+Statement st = conn.createStatement();
+...</pre>
+</div></div>
+
+<p><img class="emoticon" src="images/icons/emoticons/information.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> An alternative way of querying the Space using SQL syntax is the <a href="SQLQuery.html" title="SQLQuery">SQLQuery</a> class, with a privileged GigaSpace proxy.</p>
+
+                     </td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td height="12" background="http://www.gigaspaces.com/wiki/images/border/border_bottom.gif"><img src="images/border/spacer.gif" width="1" height="1" border="0"/></td>
+</tr>
+<tr>
+<td align="center"><font color="grey"><a href="http://www.gigaspaces.com">GigaSpaces.com</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xwBmAg" class="smalltext">Legal Notice</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/xgBmAg" class="smalltext">3rd Party Licenses</a> -
+		<a href="http://www.gigaspaces.com/wiki/x/BQFmAg" class="smalltext">Site Map</a> -
+		<a href="http://www.gigaspaces.com/wiki/display/API/API+Documentation+Portal" class="version-link">API Docs</a> -
+		<a href="http://forum.openspaces.org/forum.jspa?forumID=175" class="version-link">Forum</a> -
+		<a href="http://www.gigaspaces.com/LatestProductVersion" class="version-link">Downloads</a> -
+		<a href="http://blog.gigaspaces.com/" class="version-link">Blog</a> -
+		<a href="http://www.gigaspaces.com/os_papers.html" class="version-link">White Papers</a> -
+		<a href="mailto:techw@gigaspaces.com">Contact Tech Writing</a> -
+		<i><a href="http://www.atlassian.com/software/confluence">Gen. by Atlassian Confluence</a></i></font></td>
+</tr>
+</table>
+     </body>
+</html>
